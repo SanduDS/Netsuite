@@ -73,11 +73,19 @@ public type GetListResponse record {
 };
 
 public type GetResponse record {
-    json list;
-    boolean isSuccess;
+    json list?;
+    boolean isSuccess?;
+    Invoice invoice?;
+
 };
 
 public type GetReqestFeild record {|
     string internalId;
     string recordType;
 |};
+
+public type TrasactionSearchResponse record {
+    Invoice[] invoices?;
+    json[] payload?;
+    boolean isSuccess;
+};

@@ -27,7 +27,6 @@ import ballerina/lang.'map as mapLib;
 isolated function getCurrrenttime() returns int {
     time:Time now = time:currentTime();
     int milliSecond = checkpanic time:getMilliSecond(now);
-    log:print("time :" + milliSecond.toString());
     return milliSecond;
 
 }
@@ -44,13 +43,11 @@ isolated function getNetsuiteSignature(string timeNow, string UUID, NetsuiteConf
     };
     log:print(tokenData.toString());
     string token = check generateSignature(tokenData);
-    log:print(token.toString());
     return token;
 }
 
 isolated function getRandomString() returns string {
     string uuid1String = uuid:createType1AsString();
-    log:print("UUID of type 1 as a string: " + uuid1String);
     return regex:replaceAll(uuid1String, "-", "s");
 }
 
@@ -81,7 +78,6 @@ isolated function buildGetAllPayload(string recordType, NetsuiteConfiguration co
     string body = string `<soapenv:Body><urn:getAll><record recordType="${recordType}"/></urn:getAll></soapenv:Body>
     </soapenv:Envelope>`;
     string payload = header + body;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
@@ -93,7 +89,6 @@ isolated function buildGetListPayload(GetListReqestFeild|GetListReqestFeild[] re
     string body = string `<soapenv:Body><urn:getList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${elements}
     </urn:getList></soapenv:Body></soapenv:Envelope>`;
     string payload = header + body;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
@@ -104,7 +99,6 @@ isolated function buildGetPayload(GetReqestFeild records, NetsuiteConfiguration 
     string body = string `<soapenv:Body><urn:get xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${elements}
     </urn:get></soapenv:Body></soapenv:Envelope>`;
     string payload = header + body;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
@@ -113,8 +107,7 @@ isolated function getListElements(GetReqestFeild|GetListReqestFeild|GetListReqes
     string elements = "";
     if(records is GetListReqestFeild[]) {
         foreach GetListReqestFeild item in records {
-            elements = elements + string `<urn:baseRef internalId="${item.internalId.toString()}" 
-            type="${item.recordType.toString()}" xsi:type="urn1:RecordRef"/>`;
+            elements = elements + string `<urn:baseRef internalId="${item.internalId.toString()}" type="${item.recordType.toString()}" xsi:type="urn1:RecordRef"/>`;
         }
     } else {
         elements = string `<urn:baseRef internalId="${records.internalId.toString()}" 
@@ -128,7 +121,6 @@ isolated function builGetSavedSearchPayload(string recordType, NetsuiteConfigura
     string body = string`<soapenv:Body><urn:getSavedSearch><urn:record searchType="${recordType}"/></urn:getSavedSearch>
     </soapenv:Body></soapenv:Envelope>`;
     string payload = header + body;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
@@ -138,7 +130,6 @@ function buildCustomerSearchPayload(NetsuiteConfiguration config, SearchField[] 
     string searchElements = check setInternalXmlSearchElement(searchData, customerSearchParts);
     string completeBody = setCustomerSearchRequestBody(searchElements);
     string payload = header + completeBody;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
@@ -148,15 +139,19 @@ function buildTransactionSearchPayload(NetsuiteConfiguration config, SearchField
     string searchElements = check setInternalXmlSearchElement(searchData, TRANSACTION_SEARCH_PARTS);
     string completeBody = setTrasactionRequestBody(searchElements);
     string payload = header + completeBody;
-    log:print(payload);
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-isolated function formatRawJsonResponse(json rawResponse) returns json|error{
+isolated function formatRawJsonResponse(json rawResponse) returns json|error {
     string step = regex:replaceAll(value:toJsonString(rawResponse), "\"@", "\"");
-    return value:fromJsonString(step);
+    string steptwo = regex:replaceAll(value:toJsonString(step), "xsi:type", "xsi_type");
+    string stepthree = regex:replaceAll(value:toJsonString(steptwo), "\"tranSales:", "\"tranSales_");
+    return value:fromJsonString(stepthree);
+}
 
+isolated function formatCustomJsons(json value, string valueToRemove, string valueToReplace) returns json|error {
+    return value:fromJsonString(regex:replaceAll(value:toJsonString(value), valueToRemove, valueToReplace));
 }
 
 isolated function formatRawXMLesponse(xml rawResponse) returns xml|error {
@@ -193,7 +188,6 @@ isolated function buildHeader(NetsuiteConfiguration config) returns string|error
     string timeToSend = stringLib:substring(timeNow.time.toString(), 0, 10);
     string uuid = getRandomString();
     string signature = check getNetsuiteSignature(timeToSend, uuid, config);
-    log:print("signature : " + signature);
     string payload = string `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
     xmlns:urn="urn:messages_2020_2.platform.webservices.netsuite.com" 
     xmlns:urn1="urn:core_2020_2.platform.webservices.netsuite.com">
@@ -225,6 +219,8 @@ isolated function setInternalXmlSearchElement(SearchField[] searchfields, map<st
                     basicSearchElement =  basicSearchElement + check getDateFieldElement(item);
                 } else if (fieldType == "SearchDoubleField") {
                     basicSearchElement =  basicSearchElement + check getSearchDoubleFieldElemet(item);
+                } else if (fieldType == "SearchEnumMultiSelectField") {
+                    basicSearchElement =  basicSearchElement + getSearchEnumMultiSelectField(item);
                 }
             } else if(elementName == "" && (item.operator.toString() == ANYOF || item.operator.toString() == NONEOF)) {
                 basicSearchElement =  basicSearchElement  + getNonOperatorElement(item);
@@ -256,7 +252,7 @@ isolated function getSearchMultiSelectFieldElement(SearchField item) returns str
     //string searchMultiSelectFieldTemplate = string `<${item?.elementName.toString()}  operator="${item.operator.toString()}" xsi:type="urn1:SearchMultiSelectField">    <urn1:searchValue xsi:type="urn1:RecordRef">      <name internalId="${item?.internalId.toString()}" externalId="${item?.externalId.toString()}" type = "platformCoreTyp:RecordType" xmlns:platformCoreTyp = "urn:types.core_2020_2.platform.webservices.netsuite.com">${item?.value.toString()}</name></urn1:searchValue></${item?.elementName.toString()}>`;
     //return searchMultiSelectFieldTemplate;
     string value = "";
-    if(item?.internalId !="") {
+    if(item?.internalId != "") {
         value = string `<${item?.elementName.toString()}  operator="${item.operator.toString()}" 
         xsi:type="urn1:SearchMultiSelectField">
         <urn1:searchValue internalId="${item?.internalId.toString()}"  xsi:type="urn1:RecordRef"/>
@@ -303,6 +299,13 @@ isolated function getSearchDateFieldElement(SearchField item) returns string {
     string searchStringFieldTemplate =  string `<${item?.elementName.toString()} operator="${item.operator.toString()}" 
     xsi:type="urn1:SearchStringField"><urn1:searchValue>${item?.value.toString()}</urn1:searchValue>
     </${item?.elementName.toString()}>`;
+    return searchStringFieldTemplate;
+}
+
+isolated function getSearchEnumMultiSelectField(SearchField item) returns string {
+    string searchStringFieldTemplate =  string `<ns1:${item?.elementName.toString()} operator="${item.operator.toString()}" 
+    xsi:type="urn1:SearchEnumMultiSelectField"><urn1:searchValue>${item?.value.toString()}</urn1:searchValue>
+    </ns1:${item?.elementName.toString()}>`;
     return searchStringFieldTemplate;
 }
 

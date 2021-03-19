@@ -15,6 +15,7 @@
 // under the License.
 import ballerina/http;
 import ballerina/jsonutils;
+//import ballerina/log;
 
 public type NetsuiteConfiguration record {
     string accountId;
@@ -79,14 +80,16 @@ public client class Client {
         return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
     }
 
-    remote function transactionSearch(SearchField[] searchData) returns json|error {
+    remote function transactionSearch(SearchField[] searchData) returns TrasactionSearchResponse|error {
         http:Request request = new;
         xml payload = check buildTransactionSearchPayload(self.config, searchData);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "search");
         xml response = <xml>check self.basicClient->post("", request, xml);
-        xml formatted = check formatRawXMLesponse(response);
-        return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
+        xml formattedXML = check formatRawXMLesponse(response);
+        json jsonValue = check jsonutils:fromXML(formattedXML/**/<soapenv_Body>);
+        json formatted = check formatRawJsonResponse(jsonValue);
+        return mapTranscationRespose(formatted);
     }
 
     remote function get(GetReqestFeild requestRecord) returns GetResponse|error {

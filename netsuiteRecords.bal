@@ -36,8 +36,8 @@ public type Customer record {
     string homePhone?;
     string mobilePhone?;
     string altEmail?;
-    string comments?; 
-    string dateCreated?; 
+    string comments?;
+    string dateCreated?;
     string emailPreference?;
     string contribPct?;
     string vatRegNumber?;
@@ -76,4 +76,22 @@ public type currency record {
     decimal exchangeRate;
     string fxRateUpdateTimezone;
     string currencyPrecision;
+};
+
+public type Invoice record {
+    decimal amountPaid?;
+    decimal amountRemaining?;
+    decimal balance?;
+    decimal total?;
+    string createdDate?;
+    string currencyName?;
+    string dueDate?;
+    string email?;
+    string lastModifiedDate?;
+    string status?;
+    string transactionId?;
+    string entity?;
+    string entityInternalId?;
+    string invoiceId?;
+
 };

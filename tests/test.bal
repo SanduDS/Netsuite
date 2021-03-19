@@ -19,7 +19,7 @@ NetsuiteConfiguration config = {
 
 Client netsuiteClient = checkpanic new (config);
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGetAll() {
     log:print("testGetAll");
     json|error output = netsuiteClient->getAll("currency");
@@ -31,18 +31,18 @@ function testGetAll() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGetList() {
     log:print("testGetList");
     GetListReqestFeild requestList = {
-        internalId:  "1020", 
-        recordType: "customer"
+        internalId:  "86912", 
+        recordType: "invoice"
     };
     GetListReqestFeild requestList1 = {
         internalId:  "1020", 
         recordType: "customer"
     };
-    GetListReqestFeild[] arrylist = [requestList, requestList1];
+    GetListReqestFeild[] arrylist = [requestList];
     GetListResponse|error output = netsuiteClient->getList(arrylist);
     if (output is GetListResponse) {
         log:print(output.toString());
@@ -52,10 +52,10 @@ function testGetList() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGetSavedSearchFunction() {
     log:print("testGetSavedSearchFunction");
-    SavedSearchResult|error output = netsuiteClient->getSavedSearch("vendor");
+    SavedSearchResult|error output = netsuiteClient->getSavedSearch("transaction");
     if (output is SavedSearchResult) {
         log:print(output.recordRefList[0].toString());
     } else {
@@ -64,7 +64,7 @@ function testGetSavedSearchFunction() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testSearch() {
     log:print("testSearch");
     SearchField searchRecord = {
@@ -97,24 +97,24 @@ function testTransactionSearch() {
     log:print("testTransactionSearch");
     DateField date = {
     operator :"within" ,
-    date : "2021-01-23T10:20:15",
-    date2 : "2021-02-23T10:20:15"
+    date : "2020-12-23T10:20:15",
+    date2 : "2021-03-23T10:20:15"
     };
     SearchField searchRecord = {
         elementName : "lastModifiedDate",
-        operator : AFTER,
+        operator : "within",
         dateField : date
     };
     SearchField searchRecord2 = {
-        elementName : "paymentOption",
-        operator : CONTAINS,
-        value : "Invoice"
+        //elementName : "paymentOption",
+        operator : "anyOf",
+        value : "_invoice"
     };
     SearchField[] searchData = [];
     searchData.push(searchRecord);
     searchData.push(searchRecord2);
-    json|error output = netsuiteClient->transactionSearch(searchData);
-    if (output is json) {
+    TrasactionSearchResponse|error output = netsuiteClient->transactionSearch(searchData);
+    if (output is TrasactionSearchResponse) {
         log:print(output.toString());
     } else {
         log:printError(output.toString());
