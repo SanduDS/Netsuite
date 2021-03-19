@@ -3,7 +3,7 @@ based on  SOAP webservice
 
 
 
-[![Build Status](https://travis-ci.org/SanduDS/module-ballerinax-netsuite.svg?branch=master)](https://travis-ci.org/ballerina-platform/module-ballerinax-netsuite)
+[![Build Status](https://travis-ci.org/SanduDS/Netsuite.svg?branch=master)](https://travis-ci.org/SanduDS/Netsuite)
 # Ballerina NetSuite Connector
 
 This module allows you to access the NetSuite's SuiteTalk REST Web services API though Ballerina. NetSuite is used for 
