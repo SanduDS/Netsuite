@@ -1,0 +1,1 @@
+#Netsuite connector based on Soap webservices
