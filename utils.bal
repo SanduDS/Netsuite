@@ -1,3 +1,18 @@
+// Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+
 import ballerina/crypto;
 import ballerina/lang.'array;
 import ballerina/lang.'xml as xmlLib;
@@ -110,10 +125,6 @@ isolated function getListElements(GetReqestFeild|GetListReqestFeild|GetListReqes
 
 isolated function builGetSavedSearchPayload(string recordType, NetsuiteConfiguration config) returns xml|error {
     string header = check buildHeader(config);
-    // "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:messages_2020_2.platform.webservices.netsuite.com\" xmlns:urn1=\"urn:core_2020_2.platform.webservices.netsuite.com\">\n   <soapenv:Header>\n      <urn:tokenPassport>\n         <urn1:account>" + 
-    // config.accountId + "</urn1:account>\n         <urn1:consumerKey>" + config.consumerId + "</urn1:consumerKey>\n         <urn1:token>" + 
-    // config.token + "</urn1:token>\n         <urn1:nonce>" + uuid + "</urn1:nonce>\n         <urn1:timestamp>" + 
-    // timeToSend + "</urn1:timestamp>\n         <urn1:signature algorithm=\"HMAC-SHA256\">" + signature + "</urn1:signature>\n      </urn:tokenPassport>\n   </soapenv:Header>\n   
     string body = string`<soapenv:Body><urn:getSavedSearch><urn:record searchType="${recordType}"/></urn:getSavedSearch>
     </soapenv:Body></soapenv:Envelope>`;
     string payload = header + body;
@@ -160,8 +171,8 @@ isolated function setCustomerSearchRequestBody(string SearchElements) returns st
     string body =  string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     <urn:searchRecord xsi:type="listRel:CustomerSearch" 
     xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
-    <basic xsi:type="platformCommon:CustomerSearchBasic" 
-    xmlns:platformCommon="urn:common_2020_2.platform.webservices.netsuite.com">${SearchElements}</basic>
+    <basic xsi:type="ns1:CustomerSearchBasic" 
+    xmlns:ns1="urn:common_2020_2.platform.webservices.netsuite.com">${SearchElements}</basic>
     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
     return body;
 }
