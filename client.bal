@@ -15,7 +15,6 @@
 // under the License.
 import ballerina/http;
 import ballerina/jsonutils;
-//import ballerina/log;
 
 public type NetsuiteConfiguration record {
     string accountId;

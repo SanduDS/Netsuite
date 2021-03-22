@@ -17,7 +17,6 @@ import ballerina/crypto;
 import ballerina/lang.'array;
 import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'string as stringLib;
-import ballerina/log;
 import ballerina/time;
 import ballerina/uuid;
 import ballerina/regex;
@@ -41,7 +40,6 @@ isolated function getNetsuiteSignature(string timeNow, string UUID, NetsuiteConf
         nounce: UUID,
         timestamp: timeNow
     };
-    log:print(tokenData.toString());
     string token = check generateSignature(tokenData);
     return token;
 }
@@ -65,8 +63,6 @@ isolated function createKey(TokenData values) returns string {
 isolated function generateSignature(TokenData values) returns string|error {
     string baseString = makeBaseString(values);
     string keyValue = createKey(values);
-    log:print(baseString);
-    log:print(keyValue);
     byte[] data = baseString.toBytes();
     byte[] key = keyValue.toBytes();
     byte[] hmac = check crypto:hmacSha256(data, key);

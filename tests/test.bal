@@ -32,7 +32,7 @@ function testGetAll() {
 }
 
 @test:Config {enable: false}
-function testGetList() {
+function testGetList() returns error? {
     log:print("testGetList");
     GetListReqestFeild requestList = {
         internalId:  "86912", 
@@ -110,6 +110,7 @@ function testTransactionSearch() {
         operator : "anyOf",
         value : "_invoice"
     };
+    
     SearchField[] searchData = [];
     searchData.push(searchRecord);
     searchData.push(searchRecord2);
@@ -122,11 +123,11 @@ function testTransactionSearch() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGet() {
     GetReqestFeild request = {
-        internalId:  "1020", 
-        recordType: "customer"
+        internalId:  "86912", 
+        recordType: "invoice"
     };     
     GetResponse|error output = netsuiteClient->get(request);
     if (output is GetResponse) {
@@ -136,4 +137,3 @@ function testGet() {
         test:assertFalse(true, output.message());
     }
 }
-
