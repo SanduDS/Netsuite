@@ -16,7 +16,7 @@ public function main() {
     netsuite:Client netsuiteClient = checkpanic new (config);
 
     //Parameter request record
-    netsuite:GetReqestFeild request = {
+    netsuite:GetRequestField request = {
         internalId: "539839",
         recordType: "invoice"
     };

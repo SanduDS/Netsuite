@@ -62,7 +62,7 @@ public type CustomerSearchParameters record {|
     SearchField[] SearchField = [];
 |};
 
-public type GetListReqestFeild record {|
+public type GetListRequestField record {|
     string internalId;
     string recordType;
 |};
@@ -79,7 +79,7 @@ public type GetResponse record {
 
 };
 
-public type GetReqestFeild record {|
+public type GetRequestField record {|
     string internalId;
     string recordType;
 |};

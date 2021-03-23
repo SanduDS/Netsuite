@@ -19,7 +19,7 @@ NetsuiteConfiguration config = {
 
 Client netsuiteClient = checkpanic new (config);
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testGetAll() {
     log:print("testGetAll");
     json|error output = netsuiteClient->getAll("currency");
@@ -31,18 +31,18 @@ function testGetAll() {
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testGetList() returns error? {
     log:print("testGetList");
-    GetListReqestFeild requestList = {
+    GetListRequestField requestList = {
         internalId:  "86912", 
         recordType: "invoice"
     };
-    GetListReqestFeild requestList1 = {
+    GetListRequestField requestList1 = {
         internalId:  "1020", 
         recordType: "customer"
     };
-    GetListReqestFeild[] arrylist = [requestList];
+    GetListRequestField[] arrylist = [requestList];
     GetListResponse|error output = netsuiteClient->getList(arrylist);
     if (output is GetListResponse) {
         log:print(output.toString());
@@ -125,9 +125,9 @@ function testTransactionSearch() {
 
 @test:Config {enable: false}
 function testGet() {
-    GetReqestFeild request = {
-        internalId:  "86912", 
-        recordType: "invoice"
+    GetRequestField request = {
+        internalId:  "1020", 
+        recordType: "customer"
     };     
     GetResponse|error output = netsuiteClient->get(request);
     if (output is GetResponse) {

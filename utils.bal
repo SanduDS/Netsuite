@@ -78,7 +78,7 @@ isolated function buildGetAllPayload(string recordType, NetsuiteConfiguration co
     return xmlPayload;
 }
 
-isolated function buildGetListPayload(GetListReqestFeild|GetListReqestFeild[] records, NetsuiteConfiguration config)        
+isolated function buildGetListPayload(GetListRequestField|GetListRequestField[] records, NetsuiteConfiguration config)        
                                     returns xml|error {
     string header = check buildHeader(config);
     string elements = getListElements(records);
@@ -89,7 +89,7 @@ isolated function buildGetListPayload(GetListReqestFeild|GetListReqestFeild[] re
     return xmlPayload;
 }
 
-isolated function buildGetPayload(GetReqestFeild records, NetsuiteConfiguration config) returns xml|error {
+isolated function buildGetPayload(GetRequestField records, NetsuiteConfiguration config) returns xml|error {
     string header = check buildHeader(config);
     string elements = getListElements(records);
     string body = string `<soapenv:Body><urn:get xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${elements}
@@ -99,10 +99,10 @@ isolated function buildGetPayload(GetReqestFeild records, NetsuiteConfiguration 
     return xmlPayload;
 }
 
-isolated function getListElements(GetReqestFeild|GetListReqestFeild|GetListReqestFeild[] records) returns string {
+isolated function getListElements(GetRequestField|GetListRequestField|GetListRequestField[] records) returns string {
     string elements = "";
-    if(records is GetListReqestFeild[]) {
-        foreach GetListReqestFeild item in records {
+    if(records is GetListRequestField[]) {
+        foreach GetListRequestField item in records {
             elements = elements + string `<urn:baseRef internalId="${item.internalId.toString()}" type="${item.recordType.toString()}" xsi:type="urn1:RecordRef"/>`;
         }
     } else {

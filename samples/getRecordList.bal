@@ -1,4 +1,4 @@
-import sandudslk/netsuite as netsuite;
+import ballerinax/netsuite as netsuite;
 import ballerina/log;
 
 public function main() {
@@ -17,15 +17,15 @@ public function main() {
 
     //Creates request records
     log:print("testGetList");
-    netsuite:GetListReqestFeild requestList = {
+    netsuite:GetListRequestField requestList = {
         internalId:  "86912", 
         recordType: "invoice"
     };
-    netsuite:GetListReqestFeild requestList1 = {
+    netsuite:GetListRequestField requestList1 = {
         internalId:  "1020", 
         recordType: "customer"
     };
-    netsuite:GetListReqestFeild[] arrylist = [requestList,requestList1];
+    netsuite:GetListRequestField[] arrylist = [requestList,requestList1];
     //Gets the list of results for the given records types and internal ids.
     netsuite:GetListResponse|error output = netsuiteClient->getList(arrylist);
     if (output is netsuite:GetListResponse) {

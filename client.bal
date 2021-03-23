@@ -44,7 +44,7 @@ public client class Client {
         return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
     }
 
-    remote function getList(GetListReqestFeild|GetListReqestFeild[] requestRecords) returns GetListResponse|error {
+    remote function getList(GetListRequestField|GetListRequestField[] requestRecords) returns GetListResponse|error {
         http:Request request = new;
         xml payload = check buildGetListPayload(requestRecords, self.config);
         request.setXmlPayload(payload);
@@ -91,7 +91,7 @@ public client class Client {
         return mapTranscationRespose(formatted);
     }
 
-    remote function get(GetReqestFeild requestRecord) returns GetResponse|error {
+    remote function get(GetRequestField requestRecord) returns GetResponse|error {
         http:Request request = new;
         xml payload = check buildGetPayload(requestRecord, self.config);
         request.setXmlPayload(payload);
