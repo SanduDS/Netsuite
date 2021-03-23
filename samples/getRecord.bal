@@ -1,7 +1,7 @@
 import ballerinax/netsuite as netsuite;
 import ballerina/log;
 
-public function main() returns error? {
+public function main() {
     //Preparing the netsuite configuration with TBA authentication tokens.
     netsuite:NetsuiteConfiguration config = {
         accountId: "",
