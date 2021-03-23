@@ -1190,5 +1190,3 @@ map<string> TRANSACTION_SEARCH_PARTS = {
     "webSite": "SearchMultiSelectField",
     "customFieldList": "SearchCustomFieldList"
 };
-
-
