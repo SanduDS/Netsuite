@@ -1,0 +1,7 @@
+[package]
+org = "dhanushkas"
+name = "netsuite"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true
