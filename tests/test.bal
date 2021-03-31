@@ -22,18 +22,29 @@ Client netsuiteClient = checkpanic new (config);
 @test:Config {enable: true}
 function testGetAll() {
     log:print("testAddRecord");
-    //AddContact
     RecordRef cusForm = {
         internalId : "-40",
         'type: "customForm"
+    };
+
+    RecordRef subsidiary = {
+        internalId : "11",
+        'type: "subsidiary"
     };
 
     Contact contact= {
         customForm :cusForm,
         firstName: "testDanu",
         middleName: "sandu",
-        isPrivate: false
+        isPrivate: false,
+        subsidiary: subsidiary
     };
     
-    json|error? output = netsuiteClient->addNewRecordInstance(contact);
+    xml|error? output = netsuiteClient->addNewRecordInstance(contact);
+    if (output is xml) {
+        log:print(output.toString());
+    } else if (output is error) {
+        log:print(output.toString());
+    }
+
 }

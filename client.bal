@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+//import ballerina/log;
 
 
 public client class Client {
@@ -26,15 +27,16 @@ public client class Client {
         self.basicClient = check new (config.baseURL);
     }
 
-    remote function addNewRecordInstance(AddRecordType requestField) returns json|error? {
+    remote function addNewRecordInstance(AddRecordType requestField) returns xml|error? {
         http:Request request = new;
         xml payload = check buildAddRecordPayload(requestField, self.config);
         request.setXmlPayload(payload);
-        //request.setHeader("SOAPAction", "getAll");
-        //xml response = <xml>check self.basicClient->post("", request, xml);
-        //xml formatted = check formatRawXMLResponse(response);
-        //return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
-        return;
+        request.setHeader("SOAPAction", "add");
+        xml response = <xml>check self.basicClient->post("", request, xml);
+        //log:print(response.toString());
+        // xml formatted = check formatRawXMLResponse(response);
+        // return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
+        return response;
     }
  }
 
