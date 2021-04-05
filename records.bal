@@ -8,3 +8,11 @@ public type TokenData record {
     string nounce;
     string timestamp;
 };
+
+public type AddRecordResponse record {
+    boolean isSuccess;
+    string internalId;
+    string recordType;
+};
+
+type MapAnydata map<anydata>;

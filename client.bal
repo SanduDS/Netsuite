@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-//import ballerina/log;
 
 
 public client class Client {
@@ -27,19 +26,33 @@ public client class Client {
         self.basicClient = check new (config.baseURL);
     }
 
-    remote function addNewRecordInstance(AddRecordType requestField) returns xml|error? {
+    remote function addNewContactRecord(Contact addRequest) returns AddRecordResponse|error {
         http:Request request = new;
-        xml payload = check buildAddRecordPayload(requestField, self.config);
+        xml payload = check buildAddRecordPayload(addRequest, self.config, "Contact");
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "add");
-        xml response = <xml>check self.basicClient->post("", request, xml);
-        //log:print(response.toString());
-        // xml formatted = check formatRawXMLResponse(response);
-        // return check jsonutils:fromXML(formatted/**/<soapenv_Body>);
-        return response;
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatAddResponse(response);
+    }
+
+    remote function addNewCustomerRecord(Customer addRequest) returns AddRecordResponse|error {
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(addRequest, self.config, "Customer");
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatAddResponse(response); 
+    }
+
+    remote function addNewCurrencyRecord(Currency addRequest) returns AddRecordResponse|error {
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(addRequest, self.config, "Currency");
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatAddResponse(response); 
     }
  }
-
 
 public type NetsuiteConfiguration record {
     string accountId;
