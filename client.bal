@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerina/log;
+import ballerina/log;
 import ballerina/http;
 
 
@@ -52,6 +52,17 @@ public client class Client {
         request.setHeader("SOAPAction", "add");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatAddResponse(response); 
+    }
+
+    remote function addNewSalesOrderRecord(SalesOrder addRequest) returns AddRecordResponse|error {
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(addRequest, self.config, "SalesOrder");
+        request.setXmlPayload(payload);
+        log:print(payload.toString());
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatAddResponse(response); 
+
     }
 
     remote function deleteRecord(DeleteRequest deleteRequest) returns DeleteRecordResponse|error?{

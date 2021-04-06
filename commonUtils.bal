@@ -95,7 +95,13 @@ function setRecordAddingOperationFields(AddRecordType request ,string recordType
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
-    } 
+    } else if (recordType == "SalesOrder") {
+        string rquestXml = mapSalesOrderRequestValue(<SalesOrder>request);
+        return string `<urn:record xsi:type="tranSales:SalesOrder" 
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`;
+    }
     return "";
 }
 

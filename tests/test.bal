@@ -21,7 +21,7 @@ Client netsuiteClient = checkpanic new (config);
 string customerId = "";
 string contactId ="";
 string currencyId = "";
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddContactRecord() {
     log:print("testAddContactRecord");
     RecordRef cusForm = {
@@ -84,6 +84,7 @@ function testAddContactRecord() {
     AddRecordResponse|error output = netsuiteClient->addNewContactRecord(contact);
     if (output is AddRecordResponse) {
         log:print("outside : "+ output.toString());
+        contactId = output.internalId;
     } else {
         test:assertFail(output.toString());
     }
@@ -162,7 +163,7 @@ function testAddCustomerRecord() {
 
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddCurrencyRecord() {
     log:print("testAddCurrencyRecord");
     Currency currency = {
@@ -178,13 +179,66 @@ function testAddCurrencyRecord() {
     AddRecordResponse|error output = netsuiteClient->addNewCurrencyRecord(currency);
     if (output is AddRecordResponse) {
         log:print(output.toString());
+        currencyId = output.internalId;
+    } else {
+        test:assertFail(output.toString());
+    }
+
+}
+//SOAP WebService provides unexpected ERROR, But the record is added to the salesOrder list
+@test:Config {enable: true}
+function testSalesOrderRecord() {
+    log:print("testSalesOrderRecord");
+    RecordRef entity = {
+        internalId : "4045",
+        'type: "entity"
+    };
+
+    RecordRef itemValue = {
+        internalId : "961",
+        'type: "item"
+    };
+    Address address = {
+        country: "_sriLanka",
+        addr1: "RuwanmagaBombuwala",
+        addr2:"Dodangoda",
+        city:"Colombo07",
+        override: true
+    };
+    RecordRef currency = {
+        internalId : "1",
+        'type: "currency"
+    };
+
+    RecordRef location = {
+        internalId : "23",
+        'type: "location"
+    };
+    Item item = {
+        item: itemValue,
+        amount: 1,
+        location: location
+    };
+    SalesOrder salesOrder = {
+        entity:entity,
+        billingAddress: address,
+        currency: currency,
+        itemList:[item]
+    };
+
+    AddRecordResponse|error output = netsuiteClient->addNewSalesOrderRecord(salesOrder);
+    if (output is AddRecordResponse) {
+        log:print(output.toString());
+        currencyId = output.internalId;
     } else {
         test:assertFail(output.toString());
     }
 
 }
 
-@test:Config {enable: true, dependsOn: [testAddCustomerRecord]}
+
+
+@test:Config {enable: false, dependsOn: [testAddCustomerRecord, testAddCurrencyRecord, testAddContactRecord]}
 function testDeleteRecord() {
     log:print("testCustomerDeleteRecord");
     DeleteRequest deleteRequest = {
@@ -219,6 +273,4 @@ function testDeleteRecord() {
     } else if (output is error){
         test:assertFail(output.toString());
     }
-
-
 }

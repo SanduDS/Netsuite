@@ -202,6 +202,18 @@ public enum GlobalSubscriptionStatusType {
     softOptOut = "_softOptOut"
 }
 
+public enum SalesOrderOrderStatus {
+    pendingApproval = "_pendingApproval",
+    pendingFulfillment = "_pendingFulfillment",
+    cancelled = "_cancelled",
+    partiallyFulfilled = "_partiallyFulfilled",
+    pendingBillingPartFulfilled = "_pendingBillingPartFulfilled",
+    pendingBilling = "_pendingBilling",
+    fullyBilled = "_fullyBilled",
+    closed = "_closed",
+    undefined = "_undefined"
+}
+
 public enum Country {
     afghanistan = "_afghanistan",
     alandIslands = "_alandIslands",
@@ -456,3 +468,5 @@ public enum Country {
     zambia = "_zambia",
     zimbabwe = "_zimbabwe"
 }
+
+
