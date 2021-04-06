@@ -15,4 +15,15 @@ public type AddRecordResponse record {
     string recordType;
 };
 
+public type DeleteRecordResponse record {
+    *AddRecordResponse;
+};
+
+public type DeleteRequest record {
+    string recordInternalId;
+    string recordType;
+    string deletionReasonId?;
+    string deletionReasonMemo?;
+};
+
 type MapAnydata map<anydata>;

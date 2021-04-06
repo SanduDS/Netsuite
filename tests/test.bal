@@ -18,7 +18,9 @@ NetsuiteConfiguration config = {
 };
 
 Client netsuiteClient = checkpanic new (config);
-
+string customerId = "";
+string contactId ="";
+string currencyId = "";
 @test:Config {enable: true}
 function testAddContactRecord() {
     log:print("testAddContactRecord");
@@ -69,7 +71,7 @@ function testAddContactRecord() {
 
     Contact contact= {
         customForm :cusForm,
-        firstName: "testaggst_04",
+        firstName: "testaggst_041",
         middleName: "sandu",
         isPrivate: false,
         subsidiary: subsidiary,
@@ -86,6 +88,7 @@ function testAddContactRecord() {
         test:assertFail(output.toString());
     }
 }
+
 
 @test:Config {enable: true}
 function testAddCustomerRecord() {
@@ -126,7 +129,7 @@ function testAddCustomerRecord() {
     };
     
     Customer customer= {
-        entityId: "00d001s1",
+        entityId: "00d001s101",
         isPerson: true,
         salutation: "Mr",
         firstName: "Danu",
@@ -152,6 +155,7 @@ function testAddCustomerRecord() {
     AddRecordResponse|error output = netsuiteClient->addNewCustomerRecord(customer);
     if (output is AddRecordResponse) {
         log:print(output.toString());
+        customerId = output.internalId;
     } else {
         test:assertFail(output.toString());
     }
@@ -162,8 +166,8 @@ function testAddCustomerRecord() {
 function testAddCurrencyRecord() {
     log:print("testAddCurrencyRecord");
     Currency currency = {
-        name: "BLL",
-        symbol: "BLL",
+        name: "BLA",
+        symbol: "BLA",
         //currencyPrecision: "_two",
         exchangeRate: 3.89,
         isInactive: false,
@@ -177,5 +181,44 @@ function testAddCurrencyRecord() {
     } else {
         test:assertFail(output.toString());
     }
+
+}
+
+@test:Config {enable: true, dependsOn: [testAddCustomerRecord]}
+function testDeleteRecord() {
+    log:print("testCustomerDeleteRecord");
+    DeleteRequest deleteRequest = {
+        recordInternalId : customerId,
+        recordType: "customer"
+    };
+    DeleteRecordResponse|error? output = netsuiteClient->deleteRecord(deleteRequest);
+    if (output is DeleteRecordResponse) {
+        log:print(output.toString());
+    } else if (output is error){
+        test:assertFail(output.toString());
+    }
+    log:print("testContactDeleteRecord");
+    deleteRequest = {
+        recordInternalId : contactId,
+        recordType: "contact"
+    };
+    output = netsuiteClient->deleteRecord(deleteRequest);
+    if (output is DeleteRecordResponse) {
+        log:print(output.toString());
+    } else if (output is error){
+        test:assertFail(output.toString());
+    }
+    log:print("testCurrencyDeleteRecord");
+    deleteRequest = {
+        recordInternalId : currencyId,
+        recordType: "currency"
+    };
+    output = netsuiteClient->deleteRecord(deleteRequest);
+    if (output is DeleteRecordResponse) {
+        log:print(output.toString());
+    } else if (output is error){
+        test:assertFail(output.toString());
+    }
+
 
 }

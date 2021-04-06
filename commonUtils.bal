@@ -1,6 +1,7 @@
 import ballerina/time;
 import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
+import ballerina/log;
 
 isolated function buildHeader(NetsuiteConfiguration config) returns string|error {
     time:Time timeNow = time:currentTime();
@@ -47,7 +48,7 @@ function setSimpleType(string elementName, string|boolean|decimal|int value, str
 
 function buildAddRecordPayload(AddRecordType recordRequest, NetsuiteConfiguration config, string recordType) returns xml|error {
     string header = check buildHeader(config);
-    string? elements = setRecordAddingOperationFields(recordRequest, recordType);
+    string elements = setRecordAddingOperationFields(recordRequest, recordType);
     string body = string `<soapenv:Body>
     <urn:add>
             ${elements.toString()}
@@ -57,6 +58,21 @@ function buildAddRecordPayload(AddRecordType recordRequest, NetsuiteConfiguratio
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     //log:print(xmlPayload.toString());
+    return xmlPayload;
+}
+
+function buildDeleteRecordPayload(DeleteRequest deleteRequest, NetsuiteConfiguration config) returns xml|error {
+    string header = check buildHeader(config);
+    string elements = setDeletePayload(deleteRequest);
+    string body = string `<soapenv:Body>
+    <urn:delete>
+            ${elements.toString()}
+    </urn:delete>
+    </soapenv:Body>
+    </soapenv:Envelope>`;
+    string payload = header + body;
+    xml xmlPayload = check xmlLib:fromString(payload);
+    log:print(xmlPayload.toString());
     return xmlPayload;
 }
 
@@ -81,5 +97,19 @@ function setRecordAddingOperationFields(AddRecordType request ,string recordType
          </urn:record>`;
     } 
     return "";
-    
 }
+
+function setDeletePayload(DeleteRequest deleteRequest) returns string{
+    if(deleteRequest?.deletionReasonId is () || deleteRequest?.deletionReasonMemo is ()) {
+        return string `<urn:baseRef type="${deleteRequest.recordType}" internalId="${deleteRequest.recordInternalId}" 
+        xsi:type="urn1:RecordRef"/>`;
+    } else {
+        return string `<urn:baseRef type="${deleteRequest.recordType}" internalId="${deleteRequest.recordInternalId}" 
+        xsi:type="urn1:RecordRef"/>
+        <urn1:deletionReason>
+        <deletionReasonCode internalId="${deleteRequest?.deletionReasonId.toString()}"/>
+        <deletionReasonMemo>${deleteRequest?.deletionReasonMemo.toString()}</deletionReasonMemo>
+        </urn1:deletionReason>`;   
+    }  
+}
+//<urn:baseRef internalId="${item.internalId.toString()}" type="${item.recordType.toString()}" xsi:type="urn1:RecordRef"/>
