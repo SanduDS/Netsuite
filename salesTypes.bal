@@ -1,15 +1,3 @@
-// public type SalesOrder record {
-//     RecordRef entity;
-//     RecordRef currency;
-//     Item[] itemList?;
-//     string orderStatus?;
-//     string tranId?;
-//     string trandate?;
-//     string startDate?;
-//     string endDate?;
-//     string memo?;
-//     string billAddress?;
-// };
 
 public type Item record {
     RecordRef job?;

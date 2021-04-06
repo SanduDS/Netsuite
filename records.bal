@@ -19,11 +19,20 @@ public type DeleteRecordResponse record {
     *AddRecordResponse;
 };
 
+public type UpdateRecordResponse record {
+    *AddRecordResponse;
+};
+
 public type DeleteRequest record {
     string recordInternalId;
     string recordType;
     string deletionReasonId?;
     string deletionReasonMemo?;
+};
+
+public type UpdateRequest record {
+    AddRecordType instance;
+    string internalId;
 };
 
 type MapAnydata map<anydata>;

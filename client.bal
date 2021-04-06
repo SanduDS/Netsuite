@@ -58,20 +58,29 @@ public client class Client {
         http:Request request = new;
         xml payload = check buildAddRecordPayload(addRequest, self.config, "SalesOrder");
         request.setXmlPayload(payload);
-        log:print(payload.toString());
         request.setHeader("SOAPAction", "add");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatAddResponse(response); 
 
     }
 
-    remote function deleteRecord(DeleteRequest deleteRequest) returns DeleteRecordResponse|error?{
+    remote function deleteRecord(DeleteRequest deleteRequest) returns DeleteRecordResponse|error{
         http:Request request = new;
         xml payload = check buildDeleteRecordPayload(deleteRequest, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "delete");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatDeleteResponse(response); 
+    }
+
+    remote function updateCustomerRecord(UpdateRequest updateRequest) returns UpdateRecordResponse|error {
+        http:Request request = new;
+        xml payload = check buildUpdateRecordPayload(updateRequest, self.config, "Customer");
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "update");
+        log:print(payload.toString());
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatUpdateResponse(response); 
     }
  }
 

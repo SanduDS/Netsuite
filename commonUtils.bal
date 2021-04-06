@@ -76,6 +76,51 @@ function buildDeleteRecordPayload(DeleteRequest deleteRequest, NetsuiteConfigura
     return xmlPayload;
 }
 
+function buildUpdateRecordPayload(UpdateRequest request, NetsuiteConfiguration config, string recordType) returns xml|error {
+    string header = check buildHeader(config);
+    string elements = setRecordUpdatingOperationFields(request, recordType);
+    string body = string `<soapenv:Body>
+    <urn:update>
+            ${elements.toString()}
+    </urn:update>
+    </soapenv:Body>
+    </soapenv:Envelope>`;
+    string payload = header + body;
+    xml xmlPayload = check xmlLib:fromString(payload);
+    log:print(xmlPayload.toString());
+    return xmlPayload;
+}
+
+function setRecordUpdatingOperationFields(UpdateRequest request ,string recordType) returns string {
+    if (recordType == "Customer") {
+        string rquestXml = MapCustomerRequestValue(<Customer>request.instance);
+        return string `<urn:record xsi:type="listRel:Customer" internalId="${request.internalId}" 
+        xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`; 
+    }else if (recordType == "Contact") {
+        string rquestXml = MapContactRequestValue(<Contact>request.instance);
+        return string `<urn:record xsi:type="listRel:Contact" internalId="${request.internalId}"
+        xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`;
+    } else if (recordType == "Currency") {
+        string rquestXml = MapCurrencyRequestValue(<Currency>request.instance);
+        return string `<urn:record xsi:type="listAcct:Currency" internalId="${request.internalId}"
+        xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`;
+    } else if (recordType == "SalesOrder") {
+        string rquestXml = mapSalesOrderRequestValue(<SalesOrder>request.instance);
+        return string `<urn:record xsi:type="tranSales:SalesOrder" internalId="${request.internalId}"
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`;
+    }
+    return "";
+}
+
+
 function setRecordAddingOperationFields(AddRecordType request ,string recordType) returns string {
     if (recordType == "Customer") {
         string rquestXml = MapCustomerRequestValue(<Customer>request);

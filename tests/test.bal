@@ -91,7 +91,7 @@ function testAddContactRecord() {
 }
 
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddCustomerRecord() {
     log:print("testAddCustomerRecord");
     RecordRef subsidiary = {
@@ -163,6 +163,82 @@ function testAddCustomerRecord() {
 
 }
 
+@test:Config {enable: true}
+function testupdateCustomerRecord() {
+    log:print("testupdateCustomerRecord");
+    RecordRef subsidiary = {
+        internalId : "11",
+        'type: "subsidiary"
+    };
+
+    Address ad02 = {
+        country: "_sriLanka",
+        addr1: "RuwanmagaBombuwala",
+        addr2:"Dodangoda",
+        city:"Colombo07",
+        override: true
+    };
+
+    RecordRef currency = {
+        internalId : "1",
+        'type: "currency"
+    };
+
+    CustomerAddressbook customerAddressbook = {
+        defaultShipping: true,
+        defaultBilling: true,
+        label: "myAddress",
+        isResidential: true,
+        addressBookAddress: [ad02]
+    };
+
+    CustomerCurrency  cur = {
+        currency:currency,
+        balance: 1200.13,
+        depositBalance: 10000,
+        overdueBalance: 120,
+        unbilledOrders: 1000,
+        overrideCurrencyFormat: false
+    };
+    
+    Customer customer= {
+        entityId: "00d001s101_test_Update",
+        isPerson: true,
+        salutation: "Mr",
+        firstName: "Danushka",
+        middleName: "Sandaruwan_Sri Lanka",
+        lastName: "TestSilva",
+        companyName: "Wso2",
+        phone: "0756485071",
+        fax: "0342287344",
+        email: "sandusandu@wsoi2.com",
+        subsidiary: subsidiary,
+        //defaultAddress: "colobmbo7,Sri Lanka",
+        isInactive: false,
+        //category: "",
+        title: "TestTilte",
+        homePhone: "0348923456",
+        mobilePhone: "3243243421",
+        accountNumber: "ac9092328483",
+        addressbookList: [customerAddressbook]
+        //currencyList: [cur] currency is not added.
+
+    };
+    UpdateRequest updateRequest = {
+        instance: customer,
+        internalId: "12552"
+    };
+
+    UpdateRecordResponse|error output = netsuiteClient->updateCustomerRecord(updateRequest);
+    if (output is UpdateRecordResponse) {
+        log:print(output.toString());
+    } else {
+        test:assertFail(output.toString());
+    }
+
+}
+
+
 @test:Config {enable: false}
 function testAddCurrencyRecord() {
     log:print("testAddCurrencyRecord");
@@ -186,7 +262,7 @@ function testAddCurrencyRecord() {
 
 }
 //SOAP WebService provides unexpected ERROR, But the record is added to the salesOrder list
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testSalesOrderRecord() {
     log:print("testSalesOrderRecord");
     RecordRef entity = {
@@ -235,8 +311,6 @@ function testSalesOrderRecord() {
     }
 
 }
-
-
 
 @test:Config {enable: false, dependsOn: [testAddCustomerRecord, testAddCurrencyRecord, testAddContactRecord]}
 function testDeleteRecord() {
