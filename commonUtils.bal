@@ -1,7 +1,7 @@
 import ballerina/time;
 import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
-import ballerina/log;
+//import ballerina/log;
 
 isolated function buildHeader(NetsuiteConfiguration config) returns string|error {
     time:Time timeNow = time:currentTime();
@@ -46,9 +46,9 @@ function setSimpleType(string elementName, string|boolean|decimal|int value, str
     }
 }
 
-function buildAddRecordPayload(AddRecordType recordRequest, NetsuiteConfiguration config, string recordType) returns xml|error {
+function buildAddRecordPayload(AddRequest recordRequest, NetsuiteConfiguration config) returns xml|error {
     string header = check buildHeader(config);
-    string elements = setRecordAddingOperationFields(recordRequest, recordType);
+    string elements = setRecordAddingOperationFields(recordRequest);
     string body = string `<soapenv:Body>
     <urn:add>
             ${elements.toString()}
@@ -72,13 +72,12 @@ function buildDeleteRecordPayload(DeleteRequest deleteRequest, NetsuiteConfigura
     </soapenv:Envelope>`;
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
-    log:print(xmlPayload.toString());
     return xmlPayload;
 }
 
-function buildUpdateRecordPayload(UpdateRequest request, NetsuiteConfiguration config, string recordType) returns xml|error {
+function buildUpdateRecordPayload(UpdateRequest request, NetsuiteConfiguration config) returns xml|error {
     string header = check buildHeader(config);
-    string elements = setRecordUpdatingOperationFields(request, recordType);
+    string elements = setRecordUpdatingOperationFields(request);
     string body = string `<soapenv:Body>
     <urn:update>
             ${elements.toString()}
@@ -87,30 +86,29 @@ function buildUpdateRecordPayload(UpdateRequest request, NetsuiteConfiguration c
     </soapenv:Envelope>`;
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
-    log:print(xmlPayload.toString());
     return xmlPayload;
 }
 
-function setRecordUpdatingOperationFields(UpdateRequest request ,string recordType) returns string {
-    if (recordType == "Customer") {
+function setRecordUpdatingOperationFields(UpdateRequest request) returns string {
+    if (request.recordType == CUSTOMER) {
         string rquestXml = MapCustomerRequestValue(<Customer>request.instance);
         return string `<urn:record xsi:type="listRel:Customer" internalId="${request.internalId}" 
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`; 
-    }else if (recordType == "Contact") {
+    }else if (request.recordType == CONTACT) {
         string rquestXml = MapContactRequestValue(<Contact>request.instance);
         return string `<urn:record xsi:type="listRel:Contact" internalId="${request.internalId}"
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
-    } else if (recordType == "Currency") {
+    } else if (request.recordType == CURRENCY) {
         string rquestXml = MapCurrencyRequestValue(<Currency>request.instance);
         return string `<urn:record xsi:type="listAcct:Currency" internalId="${request.internalId}"
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
-    } else if (recordType == "SalesOrder") {
+    } else if (request.recordType == SALES_ORDER) {
         string rquestXml = mapSalesOrderRequestValue(<SalesOrder>request.instance);
         return string `<urn:record xsi:type="tranSales:SalesOrder" internalId="${request.internalId}"
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
@@ -121,27 +119,27 @@ function setRecordUpdatingOperationFields(UpdateRequest request ,string recordTy
 }
 
 
-function setRecordAddingOperationFields(AddRecordType request ,string recordType) returns string {
-    if (recordType == "Customer") {
-        string rquestXml = MapCustomerRequestValue(<Customer>request);
+function setRecordAddingOperationFields(AddRequest request) returns string {
+    if (request.recordType == CUSTOMER) {
+        string rquestXml = MapCustomerRequestValue(<Customer>request.instance);
         return string `<urn:record xsi:type="listRel:Customer" 
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`; 
-    }else if (recordType == "Contact") {
-        string rquestXml = MapContactRequestValue(<Contact>request);
+    }else if (request.recordType == CONTACT) {
+        string rquestXml = MapContactRequestValue(<Contact>request.instance);
         return string `<urn:record xsi:type="listRel:Contact" 
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
-    } else if (recordType == "Currency") {
-        string rquestXml = MapCurrencyRequestValue(<Currency>request);
+    } else if (request.recordType == CURRENCY) {
+        string rquestXml = MapCurrencyRequestValue(<Currency>request.instance);
         return string `<urn:record xsi:type="listAcct:Currency" 
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
-    } else if (recordType == "SalesOrder") {
-        string rquestXml = mapSalesOrderRequestValue(<SalesOrder>request);
+    } else if (request.recordType == SALES_ORDER) {
+        string rquestXml = mapSalesOrderRequestValue(<SalesOrder>request.instance);
         return string `<urn:record xsi:type="tranSales:SalesOrder" 
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
             ${rquestXml.toString()}
@@ -163,4 +161,12 @@ function setDeletePayload(DeleteRequest deleteRequest) returns string{
         </urn1:deletionReason>`;   
     }  
 }
-//<urn:baseRef internalId="${item.internalId.toString()}" type="${item.recordType.toString()}" xsi:type="urn1:RecordRef"/>
+//-------------------------get functions
+isolated function buildGetAllPayload(string recordType, NetsuiteConfiguration config) returns xml|error {
+    string header = check buildHeader(config);
+    string body = string `<soapenv:Body><urn:getAll><record recordType="${recordType}"/></urn:getAll></soapenv:Body>
+    </soapenv:Envelope>`;
+    string payload = header + body;
+    xml xmlPayload = check xmlLib:fromString(payload);
+    return xmlPayload;
+}

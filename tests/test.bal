@@ -21,7 +21,7 @@ Client netsuiteClient = checkpanic new (config);
 string customerId = "";
 string contactId ="";
 string currencyId = "";
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddContactRecord() {
     log:print("testAddContactRecord");
     RecordRef cusForm = {
@@ -80,8 +80,11 @@ function testAddContactRecord() {
         addressBookList : [contactAddressBook, contactAddressBook2]
 
     };
-
-    AddRecordResponse|error output = netsuiteClient->addNewContactRecord(contact);
+    AddRequest addRequest = {
+        instance: contact,
+        recordType: CONTACT
+    };
+    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
     if (output is AddRecordResponse) {
         log:print("outside : "+ output.toString());
         contactId = output.internalId;
@@ -91,7 +94,7 @@ function testAddContactRecord() {
 }
 
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddCustomerRecord() {
     log:print("testAddCustomerRecord");
     RecordRef subsidiary = {
@@ -152,8 +155,12 @@ function testAddCustomerRecord() {
         //currencyList: [cur] currency is not added.
 
     };
+    AddRequest addRequest = {
+        instance: customer,
+        recordType: CUSTOMER
+    };
 
-    AddRecordResponse|error output = netsuiteClient->addNewCustomerRecord(customer);
+    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
     if (output is AddRecordResponse) {
         log:print(output.toString());
         customerId = output.internalId;
@@ -163,7 +170,7 @@ function testAddCustomerRecord() {
 
 }
 
-@test:Config {enable: true}
+@test:Config {enable: true, dependsOn: [testAddCustomerRecord]}
 function testupdateCustomerRecord() {
     log:print("testupdateCustomerRecord");
     RecordRef subsidiary = {
@@ -226,10 +233,11 @@ function testupdateCustomerRecord() {
     };
     UpdateRequest updateRequest = {
         instance: customer,
-        internalId: "12552"
+        internalId: customerId,
+        recordType: CUSTOMER
     };
 
-    UpdateRecordResponse|error output = netsuiteClient->updateCustomerRecord(updateRequest);
+    UpdateRecordResponse|error output = netsuiteClient->updateRecord(updateRequest);
     if (output is UpdateRecordResponse) {
         log:print(output.toString());
     } else {
@@ -238,8 +246,7 @@ function testupdateCustomerRecord() {
 
 }
 
-
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddCurrencyRecord() {
     log:print("testAddCurrencyRecord");
     Currency currency = {
@@ -250,9 +257,12 @@ function testAddCurrencyRecord() {
         isInactive: false,
         isBaseCurrency: false
     };
+    AddRequest addRequest = {
+        instance: currency,
+        recordType: CURRENCY
+    };
 
-
-    AddRecordResponse|error output = netsuiteClient->addNewCurrencyRecord(currency);
+    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
     if (output is AddRecordResponse) {
         log:print(output.toString());
         currencyId = output.internalId;
@@ -301,8 +311,11 @@ function testSalesOrderRecord() {
         currency: currency,
         itemList:[item]
     };
-
-    AddRecordResponse|error output = netsuiteClient->addNewSalesOrderRecord(salesOrder);
+    AddRequest addRequest = {
+        instance: salesOrder,
+        recordType: SALES_ORDER
+    };
+    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
     if (output is AddRecordResponse) {
         log:print(output.toString());
         currencyId = output.internalId;
@@ -312,7 +325,20 @@ function testSalesOrderRecord() {
 
 }
 
-@test:Config {enable: false, dependsOn: [testAddCustomerRecord, testAddCurrencyRecord, testAddContactRecord]}
+@test:Config {enable: true}
+function testGetAll() {
+    log:print("testGetAll");
+    json[]|error output = netsuiteClient->getAll("currency");
+    if (output is json) {
+        log:print(output.toString());
+    } else {
+        log:printError(output.toString());
+        test:assertFalse(false, output.message());
+    }
+}
+
+@test:Config {enable: true, dependsOn: [testAddCustomerRecord, testAddCurrencyRecord, testAddContactRecord, 
+testupdateCustomerRecord]}
 function testDeleteRecord() {
     log:print("testCustomerDeleteRecord");
     DeleteRequest deleteRequest = {

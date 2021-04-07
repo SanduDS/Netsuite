@@ -33,6 +33,9 @@ public type DeleteRequest record {
 public type UpdateRequest record {
     AddRecordType instance;
     string internalId;
+    RecordCoreType recordType;
+
+
 };
 
 type MapAnydata map<anydata>;

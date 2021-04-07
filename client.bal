@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
 import ballerina/http;
-
 
 public client class Client {
     public http:Client basicClient;
@@ -27,41 +25,13 @@ public client class Client {
         self.basicClient = check new (config.baseURL);
     }
 
-    remote function addNewContactRecord(Contact addRequest) returns AddRecordResponse|error {
+    remote function addNewRecord(AddRequest addRequest) returns AddRecordResponse|error {
         http:Request request = new;
-        xml payload = check buildAddRecordPayload(addRequest, self.config, "Contact");
-        request.setXmlPayload(payload);
-        request.setHeader("SOAPAction", "add");
-        http:Response response = <http:Response>check self.basicClient->post("", request);
-        return formatAddResponse(response);
-    }
-
-    remote function addNewCustomerRecord(Customer addRequest) returns AddRecordResponse|error {
-        http:Request request = new;
-        xml payload = check buildAddRecordPayload(addRequest, self.config, "Customer");
+        xml payload = check buildAddRecordPayload(addRequest, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "add");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatAddResponse(response); 
-    }
-
-    remote function addNewCurrencyRecord(Currency addRequest) returns AddRecordResponse|error {
-        http:Request request = new;
-        xml payload = check buildAddRecordPayload(addRequest, self.config, "Currency");
-        request.setXmlPayload(payload);
-        request.setHeader("SOAPAction", "add");
-        http:Response response = <http:Response>check self.basicClient->post("", request);
-        return formatAddResponse(response); 
-    }
-
-    remote function addNewSalesOrderRecord(SalesOrder addRequest) returns AddRecordResponse|error {
-        http:Request request = new;
-        xml payload = check buildAddRecordPayload(addRequest, self.config, "SalesOrder");
-        request.setXmlPayload(payload);
-        request.setHeader("SOAPAction", "add");
-        http:Response response = <http:Response>check self.basicClient->post("", request);
-        return formatAddResponse(response); 
-
     }
 
     remote function deleteRecord(DeleteRequest deleteRequest) returns DeleteRecordResponse|error{
@@ -73,14 +43,22 @@ public client class Client {
         return formatDeleteResponse(response); 
     }
 
-    remote function updateCustomerRecord(UpdateRequest updateRequest) returns UpdateRecordResponse|error {
+    remote function updateRecord(UpdateRequest updateRequest) returns UpdateRecordResponse|error {
         http:Request request = new;
-        xml payload = check buildUpdateRecordPayload(updateRequest, self.config, "Customer");
+        xml payload = check buildUpdateRecordPayload(updateRequest, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "update");
-        log:print(payload.toString());
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatUpdateResponse(response); 
+    }
+    
+    remote function getAll(GetAllRecordType recordType) returns json[]|error {
+        http:Request request = new;
+        xml payload = check buildGetAllPayload(recordType, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "getAll");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatGetAllResponse(response);
     }
  }
 
