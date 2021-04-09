@@ -14,7 +14,7 @@ jobs:
               with:
                   args:
                       build -c
-            env:
+              env:
                   NS_BASE_URL: ${{ secrets.BASEURL }}
                   NS_TOKEN_SECRET: ${{ secrets.TOKENSECRET }}
                   NS_TOKEN: ${{ secrets.TOKEN }}
