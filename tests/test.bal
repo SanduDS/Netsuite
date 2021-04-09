@@ -80,16 +80,16 @@ function testAddContactRecord() {
         addressBookList : [contactAddressBook, contactAddressBook2]
 
     };
-    AddRequest addRequest = {
+    RecordCreationInfo info = {
         instance: contact,
         recordType: CONTACT
     };
-    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
-    if (output is AddRecordResponse) {
-        log:print("outside : "+ output.toString());
+    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
+    if (output is RecordCreationResponse) {
+        log:print(output.toString());
         contactId = output.internalId;
     } else {
-        test:assertFail(output.toString());
+        test:assertFail(output.message());
     }
 }
 
@@ -155,17 +155,17 @@ function testAddCustomerRecord() {
         //currencyList: [cur] currency is not added.
 
     };
-    AddRequest addRequest = {
+    RecordCreationInfo info = {
         instance: customer,
         recordType: CUSTOMER
     };
 
-    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
-    if (output is AddRecordResponse) {
+    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
+    if (output is RecordCreationResponse) {
         log:print(output.toString());
         customerId = output.internalId;
     } else {
-        test:assertFail(output.toString());
+        test:assertFail(output.message());
     }
 
 }
@@ -231,14 +231,14 @@ function testupdateCustomerRecord() {
         //currencyList: [cur] currency is not added.
 
     };
-    UpdateRequest updateRequest = {
+    RecordUpdateInfo info = {
         instance: customer,
         internalId: customerId,
         recordType: CUSTOMER
     };
 
-    UpdateRecordResponse|error output = netsuiteClient->updateRecord(updateRequest);
-    if (output is UpdateRecordResponse) {
+    RecordUpdateResponse|error output = netsuiteClient->updateRecord(info);
+    if (output is RecordUpdateResponse) {
         log:print(output.toString());
     } else {
         test:assertFail(output.toString());
@@ -257,17 +257,17 @@ function testAddCurrencyRecord() {
         isInactive: false,
         isBaseCurrency: false
     };
-    AddRequest addRequest = {
+    RecordCreationInfo info = {
         instance: currency,
         recordType: CURRENCY
     };
 
-    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
-    if (output is AddRecordResponse) {
+    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
+    if (output is RecordCreationResponse) {
         log:print(output.toString());
         currencyId = output.internalId;
     } else {
-        test:assertFail(output.toString());
+        test:assertFail(output.message());
     }
 
 }
@@ -311,16 +311,15 @@ function testSalesOrderRecord() {
         currency: currency,
         itemList:[item]
     };
-    AddRequest addRequest = {
+    RecordCreationInfo info = {
         instance: salesOrder,
         recordType: SALES_ORDER
     };
-    AddRecordResponse|error output = netsuiteClient->addNewRecord(addRequest);
-    if (output is AddRecordResponse) {
+    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
+    if (output is RecordCreationResponse) {
         log:print(output.toString());
-        currencyId = output.internalId;
     } else {
-        test:assertFail(output.toString());
+        test:assertFail(output.message());
     }
 
 }
@@ -329,10 +328,20 @@ function testSalesOrderRecord() {
 function testGetAll() {
     log:print("testGetAll");
     json[]|error output = netsuiteClient->getAll("currency");
-    if (output is json) {
-        log:print(output.toString());
+    if (output is json[]) {
+        log:print("Number of records found: " + output.length().toString());
     } else {
-        log:printError(output.toString());
+        test:assertFalse(false, output.message());
+    }
+}
+
+@test:Config {enable: true}
+function testGetSavedSearchFunction() {
+    log:print("testGetSavedSearchFunction");
+    json[]|error output = netsuiteClient->getSavedSearch("transaction");
+    if (output is json[]) {
+        log:print("Number of records found: " + output.length().toString());
+    } else {
         test:assertFalse(false, output.message());
     }
 }
@@ -341,36 +350,67 @@ function testGetAll() {
 testupdateCustomerRecord]}
 function testDeleteRecord() {
     log:print("testCustomerDeleteRecord");
-    DeleteRequest deleteRequest = {
+    RecordDeletionInfo recordDeletionInfo = {
         recordInternalId : customerId,
         recordType: "customer"
     };
-    DeleteRecordResponse|error? output = netsuiteClient->deleteRecord(deleteRequest);
-    if (output is DeleteRecordResponse) {
+    RecordDeletionResponse|error? output = netsuiteClient->deleteRecord(recordDeletionInfo);
+    if (output is RecordDeletionResponse) {
         log:print(output.toString());
     } else if (output is error){
         test:assertFail(output.toString());
     }
     log:print("testContactDeleteRecord");
-    deleteRequest = {
+    recordDeletionInfo = {
         recordInternalId : contactId,
         recordType: "contact"
     };
-    output = netsuiteClient->deleteRecord(deleteRequest);
-    if (output is DeleteRecordResponse) {
+    output = netsuiteClient->deleteRecord(recordDeletionInfo);
+    if (output is RecordDeletionResponse) {
         log:print(output.toString());
     } else if (output is error){
         test:assertFail(output.toString());
     }
     log:print("testCurrencyDeleteRecord");
-    deleteRequest = {
+    recordDeletionInfo = {
         recordInternalId : currencyId,
         recordType: "currency"
     };
-    output = netsuiteClient->deleteRecord(deleteRequest);
-    if (output is DeleteRecordResponse) {
+    output = netsuiteClient->deleteRecord(recordDeletionInfo);
+    if (output is RecordDeletionResponse) {
         log:print(output.toString());
     } else if (output is error){
         test:assertFail(output.toString());
+    }
+}
+
+@test:Config {enable: true}
+function testSearch() {
+    log:print("testSearch");
+    SearchField searchRecord = {
+        elementName: "companyName",
+        operator: "is",
+        value: "80 Acres"
+    };
+    SearchField searchRecord2 = {
+        elementName: "currency",
+        operator: ANYOF,
+        value: "",
+        internalId:"1",
+        externalId: ""
+    };
+    SearchField[] searchData = [];
+    searchData.push(searchRecord);
+    RecordSearchInfo info = {
+        searchDetail: searchData,
+        recordType: CUSTOMER_TYPE
+    };
+    //searchData.push(searchRecord2);
+    json|error output = netsuiteClient->searchRecord(info);
+    if (output is json) {
+        log:print(output.toString());
+    } else {
+        log:printError(output.toString());
+        test:assertFalse(true, output.message());
     }
 }

@@ -25,27 +25,27 @@ public client class Client {
         self.basicClient = check new (config.baseURL);
     }
 
-    remote function addNewRecord(AddRequest addRequest) returns AddRecordResponse|error {
+    remote function addNewRecord(RecordCreationInfo recordCreationInfo) returns RecordCreationResponse|error {
         http:Request request = new;
-        xml payload = check buildAddRecordPayload(addRequest, self.config);
+        xml payload = check buildAddRecordPayload(recordCreationInfo, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "add");
         http:Response response = <http:Response>check self.basicClient->post("", request);
-        return formatAddResponse(response); 
+        return formatInstanceCreationResponse(response); 
     }
 
-    remote function deleteRecord(DeleteRequest deleteRequest) returns DeleteRecordResponse|error{
+    remote function deleteRecord(RecordDeletionInfo info) returns RecordDeletionResponse|error{
         http:Request request = new;
-        xml payload = check buildDeleteRecordPayload(deleteRequest, self.config);
+        xml payload = check buildDeleteRecordPayload(info, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "delete");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatDeleteResponse(response); 
     }
 
-    remote function updateRecord(UpdateRequest updateRequest) returns UpdateRecordResponse|error {
+    remote function updateRecord(RecordUpdateInfo recordUpdateInfo) returns RecordUpdateResponse|error {
         http:Request request = new;
-        xml payload = check buildUpdateRecordPayload(updateRequest, self.config);
+        xml payload = check buildUpdateRecordPayload(recordUpdateInfo, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "update");
         http:Response response = <http:Response>check self.basicClient->post("", request);
@@ -59,6 +59,22 @@ public client class Client {
         request.setHeader("SOAPAction", "getAll");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatGetAllResponse(response);
+    }
+    remote function getSavedSearch(GetSaveSearchType recordType) returns json[]|error {
+        http:Request request = new;
+        xml payload = check buildGetSavedSearchPayload(recordType, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "getSavedSearch");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatSavedSearchResponse(response);
+    }
+    remote function searchRecord(RecordSearchInfo searchInfo) returns json|error {
+        http:Request request = new;
+        xml payload = check buildSearchPayload(self.config, searchInfo);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "search");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatSearchResponse(response);
     }
  }
 
