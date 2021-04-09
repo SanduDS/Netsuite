@@ -234,5 +234,3 @@ function formatSearchResponse(http:Response response) returns json|error {
         fail error(xmlValure.toString());
     }
 }
-
-

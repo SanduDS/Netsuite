@@ -50,6 +50,3 @@ public type CustomerCurrency record {
     decimal consolUnbilledOrders?;
     boolean overrideCurrencyFormat?;
 };
-
-
-

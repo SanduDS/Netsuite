@@ -95,4 +95,3 @@ function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
     }
     return customerCurrencyList;
 }
-

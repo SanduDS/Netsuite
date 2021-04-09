@@ -20,4 +20,3 @@ public type RecordRef record {
     string externalId?;
     string 'type;
 };
-
