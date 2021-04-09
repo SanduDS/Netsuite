@@ -13,4 +13,4 @@ jobs:
               uses: SanduDS/ballerina-action/@swan-lake-connector-release
               with:
                   args:
-                      build -c --skip-tests
+                      build -c
