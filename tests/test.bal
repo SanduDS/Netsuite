@@ -1,12 +1,13 @@
 import ballerina/test;
 import ballerina/log;
+import ballerina/os;
 
-configurable string accountId = ?;
-configurable string consumerId = ?;
-configurable string consumerSecret = ?;
-configurable string token = ?;
-configurable string tokenSecret = ?;
-configurable string baseURL = ?;
+configurable string accountId = os:getEnv("NS_ACCOUNTID");
+configurable string consumerId = os:getEnv("NS_CLIENT_ID");
+configurable string consumerSecret = os:getEnv("NS_CLIENT_SECRET");
+configurable string token = os:getEnv("NS_TOKEN");
+configurable string tokenSecret = os:getEnv("NS_TOKEN_SECRET");
+configurable string baseURL = os:getEnv("NS_BASE_URL");
 
 NetsuiteConfiguration config = {
     accountId: accountId,
