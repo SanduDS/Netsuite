@@ -85,15 +85,6 @@ public type Subsidiary record {
     string url?;
 };
 
-# Description
-#
-# + displaySymbol - Parameter Description  
-# + currencyPrecision - Parameter Description  
-# + symbol - Parameter Description  
-# + exchangeRate - Parameter Description  
-# + isInactive - Parameter Description  
-# + isBaseCurrency - Parameter Description  
-# + name - Parameter Description  
 public type Currency record {
     string name?;
     string symbol?;

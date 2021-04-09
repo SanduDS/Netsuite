@@ -60,6 +60,7 @@ public client class Client {
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatGetAllResponse(response);
     }
+
     remote function getSavedSearch(GetSaveSearchType recordType) returns json[]|error {
         http:Request request = new;
         xml payload = check buildGetSavedSearchPayload(recordType, self.config);
@@ -68,6 +69,7 @@ public client class Client {
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatSavedSearchResponse(response);
     }
+
     remote function searchRecord(RecordSearchInfo searchInfo) returns json|error {
         http:Request request = new;
         xml payload = check buildSearchPayload(self.config, searchInfo);
@@ -86,4 +88,3 @@ public type NetsuiteConfiguration record {
     string token;
     string baseURL;
 };
-
