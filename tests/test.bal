@@ -18,7 +18,7 @@ NetsuiteConfiguration config = {
     baseURL: baseURL
 };
 
-Client netsuiteClient = checkpanic new (config);
+Client netsuiteClient = check new (config);
 string customerId = "";
 string contactId ="";
 string currencyId = "";
@@ -88,7 +88,7 @@ function testAddContactRecord() {
     RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
     if (output is RecordCreationResponse) {
         log:print(output.toString());
-        contactId = output.internalId;
+        contactId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
@@ -164,7 +164,7 @@ function testAddCustomerRecord() {
     RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
     if (output is RecordCreationResponse) {
         log:print(output.toString());
-        customerId = output.internalId;
+        customerId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
@@ -266,11 +266,41 @@ function testAddCurrencyRecord() {
     RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
     if (output is RecordCreationResponse) {
         log:print(output.toString());
-        currencyId = output.internalId;
+        currencyId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
+}
 
+@test:Config {enable: false}
+function testAddInvoiceRecord() {
+    log:print("testAddInvoiceRecord");
+    RecordRef entity = {
+        name: "Ballerina Dummy Customer",
+        internalId : "7933",
+        'type: "entity"
+    };
+    Invoice invocie = {
+        amountPaid: 10000,
+        amountRemaining: 1500,
+        balance: 8500,
+        total: 12000,
+        //email: "trst@wso2.com,                                                                                                                                                                                                                                                       ",
+        status: "open",
+        entity: entity
+    };
+   
+    RecordCreationInfo info = {
+        instance: invocie,
+        recordType: INVOICE
+    };
+
+    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
+    if (output is RecordCreationResponse) {
+        log:print(output.toString());
+    } else {
+        test:assertFail(output.message());
+    }
 }
 //SOAP WebService provides unexpected ERROR, But the record is added to the salesOrder list
 @test:Config {enable: false}

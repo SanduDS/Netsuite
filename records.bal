@@ -93,6 +93,6 @@ public type DateField record {
     string date2?;
 };
 
-public type RecordRefInCreation Customer|Contact|Currency|Subsidiary;
+public type RecordRefInCreation Customer|Contact|Currency|Invoice|Subsidiary;
 
 type MapAnydata map<anydata>;
