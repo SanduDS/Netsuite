@@ -102,3 +102,19 @@ public type SalesOrder record {
     string status?;
     Item[] itemList?;
 };
+
+public type Invoice record {
+    decimal amountPaid?;
+    decimal amountRemaining?;
+    decimal balance?;
+    decimal total?;
+    string createdDate?;
+    string currencyName?;
+    string dueDate?;
+    string email?;
+    string lastModifiedDate?;
+    string status?;
+    string transactionId?;
+    RecordRef entity?;
+    string invoiceId?;
+};

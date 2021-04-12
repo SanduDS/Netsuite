@@ -16,6 +16,9 @@
 
 import ballerina/http;
 
+# Description
+#
+# + basicClient - Netsuite HTTP Client  
 public client class Client {
     public http:Client basicClient;
     private NetsuiteConfiguration config;
@@ -25,7 +28,11 @@ public client class Client {
         self.basicClient = check new (config.baseURL);
     }
 
-    remote function addNewRecord(RecordCreationInfo recordCreationInfo) returns RecordCreationResponse|error {
+    # This remote operation creates a record instance in Netsuite according to the given detail if they are valid
+    #
+    # + recordCreationInfo - Details of netsuite record instance creation
+    # + return - if success returns a RecordCreationResponse type record otherwise the relevant error
+    remote function addNewRecord(RecordCreationInfo recordCreationInfo) returns @tainted RecordCreationResponse|error {
         http:Request request = new;
         xml payload = check buildAddRecordPayload(recordCreationInfo, self.config);
         request.setXmlPayload(payload);
@@ -34,7 +41,11 @@ public client class Client {
         return formatInstanceCreationResponse(response); 
     }
 
-    remote function deleteRecord(RecordDeletionInfo info) returns RecordDeletionResponse|error{
+    # This remote operation deletes a record instance from Netsuite according to the given detail if they are valid.
+    #
+    # + info - Details of netsuite record instance to be deleted
+    # + return - if success returns a RecordDeletionResponse type record otherwise the relevant error
+    remote function deleteRecord(RecordDeletionInfo info) returns @tainted RecordDeletionResponse|error{
         http:Request request = new;
         xml payload = check buildDeleteRecordPayload(info, self.config);
         request.setXmlPayload(payload);
@@ -43,7 +54,11 @@ public client class Client {
         return formatDeleteResponse(response); 
     }
 
-    remote function updateRecord(RecordUpdateInfo recordUpdateInfo) returns RecordUpdateResponse|error {
+    # This remote operation updates a record instance from Netsuite according to the given detail if they are valid
+    #
+    # + recordUpdateInfo - Details of netsuite record instance to be deleted
+    # + return - if success returns a RecordUpdateResponse type record otherwise the relevant error
+    remote function updateRecord(RecordUpdateInfo recordUpdateInfo) returns @tainted RecordUpdateResponse|error {
         http:Request request = new;
         xml payload = check buildUpdateRecordPayload(recordUpdateInfo, self.config);
         request.setXmlPayload(payload);
@@ -52,25 +67,39 @@ public client class Client {
         return formatUpdateResponse(response); 
     }
     
-    remote function getAll(GetAllRecordType recordType) returns json[]|error {
+    # This remote operation retrieves instances from Netsuite according to a given type  if they are valid
+    #
+    # + recordInfo - A Netsuite record instance to be retrieved from Netsuite
+    # + return - If success returns a json array otherwise the relevant error
+    remote function getAll(RecordGetAllType recordInfo) returns @tainted json[]|error {
         http:Request request = new;
-        xml payload = check buildGetAllPayload(recordType, self.config);
+        xml payload = check buildGetAllPayload(recordInfo, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "getAll");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatGetAllResponse(response);
     }
 
-    remote function getSavedSearch(GetSaveSearchType recordType) returns json[]|error {
+    # This remote operation retrieves a savedSearch type instance from Netsuite according to the given detail 
+    # if they are valid
+    #
+    # + recordInfo - A Netsuite SavedSearch record type to be retrieved from Netsuite
+    # + return - If success returns a json array otherwise the relevant error
+    remote function getSavedSearch(RecordSaveSearchType recordInfo) returns @tainted json[]|error {
         http:Request request = new;
-        xml payload = check buildGetSavedSearchPayload(recordType, self.config);
+        xml payload = check buildGetSavedSearchPayload(recordInfo, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "getSavedSearch");
         http:Response response = <http:Response>check self.basicClient->post("", request);
         return formatSavedSearchResponse(response);
     }
 
-    remote function searchRecord(RecordSearchInfo searchInfo) returns json|error {
+    # This remote operation retrieves Netsuite instances from Netsuite according to the given detail 
+    # if they are valid
+    #
+    # + searchInfo - Details of a Netsuite record to be retrieved from Netsuite
+    # + return - If success returns a json otherwise the relevant error
+    remote function searchRecord(RecordSearchInfo searchInfo) returns @tainted json|error {
         http:Request request = new;
         xml payload = check buildSearchPayload(self.config, searchInfo);
         request.setXmlPayload(payload);

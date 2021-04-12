@@ -485,7 +485,7 @@ public enum Country {
     zimbabwe = "_zimbabwe"
 }
 ///////////////////////////////////get functions///////////////////////////////
-public enum GetAllRecordType {
+public enum RecordGetAllType {
     BUDGETCATEGORY = "budgetCategory",
     CAMPAIGNAUDIENCE = "campaignAudience",
     CURRENCY_All_TYPES = "currency",
@@ -494,7 +494,7 @@ public enum GetAllRecordType {
 }
 
 ////////getSaveSearch////////////////////////////////////////////////////////////
-public enum GetSaveSearchType {
+public enum RecordSaveSearchType {
     ACCOUNT_SAVED_SEARCH = "account",
     ACCOUNTINGPERIOD = "accountingPeriod",
     ACCOUNTINGTRANSACTION = "accountingTransaction",
