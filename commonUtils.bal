@@ -160,6 +160,12 @@ function setRecordAddingOperationFields(RecordCreationInfo info) returns string 
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
             ${rquestXml.toString()}
          </urn:record>`;
+    } else if (info.recordType == INVOICE) {
+        string rquestXml = mapInvoiceRequestValue(<Invoice>info.instance);
+        return string `<urn:record xsi:type="tranSales:Invoice" 
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${rquestXml.toString()}
+         </urn:record>`;
     }
     return "";
 }
