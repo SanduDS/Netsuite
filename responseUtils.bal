@@ -19,7 +19,7 @@ import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
-function formatInstanceCreationResponse(http:Response response) returns RecordCreationResponse|error {
+function formatInstanceCreationResponse(http:Response response) returns @tainted RecordCreationResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -42,7 +42,7 @@ function formatInstanceCreationResponse(http:Response response) returns RecordCr
     }
 }
 
-function formatDeleteResponse(http:Response response) returns RecordDeletionResponse|error {
+function formatDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -64,7 +64,7 @@ function formatDeleteResponse(http:Response response) returns RecordDeletionResp
     }
 }
 
-function formatUpdateResponse(http:Response response) returns RecordUpdateResponse|error {
+function formatUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -85,8 +85,8 @@ function formatUpdateResponse(http:Response response) returns RecordUpdateRespon
         fail error(xmlValure.toString());
     }
 }
-
-function formatGetAllResponse(http:Response response) returns json[]|error {
+ 
+function formatGetAllResponse(http:Response response) returns @tainted json[]|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -154,7 +154,7 @@ function replaceRegexInXML(xml value, string regex, string replacement = "") ret
     return check xmlLib:fromString(formattedXMLResponse);
 } 
 
-function formatPayload(http:Response response) returns xml|error {
+function formatPayload(http:Response response) returns @tainted xml|error {
     xml xmlValure  = check response.getXmlPayload();
     string formattedXMLResponse = regex:replaceAll(xmlValure.toString(), "soapenv:", "soapenv_");
     formattedXMLResponse = regex:replaceAll(formattedXMLResponse, "xsi:", "xsi_");
@@ -202,7 +202,7 @@ function formatSavedSearchResponse(http:Response response) returns json[]|error 
     }
 }
 
-function formatSearchResponse(http:Response response) returns json|error {
+function formatSearchResponse(http:Response response) returns @tainted json|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
