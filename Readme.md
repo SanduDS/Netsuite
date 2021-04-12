@@ -1,8 +1,9 @@
-# Netsuite Connector
-Based on Netsuite SOAP webservice
+#Netsuite Connector
+based on  SOAP webservice
 
 
-[![CI](https://github.com/SanduDS/Netsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/SanduDS/Netsuite/actions/workflows/ci.yml)
+
+[![Build Status](https://travis-ci.org/SanduDS/Netsuite.svg?branch=master)](https://travis-ci.org/SanduDS/Netsuite)
 # Ballerina NetSuite Connector
 
 This module allows you to access the NetSuite's SuiteTalk REST Web services API though Ballerina. NetSuite is used for 
@@ -39,8 +40,9 @@ Download and install [Ballerina](https://ballerinalang.org/downloads/).
 * GetAll
 * GetList
 * GetSavedSearch
-* SearchCustomer
-* SearchTransaction
+* AddRecord
+* DeleteRecord
+* UpdateRecord
 
 ### Pull the Module
 Execute the below command to pull the NetSuite module from Ballerina Central:
@@ -73,7 +75,8 @@ following credentials:
 ```ballerina
 // Create a NetSuite client configuration by reading from the config file.
 // Import the connector
-import ballerinax.module_ballerinax_netsuite as netsuite;
+import ballerina/io;
+import ballerinax/netsuite;
 netsuite:NetsuiteConfiguration config = {
     accountId: <accountId>,
     consumerId: <consumerId>,
@@ -83,7 +86,7 @@ netsuite:NetsuiteConfiguration config = {
     baseURL: <baseURL>
 };
 
-netsuite:Client nsClient = new(nsConfig);
+netsuite:Client nsClient = check new(nsConfig);
 ```
 
 **Perform NetSuite operations**
@@ -91,16 +94,12 @@ netsuite:Client nsClient = new(nsConfig);
 The following sample shows how NetSuite `Currency` entity on GetAll operation.
 
 ```ballerina
-import ballerina/io;
-import ballerinax.module_ballerinax_netsuite as netsuite;
-
 public function main() {
     json|error output = nsClient->getAll("currency");
     if (output is json) {
         log:print(output.toString());
     } else {
-        log:printError(output.toString());
-        test:assertFalse(false, output.message());
+        log:printError(output.message());
     }
 }
 ```
