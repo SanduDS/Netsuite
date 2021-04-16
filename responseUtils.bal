@@ -19,7 +19,7 @@ import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
-function formatInstanceCreationResponse(http:Response response) returns @tainted RecordCreationResponse|error {
+function formatInstanceCreationResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -27,7 +27,7 @@ function formatInstanceCreationResponse(http:Response response) returns @tainted
         string isSuccess = check output.isSuccess;
         if(isSuccess == "true" && afterSubmissionResponse.afterSubmitFailed == "false" ) {
             xml baseRef  = xmlValure/**/<baseRef>;
-            RecordCreationResponse instanceCreationResponse = {
+            RecordAddResponse instanceCreationResponse = {
                 isSuccess: true,
                 internalId: check baseRef.internalId,
                 recordType: check baseRef.'type
@@ -202,35 +202,24 @@ function formatSavedSearchResponse(http:Response response) returns json[]|error 
     }
 }
 
-function formatSearchResponse(http:Response response) returns @tainted json|error {
-    xml xmlValure = check formatPayload(response);
+function getXMLRecordListFromSearchResult(http:Response response) returns @tainted xml|error {
+    xml xmlValue = check formatPayload(response);
     if (response.statusCode == 200) {
-        xml output  = xmlValure/**/<status>;
+        xml output  = xmlValue/**/<status>;
         string isSuccess = check output.isSuccess;
         if(isSuccess == "true") {
-            xml:Element records = <xml:Element> xmlValure/**/<recordList>;
-            xml baseRef  = xmlLib:getChildren(records);
-            json searchResults = [];
-            var xx = xmlLib:forEach(baseRef,function(xml platformCoreRecord) {
-                string|error count =  platformCoreRecord.xsi_type;
-                if(count is string ) {
-                    match count {
-                        "listRel:Customer" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listRel:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                searchResults = afterSubmissionResponse;
-                            }
-                        }
-                    }
-                }
-            });          
-            return searchResults;
+            xml:Element records = <xml:Element> xmlValue/**/<recordList>;
+            xml baseRef  = xmlLib:getChildren(records); 
+            if(baseRef.length() == 0) {
+                fail error("No record found!");
+            }    
+            return baseRef;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
+            json errorMessage= check jsonutils:fromXML(xmlValue/**/<statusDetail>);
+            errorMessage= check jsonutils:fromXML(xmlValue/**/<soapenv_Fault>/<faultstring>);
             fail error(errorMessage.toString());
         }    
     } else {
-        fail error(xmlValure.toString());
+        fail error(xmlValue.toString());
     }
 }

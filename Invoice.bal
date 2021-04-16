@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function mapInvoiceRequestValue(Invoice invoice) returns string {
+//------------------------------------------------Create/Update Records-------------------------------------------------
+function mapInvoiceRecordFields(Invoice invoice) returns string {
     string finalResult = "";
     map<anydata>|error invoiceMap = invoice.cloneWithType(MapAnydata);
     if (invoiceMap is map<anydata>) {
@@ -24,10 +25,24 @@ function mapInvoiceRequestValue(Invoice invoice) returns string {
             if (item is string|decimal) {
                 finalResult += setSimpleType(keys[position], item, "tranSales");
             } else if (item is RecordRef) {
-                finalResult += setRecordRef(<RecordRef>item, "tranSales");
+                finalResult += getXMLRecordRef(<RecordRef>item, "tranSales");
             }    
             position += 1;
         }
     }
     return finalResult;
+}
+
+function wrapInvoiceElementsToBeCreatedWithParentElement(string subElements) returns string{
+    return string `<urn:record xsi:type="tranSales:Invoice" 
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
+}
+
+function wrapInvoiceElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+    return string `<urn:record xsi:type="tranSales:Invoice" internalId="${internalId}"
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
 }

@@ -52,7 +52,8 @@ public type Contact record {
 };
 
 public type Customer record {
-    string entityId;
+    string internalId?;
+    string entityId?;
     boolean isPerson?;
     string salutation?;
     string firstName?;

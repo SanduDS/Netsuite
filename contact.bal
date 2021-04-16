@@ -14,33 +14,54 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function MapCustomerRequestValue(Customer customer) returns string {
+//------------------------------------------------Create/Update Records-------------------------------------------------
+function mapContactRecordFields(Contact contact) returns string {
     string finalResult = "";
-    map<anydata>|error customerMap = customer.cloneWithType(MapAnydata);
-    if (customerMap is map<anydata>) {
-        string[] keys = customerMap.keys();
+    map<anydata>|error contactMap = contact.cloneWithType(MapAnydata);
+    if (contactMap is map<anydata>) {
+        string[] keys = contactMap.keys();
         int position = 0;
-        foreach var item in customer {
+        foreach var item in contact {
             if (item is string|boolean) {
                 finalResult += setSimpleType(keys[position], item, "listRel");
             } else if (item is RecordRef) {
-                finalResult += setRecordRef(<RecordRef>item, "listRel");
-            } else if (item is CustomerAddressbook[]) {
+                finalResult += getXMLRecordRef(<RecordRef>item, "listRel");
+            } else if (item is Category[]) {
+                string categoryList = "";
+                foreach RecordRef category in item {
+                    categoryList += getXMLRecordRef(category, "listRel");
+                }
+                finalResult += string `<listRel:categoryList>${categoryList}</listRel:categoryList>`;
+            } else if (item is GlobalSubscriptionStatusType) {
+                finalResult += string `<listRel:globalSubscriptionStatus>${item.toString()}
+                </listRel:globalSubscriptionStatus>`;
+            } else if (item is ContactAddressBook[]) {
                 string addressList = prepareAddressList(item);
                 finalResult += string`<listRel:addressbookList>${addressList}</listRel:addressbookList>`;
-            } else if (item is CustomerCurrency[]) {
-                string currencyList = prepareCurrencyList(item);
-                finalResult += string`<listRel:currencyList>${currencyList}</listRel:currencyList>`;
-            }
+            } 
             position += 1;
         }
     }
     return finalResult;
 }
 
-function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns string {
-    string customerAddressBook= "";
-    foreach CustomerAddressbook addressBookItem in addressBooks {
+function wrapContactElementsToBeCreatedWithParentElement(string subElements) returns string{
+    return string `<urn:record xsi:type="listRel:Contact" 
+        xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
+}
+
+function wrapContactElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+    return string `<urn:record xsi:type="listRel:Contact" internalId="${internalId}"
+        xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
+}
+
+function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
+    string contactAddressBook= "";
+    foreach ContactAddressBook addressBookItem in addressBooks {
         map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnydata);
         int mainPosition = 0;
         string addressList = "";
@@ -68,30 +89,7 @@ function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns 
                 mainPosition += 1;
             }
         }
-        customerAddressBook += string`<addressbook>${addressList}</addressbook>`;
+        contactAddressBook += string`<addressbook>${addressList}</addressbook>`;
     }
-    return customerAddressBook;
-}
-
-function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
-    string customerCurrencyList= "";
-    foreach CustomerCurrency customerCurrencyItem in currencyLists {
-        map<anydata>|error currencyItemMap = customerCurrencyItem.cloneWithType(MapAnydata);
-        int mainPosition = 0;
-        string currencyList = "";
-        if(currencyItemMap is map<anydata>) {
-            string[] currencyItemKeys = currencyItemMap.keys();
-            foreach var item in customerCurrencyItem {
-                if(item is string|boolean|decimal) {
-                    currencyList += string `<${currencyItemKeys[mainPosition]}>${item.toString()}
-                    </${currencyItemKeys[mainPosition]}>`;
-                } else if (item is RecordRef) {
-                    currencyList += setRecordRef(<RecordRef>item, "listRel");
-                }
-                mainPosition += 1;
-            }
-        }
-        customerCurrencyList += string`<currency>${currencyList}</currency>`;
-    }
-    return customerCurrencyList;
+    return contactAddressBook;
 }

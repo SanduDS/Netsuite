@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function MapCurrencyRequestValue(Currency currency) returns string {
+//------------------------------------------------Create/Update Records-------------------------------------------------
+function mapCurrencyRecordFields(Currency currency) returns string {
     string finalResult = "";
     map<anydata>|error currencyMap = currency.cloneWithType(MapAnydata);
     if (currencyMap is map<anydata>) {
@@ -23,9 +24,23 @@ function MapCurrencyRequestValue(Currency currency) returns string {
         foreach var item in currency {
             if (item is string|boolean|decimal|int) {
                 finalResult += setSimpleType(keys[position], item, "listAcct");
-            } 
+            }
             position += 1;
         }
     }
     return finalResult;
+}
+
+function wrapCurrencyElementsToBeCreatedWithParentElement(string subElements) returns string{
+    return string `<urn:record xsi:type="listAcct:Currency" 
+        xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
+}
+
+function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+    return string `<urn:record xsi:type="listAcct:Currency" internalId="${internalId}"
+        xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
 }

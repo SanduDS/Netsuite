@@ -22,6 +22,8 @@ Client netsuiteClient = check new (config);
 string customerId = "";
 string contactId ="";
 string currencyId = "";
+
+//----------------------------------------------------- Beginning of Record Addition Tests------------------------------
 @test:Config {enable: true}
 function testAddContactRecord() {
     log:print("testAddContactRecord");
@@ -81,12 +83,8 @@ function testAddContactRecord() {
         addressBookList : [contactAddressBook, contactAddressBook2]
 
     };
-    RecordCreationInfo info = {
-        instance: contact,
-        recordType: CONTACT
-    };
-    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
-    if (output is RecordCreationResponse) {
+    RecordAddResponse|error output = netsuiteClient->addNewContact(contact);
+    if (output is RecordAddResponse) {
         log:print(output.toString());
         contactId = <@untainted>output.internalId;
     } else {
@@ -96,7 +94,7 @@ function testAddContactRecord() {
 
 
 @test:Config {enable: true}
-function testAddCustomerRecord() {
+function testAddNewCustomerRecord() {
     log:print("testAddCustomerRecord");
     RecordRef subsidiary = {
         internalId : "11",
@@ -156,13 +154,8 @@ function testAddCustomerRecord() {
         //currencyList: [cur] currency is not added.
 
     };
-    RecordCreationInfo info = {
-        instance: customer,
-        recordType: CUSTOMER
-    };
-
-    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
-    if (output is RecordCreationResponse) {
+    RecordAddResponse|error output = netsuiteClient->addNewCustomer(customer);
+    if (output is RecordAddResponse) {
         log:print(output.toString());
         customerId = <@untainted>output.internalId;
     } else {
@@ -171,9 +164,105 @@ function testAddCustomerRecord() {
 
 }
 
-@test:Config {enable: true, dependsOn: [testAddCustomerRecord]}
-function testupdateCustomerRecord() {
-    log:print("testupdateCustomerRecord");
+@test:Config {enable: true}
+function testAddCurrencyRecord() {
+    log:print("testAddCurrencyRecord");
+    Currency currency = {
+        name: "BLA",
+        symbol: "BLA",
+        //currencyPrecision: "_two",
+        exchangeRate: 3.89,
+        isInactive: false,
+        isBaseCurrency: false
+    };
+    RecordAddResponse|error output = netsuiteClient->addNewCurrency(currency);
+    if (output is RecordAddResponse) {
+        log:print(output.toString());
+        currencyId = <@untainted>output.internalId;
+    } else {
+        test:assertFail(output.message());
+    }
+}
+
+@test:Config {enable: false}
+function testAddInvoiceRecord() {
+    log:print("testAddInvoiceRecord");
+    RecordRef entity = {
+        name: "Ballerina Dummy Customer",
+        internalId : "7933",
+        'type: "entity"
+    };
+    Invoice invoice = {
+        amountPaid: 10000,
+        amountRemaining: 1500,
+        balance: 8500,
+        total: 12000,
+        //email: "trst@wso2.com,                                                                                                                                                                                                                                                       ",
+        status: "open",
+        entity: entity
+    };
+    RecordAddResponse|error output = netsuiteClient->addNewInvoice(invoice);
+    if (output is RecordAddResponse) {
+        log:print(output.toString());
+    } else {
+        test:assertFail(output.message());
+    }
+}
+//SOAP WebService provides unexpected ERROR, But the record is added to the salesOrder list
+@test:Config {enable: false}
+function testSalesOrderRecord() {
+    log:print("testSalesOrderRecord");
+    RecordRef entity = {
+        internalId : "4045",
+        'type: "entity"
+    };
+
+    RecordRef itemValue = {
+        internalId : "961",
+        'type: "item"
+    };
+    Address address = {
+        country: "_sriLanka",
+        addr1: "RuwanmagaBombuwala",
+        addr2:"Dodangoda",
+        city:"Colombo07",
+        override: true
+    };
+    RecordRef currency = {
+        internalId : "1",
+        'type: "currency"
+    };
+
+    RecordRef location = {
+        internalId : "23",
+        'type: "location"
+    };
+    Item item = {
+        item: itemValue,
+        amount: 1,
+        location: location
+    };
+    SalesOrder salesOrder = {
+        entity:entity,
+        billingAddress: address,
+        currency: currency,
+        itemList:[item]
+    };
+    RecordAddResponse|error output = netsuiteClient->addNewSalesOrder(salesOrder);
+    if (output is RecordAddResponse) {
+        log:print(output.toString());
+    } else {
+        test:assertFail(output.message());
+    }
+
+}
+
+ //----------------------------------------------------- End of Addition Tests------------------------------------------
+
+ //----------------------------------------------------- Beginning of Update Tests--------------------------------------
+@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord]}
+function testUpdateCustomerRecord() {
+    log:print("testUpdateCustomerRecord");
     RecordRef subsidiary = {
         internalId : "11",
         'type: "subsidiary"
@@ -246,142 +335,15 @@ function testupdateCustomerRecord() {
     }
 
 }
+//---------------------------------------End of Update Tests------------------------------------------------------------
 
-@test:Config {enable: true}
-function testAddCurrencyRecord() {
-    log:print("testAddCurrencyRecord");
-    Currency currency = {
-        name: "BLA",
-        symbol: "BLA",
-        //currencyPrecision: "_two",
-        exchangeRate: 3.89,
-        isInactive: false,
-        isBaseCurrency: false
-    };
-    RecordCreationInfo info = {
-        instance: currency,
-        recordType: CURRENCY
-    };
-
-    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
-    if (output is RecordCreationResponse) {
-        log:print(output.toString());
-        currencyId = <@untainted>output.internalId;
-    } else {
-        test:assertFail(output.message());
-    }
-}
-
-@test:Config {enable: false}
-function testAddInvoiceRecord() {
-    log:print("testAddInvoiceRecord");
-    RecordRef entity = {
-        name: "Ballerina Dummy Customer",
-        internalId : "7933",
-        'type: "entity"
-    };
-    Invoice invocie = {
-        amountPaid: 10000,
-        amountRemaining: 1500,
-        balance: 8500,
-        total: 12000,
-        //email: "trst@wso2.com,                                                                                                                                                                                                                                                       ",
-        status: "open",
-        entity: entity
-    };
-   
-    RecordCreationInfo info = {
-        instance: invocie,
-        recordType: INVOICE
-    };
-
-    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
-    if (output is RecordCreationResponse) {
-        log:print(output.toString());
-    } else {
-        test:assertFail(output.message());
-    }
-}
-//SOAP WebService provides unexpected ERROR, But the record is added to the salesOrder list
-@test:Config {enable: false}
-function testSalesOrderRecord() {
-    log:print("testSalesOrderRecord");
-    RecordRef entity = {
-        internalId : "4045",
-        'type: "entity"
-    };
-
-    RecordRef itemValue = {
-        internalId : "961",
-        'type: "item"
-    };
-    Address address = {
-        country: "_sriLanka",
-        addr1: "RuwanmagaBombuwala",
-        addr2:"Dodangoda",
-        city:"Colombo07",
-        override: true
-    };
-    RecordRef currency = {
-        internalId : "1",
-        'type: "currency"
-    };
-
-    RecordRef location = {
-        internalId : "23",
-        'type: "location"
-    };
-    Item item = {
-        item: itemValue,
-        amount: 1,
-        location: location
-    };
-    SalesOrder salesOrder = {
-        entity:entity,
-        billingAddress: address,
-        currency: currency,
-        itemList:[item]
-    };
-    RecordCreationInfo info = {
-        instance: salesOrder,
-        recordType: SALES_ORDER
-    };
-    RecordCreationResponse|error output = netsuiteClient->addNewRecord(info);
-    if (output is RecordCreationResponse) {
-        log:print(output.toString());
-    } else {
-        test:assertFail(output.message());
-    }
-
-}
-
-@test:Config {enable: true}
-function testGetAll() {
-    log:print("testGetAll");
-    json[]|error output = netsuiteClient->getAll("currency");
-    if (output is json[]) {
-        log:print("Number of records found: " + output.length().toString());
-    } else {
-        test:assertFalse(false, output.message());
-    }
-}
-
-@test:Config {enable: true}
-function testGetSavedSearchFunction() {
-    log:print("testGetSavedSearchFunction");
-    json[]|error output = netsuiteClient->getSavedSearch("transaction");
-    if (output is json[]) {
-        log:print("Number of records found: " + output.length().toString());
-    } else {
-        test:assertFalse(false, output.message());
-    }
-}
-
-@test:Config {enable: true, dependsOn: [testAddCustomerRecord, testAddCurrencyRecord, testAddContactRecord, 
-testupdateCustomerRecord]}
+//---------------------------------------Beginning of Deletion Tests----------------------------------------------------
+@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord, testAddCurrencyRecord, testAddContactRecord, 
+testUpdateCustomerRecord, testCustomerSearchOperation]}
 function testDeleteRecord() {
+    log:print("Record Deletion Start");
     log:print("testCustomerDeleteRecord");
-    RecordDeletionInfo recordDeletionInfo = {
+    RecordDetail recordDeletionInfo = {
         recordInternalId : customerId,
         recordType: "customer"
     };
@@ -414,34 +376,48 @@ function testDeleteRecord() {
         test:assertFail(output.toString());
     }
 }
+//-----------------------------------------------------End of Update Tests----------------------------------------------
+
+//----------------------------------------------------Beginning of Search Tests-----------------------------------------
+@test:Config {enable: true}
+function testCustomerSearchOperation() {
+    log:print("testCustomerTypeRecord");
+    SearchElement searchRecord = {
+        fieldName: "lastName",
+        searchType: SEARCH_STRING_FIELD,
+        operator: "is",
+        value1: "TestSilva"
+    };
+    SearchElement[] searchData = [];
+    searchData.push(searchRecord);
+    Customer|error output = netsuiteClient->searchCustomerRecord(searchData);
+    if (output is Customer) {
+        log:print(output?.entityId.toString());     
+    } else {
+        test:assertFalse(true, output.message());
+    }
+}
+//----------------------------------------------------End of Search Tests-----------------------------------------------
+
+//----------------------------------------------------Beginning of Miscellaneous tests----------------------------------
+@test:Config {enable: true}
+function testGetAll() {
+    log:print("testGetAll");
+    json[]|error output = netsuiteClient->getAll("currency");
+    if (output is json[]) {
+        log:print("Number of records found: " + output.length().toString());
+    } else {
+        test:assertFalse(false, output.message());
+    }
+}
 
 @test:Config {enable: true}
-function testSearch() {
-    log:print("testSearch");
-    SearchField searchRecord = {
-        elementName: "companyName",
-        operator: "is",
-        value: "80 Acres"
-    };
-    SearchField searchRecord2 = {
-        elementName: "currency",
-        operator: ANYOF,
-        value: "",
-        internalId:"1",
-        externalId: ""
-    };
-    SearchField[] searchData = [];
-    searchData.push(searchRecord);
-    RecordSearchInfo info = {
-        searchDetail: searchData,
-        recordType: CUSTOMER_TYPE
-    };
-    //searchData.push(searchRecord2);
-    json|error output = netsuiteClient->searchRecord(info);
-    if (output is json) {
-        log:print(output.toString());
+function testGetSavedSearchFunction() {
+    log:print("testGetSavedSearchFunction");
+    json[]|error output = netsuiteClient->getSavedSearch("transaction");
+    if (output is json[]) {
+        log:print("Number of records found: " + output.length().toString());
     } else {
-        log:printError(output.toString());
-        test:assertFalse(true, output.message());
+        test:assertFalse(false, output.message());
     }
 }

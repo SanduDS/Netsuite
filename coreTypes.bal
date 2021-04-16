@@ -18,5 +18,5 @@ public type RecordRef record {
     string name?;
     string internalId;
     string externalId?;
-    string 'type;
+    string 'type?;
 };

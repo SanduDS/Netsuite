@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function mapSalesOrderRequestValue(SalesOrder salesOrder) returns string {
+function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
     string finalResult = "";
     map<anydata>|error salesOrderMap = salesOrder.cloneWithType(MapAnydata);
     if (salesOrderMap is map<anydata>) {
@@ -24,7 +24,7 @@ function mapSalesOrderRequestValue(SalesOrder salesOrder) returns string {
             if (item is string|boolean|decimal|int|SalesOrderOrderStatus) {
                 finalResult += setSimpleType(keys[position], item, "tranSales");
             } else if (item is RecordRef) {
-                finalResult += setRecordRef(<RecordRef>item, "tranSales");
+                finalResult += getXMLRecordRef(<RecordRef>item, "tranSales");
             } else if (item is Address) {
                 string addressLines = "";
                 map<anydata>|error AddressMap = item.cloneWithType(MapAnydata);
@@ -50,7 +50,7 @@ function mapSalesOrderRequestValue(SalesOrder salesOrder) returns string {
                             if(element is string|int|boolean|decimal) {
                                 itemValue += string `<${itemKeys[itemPosition]}>${element.toString()}</${itemKeys[itemPosition]}>`;
                             } else if (element is RecordRef){
-                                itemValue += setRecordRef(<RecordRef>element, "tranSales");
+                                itemValue += getXMLRecordRef(<RecordRef>element, "tranSales");
                             }
                         }
                         itemPosition += 1;  
@@ -62,5 +62,22 @@ function mapSalesOrderRequestValue(SalesOrder salesOrder) returns string {
             position += 1;
         }
     }
-    return finalResult;
+    return string `<urn:record xsi:type="tranSales:SalesOrder" 
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${finalResult.toString()}
+         </urn:record>`;
+}
+
+function wrapSalesOrderElementsToBeCreatedWithParentElement(string subElements) returns string{
+    return string `<urn:record xsi:type="tranSales:SalesOrder" 
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
+}
+
+function wrapSalesOrderElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+    return string `<urn:record xsi:type="tranSales:SalesOrder" internalId="${internalId}"
+        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
+            ${subElements}
+         </urn:record>`;
 }

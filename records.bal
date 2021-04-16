@@ -25,25 +25,25 @@ public type TokenData record {
 };
 
 public type RecordCreationInfo record {
-    RecordRefInCreation instance;
+    NetSuiteInstance instance;
     string recordType;
 };
 
-public type RecordCreationResponse record {
+public type RecordAddResponse record {
     boolean isSuccess;
     string internalId;
     string recordType;
 };
 
 public type RecordDeletionResponse record {
-    *RecordCreationResponse;
+    *RecordAddResponse;
 };
 
 public type RecordUpdateResponse record {
-    *RecordCreationResponse;
+    *RecordAddResponse;
 };
 
-public type RecordDeletionInfo record {
+public type RecordDetail record {
     string recordInternalId;
     string recordType;
     string deletionReasonId?;
@@ -51,7 +51,7 @@ public type RecordDeletionInfo record {
 };
 
 public type RecordUpdateInfo record {
-    RecordRefInCreation instance;
+    NetSuiteInstance instance;
     string internalId;
     RecordCoreType recordType;
 };
@@ -61,24 +61,6 @@ public type SavedSearchResponse record {
     boolean isSuccess;
     RecordRef[] recordRefList = [];
 };
-
-
-public type SearchField record {
-    CustomerSearchElement elementName?;
-    BasicSearchStringFieldOperation|SearchDoubleFieldOperator|BasicSearchEnumORMultiSelectFieldOperator|SearchDateFieldOperator operator;
-    string internalId?;
-    string externalId?;
-    string value?;
-    DateField dateField?;
-    DoubleField doubleField?;
-};
-
-public type RecordSearchInfo record {
-    SearchField[] searchDetail;
-    RecordSearchType recordType;
-};
-
-
 
 public type DoubleField record {
     SearchDoubleFieldOperator operator;
@@ -93,6 +75,6 @@ public type DateField record {
     string date2?;
 };
 
-public type RecordRefInCreation Customer|Contact|Currency|Invoice|Subsidiary;
+public type NetSuiteInstance Customer|Contact|Currency|Invoice|Subsidiary;// change names RecordTypes
 
 type MapAnydata map<anydata>;

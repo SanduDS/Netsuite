@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+//import ballerina/log;
 
 # Description
 #
@@ -30,11 +31,47 @@ public client class Client {
 
     # This remote operation creates a record instance in Netsuite according to the given detail if they are valid
     #
-    # + recordCreationInfo - Details of netsuite record instance creation
+    # + customer - Details of netsuite record instance creation
     # + return - if success returns a RecordCreationResponse type record otherwise the relevant error
-    remote function addNewRecord(RecordCreationInfo recordCreationInfo) returns @tainted RecordCreationResponse|error {
+    remote function addNewCustomer(Customer customer) returns RecordAddResponse|error{
         http:Request request = new;
-        xml payload = check buildAddRecordPayload(recordCreationInfo, self.config);
+        xml payload = check buildAddRecordPayload(customer, CUSTOMER, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatInstanceCreationResponse(response); 
+    }
+
+    remote function addNewContact(Contact contact) returns RecordAddResponse|error{
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(contact, CONTACT, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatInstanceCreationResponse(response); 
+    }
+
+    remote function addNewInvoice(Invoice invoice) returns RecordAddResponse|error{
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(invoice, INVOICE, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatInstanceCreationResponse(response); 
+    }
+
+    remote function addNewCurrency(Currency currency) returns RecordAddResponse|error{
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(currency, CURRENCY, self.config);
+        request.setXmlPayload(payload);
+        request.setHeader("SOAPAction", "add");
+        http:Response response = <http:Response>check self.basicClient->post("", request);
+        return formatInstanceCreationResponse(response); 
+    }
+
+    remote function addNewSalesOrder(SalesOrder salesOrder) returns RecordAddResponse|error{
+        http:Request request = new;
+        xml payload = check buildAddRecordPayload(salesOrder, SALES_ORDER, self.config);
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "add");
         http:Response response = <http:Response>check self.basicClient->post("", request);
@@ -45,7 +82,7 @@ public client class Client {
     #
     # + info - Details of netsuite record instance to be deleted
     # + return - if success returns a RecordDeletionResponse type record otherwise the relevant error
-    remote function deleteRecord(RecordDeletionInfo info) returns @tainted RecordDeletionResponse|error{
+    remote function deleteRecord(RecordDetail info) returns @tainted RecordDeletionResponse|error{
         http:Request request = new;
         xml payload = check buildDeleteRecordPayload(info, self.config);
         request.setXmlPayload(payload);
@@ -97,15 +134,16 @@ public client class Client {
     # This remote operation retrieves Netsuite instances from Netsuite according to the given detail 
     # if they are valid
     #
-    # + searchInfo - Details of a Netsuite record to be retrieved from Netsuite
+    # + searchElements - Details of a Netsuite record to be retrieved from Netsuite
     # + return - If success returns a json otherwise the relevant error
-    remote function searchRecord(RecordSearchInfo searchInfo) returns @tainted json|error {
+    remote function searchCustomerRecord(SearchElement[] searchElements) returns @tainted Customer|error {
         http:Request request = new;
-        xml payload = check buildSearchPayload(self.config, searchInfo);
+        xml payload = check buildCustomerSearchPayload(self.config, searchElements);
+        //log:print(payload.toString());
         request.setXmlPayload(payload);
         request.setHeader("SOAPAction", "search");
         http:Response response = <http:Response>check self.basicClient->post("", request);
-        return formatSearchResponse(response);
+        return getCustomerSearchResponse(response);
     }
  }
 
