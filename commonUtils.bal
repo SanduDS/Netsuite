@@ -14,11 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
 import ballerina/time;
 import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'boolean as booleanLib;
 
+function makeHTTPRequestCall(http:Client basicClient, string action, xml payload) returns http:Response|error {
+    http:Request request = new;
+    request.setXmlPayload(payload);
+    request.setHeader("SOAPAction", action);
+    return <http:Response>check basicClient->post("", request);
+}
 
 isolated function buildXMLPayloadHeader(NetsuiteConfiguration config) returns string|error {
     time:Time timeNow = time:currentTime();
@@ -109,33 +116,33 @@ function buildDeleteRecordPayload(RecordDetail info, NetsuiteConfiguration confi
     return xmlPayload;
 }
 
-function buildUpdateRecordPayload(RecordUpdateInfo request, NetsuiteConfiguration config) returns xml|error {
+function buildUpdateRecordPayload(NetSuiteInstance info, RecordCoreType recordCoreType, NetsuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string elements = check setRecordUpdatingOperationFields(request);
+    string elements = check setRecordUpdatingOperationFields(info, recordCoreType);
     string body = getUpdateXMLBodyWithParentElement(elements);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-function setRecordUpdatingOperationFields(RecordUpdateInfo info) returns string|error {
+function setRecordUpdatingOperationFields(NetSuiteInstance info, RecordCoreType recordCoreType) returns string|error {
     string subElements = "";   
-    match info.recordType {
+    match recordCoreType {
         CUSTOMER => {
-             subElements = mapCustomerRecordFields(<Customer>info.instance); 
-             return wrapCustomerElementsToBeUpdatedWithParentElement(subElements, info.internalId);
+             subElements = mapCustomerRecordFields(<Customer>info); 
+             return wrapCustomerElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         CONTACT => {
-             subElements = mapContactRecordFields(<Contact>info.instance); 
-             return wrapContactElementsToBeUpdatedWithParentElement(subElements, info.internalId);
+             subElements = mapContactRecordFields(<Contact>info); 
+             return wrapContactElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         CURRENCY => {
-            subElements = mapCurrencyRecordFields(<Currency>info.instance);
-            return wrapCurrencyElementsToBeUpdatedWithParentElement(subElements, info.internalId);
+            subElements = mapCurrencyRecordFields(<Currency>info);
+            return wrapCurrencyElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         SALES_ORDER => {
-            subElements = mapSalesOrderRecordFields(<SalesOrder>info.instance);
-            return wrapSalesOrderElementsToBeUpdatedWithParentElement(subElements, info.internalId);
+            subElements = mapSalesOrderRecordFields(<SalesOrder>info);
+            return wrapSalesOrderElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         _ => {
                 fail error("Connector couldn't identify the recordType, Please check the record fields.");
@@ -166,6 +173,11 @@ function setRecordAddingOperationFields(NetSuiteInstance info, RecordCoreType re
             subElements = mapInvoiceRecordFields(<Invoice>info); 
             return wrapInvoiceElementsToBeCreatedWithParentElement(subElements);
         }
+        CLASSIFICATION => {
+            subElements = mapClassificationRecordFields(<Classification>info); 
+            return wrapClassificationElementsToBeCreatedWithParentElement(subElements);
+        }
+
         _ => {
                 fail error("Connector couldn't identify the recordType, Please check the record fields.");
             }

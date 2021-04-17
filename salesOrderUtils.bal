@@ -62,10 +62,7 @@ function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
             position += 1;
         }
     }
-    return string `<urn:record xsi:type="tranSales:SalesOrder" 
-        xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
-            ${finalResult.toString()}
-         </urn:record>`;
+    return finalResult;
 }
 
 function wrapSalesOrderElementsToBeCreatedWithParentElement(string subElements) returns string{

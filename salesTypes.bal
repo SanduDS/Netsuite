@@ -117,4 +117,5 @@ public type Invoice record {
     string transactionId?;
     RecordRef entity?;
     string invoiceId?;
+    Item[] itemList?;
 };

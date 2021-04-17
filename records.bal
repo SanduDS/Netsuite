@@ -31,6 +31,7 @@ public type RecordCreationInfo record {
 
 public type RecordAddResponse record {
     boolean isSuccess;
+    boolean afterSubmitFailed?;
     string internalId;
     string recordType;
 };
@@ -56,6 +57,8 @@ public type RecordUpdateInfo record {
     RecordCoreType recordType;
 };
 
+
+
 public type SavedSearchResponse record {
     int numberOfRecords?;
     boolean isSuccess;
@@ -75,6 +78,6 @@ public type DateField record {
     string date2?;
 };
 
-public type NetSuiteInstance Customer|Contact|Currency|Invoice|Subsidiary;// change names RecordTypes
+public type NetSuiteInstance Customer|Contact|Currency|Invoice|Classification;// change names RecordTypes
 
 type MapAnydata map<anydata>;

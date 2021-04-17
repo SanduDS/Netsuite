@@ -19,7 +19,7 @@ import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
-function formatInstanceCreationResponse(http:Response response) returns @tainted RecordAddResponse|error {
+function getRecordCreationResult(http:Response response) returns @tainted RecordAddResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -29,11 +29,21 @@ function formatInstanceCreationResponse(http:Response response) returns @tainted
             xml baseRef  = xmlValure/**/<baseRef>;
             RecordAddResponse instanceCreationResponse = {
                 isSuccess: true,
+                afterSubmitFailed: false,
                 internalId: check baseRef.internalId,
                 recordType: check baseRef.'type
             };
             return instanceCreationResponse;
-        } else {
+        } else if(isSuccess == "false" && afterSubmissionResponse.afterSubmitFailed == "true") {
+            xml baseRef  = xmlValure/**/<baseRef>;
+            RecordAddResponse instanceCreationResponse = {
+                isSuccess: false,
+                afterSubmitFailed: true,
+                internalId: check baseRef.internalId,
+                recordType: check baseRef.'type
+            };
+            return instanceCreationResponse;
+        }else {
             json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
             fail error(errorMessage.toString());
         }    
@@ -42,7 +52,7 @@ function formatInstanceCreationResponse(http:Response response) returns @tainted
     }
 }
 
-function formatDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
+function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -64,7 +74,7 @@ function formatDeleteResponse(http:Response response) returns @tainted RecordDel
     }
 }
 
-function formatUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
+function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
@@ -169,7 +179,7 @@ function formatPayload(http:Response response) returns @tainted xml|error {
     return check xmlLib:fromString(formattedXMLResponse);
 }
 
-function formatSavedSearchResponse(http:Response response) returns json[]|error {
+function getSavedSearchResponse(http:Response response) returns json[]|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == 200) {
         xml output  = xmlValure/**/<status>;
