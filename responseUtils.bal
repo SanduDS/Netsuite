@@ -20,13 +20,13 @@ import ballerina/jsonutils;
 import ballerina/http;
 
 function getRecordCreationResult(http:Response response) returns @tainted RecordAddResponse|error {
-    xml xmlValure = check formatPayload(response);
+    xml xmlValue = check formatPayload(response);
     if (response.statusCode == 200) {
-        xml output  = xmlValure/**/<status>;
-        json  afterSubmissionResponse= check jsonutils:fromXML(xmlValure/**/<afterSubmitFailed>);
+        xml output  = xmlValue/**/<status>;
+        json  afterSubmissionResponse= check jsonutils:fromXML(xmlValue/**/<afterSubmitFailed>);
         string isSuccess = check output.isSuccess;
         if(isSuccess == "true" && afterSubmissionResponse.afterSubmitFailed == "false" ) {
-            xml baseRef  = xmlValure/**/<baseRef>;
+            xml baseRef  = xmlValue/**/<baseRef>;
             RecordAddResponse instanceCreationResponse = {
                 isSuccess: true,
                 afterSubmitFailed: false,
@@ -35,7 +35,7 @@ function getRecordCreationResult(http:Response response) returns @tainted Record
             };
             return instanceCreationResponse;
         } else if(isSuccess == "false" && afterSubmissionResponse.afterSubmitFailed == "true") {
-            xml baseRef  = xmlValure/**/<baseRef>;
+            xml baseRef  = xmlValue/**/<baseRef>;
             RecordAddResponse instanceCreationResponse = {
                 isSuccess: false,
                 afterSubmitFailed: true,
@@ -44,11 +44,11 @@ function getRecordCreationResult(http:Response response) returns @tainted Record
             };
             return instanceCreationResponse;
         }else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
+            xml errorMessage= xmlValue/**/<statusDetail>;
             fail error(errorMessage.toString());
         }    
     } else {
-        fail error(xmlValure.toString());
+        fail error(xmlValue.toString());
     }
 }
 

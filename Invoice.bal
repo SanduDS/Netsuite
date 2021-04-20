@@ -25,7 +25,7 @@ function mapInvoiceRecordFields(Invoice invoice) returns string {
             if (item is string|decimal) {
                 finalResult += setSimpleType(keys[position], item, "tranSales");
             } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item, "tranSales");
+                finalResult += getXMLRecordRef(<RecordRef>item);
             }    
             position += 1;
         }

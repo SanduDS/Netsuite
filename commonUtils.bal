@@ -27,7 +27,7 @@ function makeHTTPRequestCall(http:Client basicClient, string action, xml payload
     return <http:Response>check basicClient->post("", request);
 }
 
-isolated function buildXMLPayloadHeader(NetsuiteConfiguration config) returns string|error {
+isolated function buildXMLPayloadHeader(NetSuiteConfiguration config) returns string|error {
     time:Time timeNow = time:currentTime();
     string timeToSend = stringLib:substring(timeNow.time.toString(), 0, 10);
     string uuid = getRandomString();
@@ -51,12 +51,13 @@ isolated function buildXMLPayloadHeader(NetsuiteConfiguration config) returns st
     return header;
 }
 
-function getXMLRecordRef(RecordRef recordRef, string? XSDName = ()) returns string {
+function getXMLRecordRef(RecordRef recordRef) returns string {
+    string xmlRecord = string `<${recordRef?.'type.toString()} xsi:type="urn1:RecordRef" 
+    internalId="${recordRef.internalId}"/>`;
     string? externalId = recordRef?.externalId;
-    string recordType = recordRef?.'type.toString();
-    string xmlRecord = string `<${recordType} xsi:type="urn1:RecordRef" internalId="${recordRef.internalId}"/>`;
     if (externalId is string) {
-        xmlRecord = string `<${recordType} xsi:type="urn1:RecordRef" internalId="${recordRef.internalId}" 
+        xmlRecord = string `<${recordRef?.'type.toString()} xsi:type="urn1:RecordRef" 
+        internalId="${recordRef.internalId}" 
         externalId="${externalId}"/>`;
     } 
     return xmlRecord;
@@ -97,35 +98,36 @@ function getUpdateXMLBodyWithParentElement(string subElements) returns string {
     </soapenv:Envelope>`;
 }
 
-function buildAddRecordPayload(NetSuiteInstance info, RecordCoreType recordCoreType, NetsuiteConfiguration config) 
+function buildAddRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
                                 returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string subElements = check setRecordAddingOperationFields(info, recordCoreType);
+    string subElements = check getRecordElementsForAddOperation(info, recordCoreType);
     string body = getAddXMLBodyWithParentElement(subElements);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-function buildDeleteRecordPayload(RecordDetail info, NetsuiteConfiguration config) returns xml|error {
+function buildDeleteRecordPayload(RecordDetail info, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string subElements = setDeletePayload(info);
+    string subElements = getDeletePayload(info);
     string body = getDeleteXMLBodyWithParentElement(subElements);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-function buildUpdateRecordPayload(NetSuiteInstance info, RecordCoreType recordCoreType, NetsuiteConfiguration config) returns xml|error {
+function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) returns 
+                                    xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string elements = check setRecordUpdatingOperationFields(info, recordCoreType);
+    string elements = check getRecordElementsForUpdateOperation(info, recordCoreType);
     string body = getUpdateXMLBodyWithParentElement(elements);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-function setRecordUpdatingOperationFields(NetSuiteInstance info, RecordCoreType recordCoreType) returns string|error {
+function getRecordElementsForUpdateOperation(RecordType info, RecordCoreType recordCoreType) returns string|error {
     string subElements = "";   
     match recordCoreType {
         CUSTOMER => {
@@ -144,13 +146,21 @@ function setRecordUpdatingOperationFields(NetSuiteInstance info, RecordCoreType 
             subElements = mapSalesOrderRecordFields(<SalesOrder>info);
             return wrapSalesOrderElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
+        CLASSIFICATION => {
+            subElements = mapClassificationRecordFields(<Classification>info); 
+            return wrapClassificationElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+        }
+        ACCOUNT => {
+            subElements = mapClassificationRecordFields(<Account>info); 
+            return wrapAccountElementsToUpdatedWithParentElement(subElements, info?.internalId.toString());
+        }
         _ => {
                 fail error("Connector couldn't identify the recordType, Please check the record fields.");
             }
     }
 }
 
-function setRecordAddingOperationFields(NetSuiteInstance info, RecordCoreType recordCoreType) returns string|error{ 
+function getRecordElementsForAddOperation(RecordType info, RecordCoreType recordCoreType) returns string|error{ 
     string subElements = "";   
     match recordCoreType {
         CUSTOMER => {
@@ -177,40 +187,60 @@ function setRecordAddingOperationFields(NetSuiteInstance info, RecordCoreType re
             subElements = mapClassificationRecordFields(<Classification>info); 
             return wrapClassificationElementsToBeCreatedWithParentElement(subElements);
         }
-
+        ACCOUNT => {
+            subElements = mapClassificationRecordFields(<Account>info); 
+            return wrapAccountElementsToBeCreatedWithParentElement(subElements);
+        }
         _ => {
                 fail error("Connector couldn't identify the recordType, Please check the record fields.");
             }
     }
 }
 
-function setDeletePayload(RecordDetail info) returns string{
-    if(info?.deletionReasonId is () || info?.deletionReasonMemo is ()) {
-        return string `<urn:baseRef type="${info.recordType}" internalId="${info.recordInternalId}" 
-        xsi:type="urn1:RecordRef"/>`;
+function getDeletePayload(RecordDetail recordDetail) returns string{
+    if(recordDetail?.deletionReasonId is () || recordDetail?.deletionReasonMemo is ()) {
+        return getXMLElementForDeletion(recordDetail);
     } else {
-        return string `<urn:baseRef type="${info.recordType}" internalId="${info.recordInternalId}" 
-        xsi:type="urn1:RecordRef"/>
-        <urn1:deletionReason>
-        <deletionReasonCode internalId="${info?.deletionReasonId.toString()}"/>
-        <deletionReasonMemo>${info?.deletionReasonMemo.toString()}</deletionReasonMemo>
-        </urn1:deletionReason>`;   
+        return getXMLElementForDeletionWithDeleteReason(recordDetail);
     }  
 }
-//-------------------------get functions
-isolated function buildGetAllPayload(string recordType, NetsuiteConfiguration config) returns xml|error {
+
+function getXMLElementForDeletion(RecordDetail recordDetail) returns string {
+    return string `<urn:baseRef type="${recordDetail.recordType}" internalId="${recordDetail.recordInternalId}" 
+    xsi:type="urn1:RecordRef"/>`;
+}
+
+function getXMLElementForDeletionWithDeleteReason(RecordDetail recordDetail) returns string {
+    return string `<urn:baseRef type="${recordDetail.recordType}" internalId="${recordDetail.recordInternalId}" 
+        xsi:type="urn1:RecordRef"/>
+        <urn1:deletionReason>
+        <deletionReasonCode internalId="${recordDetail?.deletionReasonId.toString()}"/>
+        <deletionReasonMemo>${recordDetail?.deletionReasonMemo.toString()}</deletionReasonMemo>
+        </urn1:deletionReason>`;
+}
+
+//-------------------------get functions--------------------------------------------------------------------------------
+function buildGetAllPayload(string recordType, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string body = string `<soapenv:Body><urn:getAll><record recordType="${recordType}"/></urn:getAll></soapenv:Body>
-    </soapenv:Envelope>`;
+    string body = getXMLBodyForGetAllOperation(recordType);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
 }
 
-isolated function buildGetSavedSearchPayload(string recordType, NetsuiteConfiguration config) returns xml|error {
-    string header = check buildXMLPayloadHeader(config);
-    string body = string`<soapenv:Body><urn:getSavedSearch><urn:record searchType="${recordType}"/></urn:getSavedSearch>
+function getXMLBodyForGetAllOperation(string recordType) returns string{
+    return string `<soapenv:Body><urn:getAll><record recordType="${recordType}"/></urn:getAll></soapenv:Body>
+    </soapenv:Envelope>`;
+}
+
+function getXMLBodyForSavedSearchOperation(string recordType) returns string{
+    return string`<soapenv:Body><urn:getSavedSearch><urn:record searchType="${recordType}"/></urn:getSavedSearch>
     </soapenv:Body></soapenv:Envelope>`;
+}
+
+function buildGetSavedSearchPayload(string recordType, NetSuiteConfiguration config) returns xml|error {
+    string header = check buildXMLPayloadHeader(config);
+    string body = getXMLBodyForSavedSearchOperation(recordType);
     string payload = header + body;
     xml xmlPayload = check xmlLib:fromString(payload);
     return xmlPayload;
@@ -218,21 +248,18 @@ isolated function buildGetSavedSearchPayload(string recordType, NetsuiteConfigur
 
 function getValidJson(json|error element) returns json?{
     if(element is json) {
-        //log:print(element.toString());
         return element;
     } 
 }
 
 function checkXmlElementValidity(xml|error element) returns xml?{
     if(element is xml) {
-        //log:print(element.toString());
         return element;
     } 
 }
 
 function checkStringValidity(string|error element) returns string?{
     if(element is string) {
-        //log:print(element.toString());
         return element;
     } 
 }
@@ -251,190 +278,3 @@ function getRecordRef(json element, json elementInfo) returns RecordRef{
     };
     return recordRef;
 }
-
-//-------------------------search functions-----------------------------------------------------------------------------
-// function buildSearchPayload(NetsuiteConfiguration config, RecordSearchInfo searchInfo) returns xml|error {
-//     string header  =check buildXMLPayloadHeader(config);
-//     string searchElements = "";
-//     string completeBody = "";
-//     string recordType = searchInfo.recordType;
-//     match recordType {
-//         CUSTOMER_TYPE => {
-//             searchElements = check setInternalXmlSearchElement(searchInfo.searchDetail, customerSearchParts);
-//             completeBody = setCustomerSearchRequestBody(searchElements);
-//         }
-//     }
-//     string payload = header + completeBody;
-//     xml xmlPayload = check xmlLib:fromString(payload);
-//     return xmlPayload;
-// }
-
-// isolated function setCustomerSearchRequestBody(string SearchElements) returns string {
-//     string body =  string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
-//     <urn:searchRecord xsi:type="listRel:CustomerSearch" 
-//     xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
-//     <basic xsi:type="ns1:CustomerSearchBasic" 
-//     xmlns:ns1="urn:common_2020_2.platform.webservices.netsuite.com">${SearchElements}</basic>
-//     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
-//     return body;
-// }
-
-// isolated function getSearchStringFieldElement(SearchField item) returns string { 
-//     string searchStringFieldTemplate =  string `<ns1:${item?.elementName.toString()} 
-//     operator="${item.operator.toString()}" 
-//     xsi:type="urn1:SearchStringField"><urn1:searchValue>${item?.value.toString()}</urn1:searchValue>
-//     </ns1:${item?.elementName.toString()}>`;
-//     return searchStringFieldTemplate;
-// }
-
-// isolated function setInternalXmlSearchElement(SearchField[] searchfields, map<string> searchPart) returns string|error {
-//     string basicSearchElement = "";
-//     if(searchfields.length() != 0) {
-//         foreach SearchField item in searchfields {
-//             string elementName = item?.elementName.toString();
-//             if(elementName != "" && mapLib:hasKey(searchPart, elementName)) {
-//                 string fieldType = searchPart.get(elementName);
-//                 if(fieldType == "SearchStringField") {
-//                     basicSearchElement =  basicSearchElement + getSearchStringFieldElement(item);
-//                 } else if (fieldType == "SearchMultiSelectField") {
-//                     basicSearchElement =  basicSearchElement + getSearchMultiSelectFieldElement(item);
-//                 } else if (fieldType == "SearchDateField") {
-//                     basicSearchElement =  basicSearchElement + check getDateFieldElement(item);
-//                 } else if (fieldType == "SearchDoubleField") {
-//                     basicSearchElement =  basicSearchElement + check getSearchDoubleFieldElemet(item);
-//                 } else if (fieldType == "SearchEnumMultiSelectField") {
-//                     basicSearchElement =  basicSearchElement + getSearchEnumMultiSelectField(item);
-//                 }
-//             } else if(elementName == "" && (item.operator.toString() == ANYOF || item.operator.toString() == NONEOF)) {
-//                 basicSearchElement =  basicSearchElement  + getNonOperatorElement(item);
-//             } else {
-//                 fail error
-//                 ("Element is not vaild, Please check the element type support for BasicSearches in Netsuite SOAP service");
-//             }
-//         }
-//         return basicSearchElement;
-//     } else {
-//         fail error("No any search fields have been set before using this remote function.");
-//     }
-// }
-
-// isolated function getNonOperatorElement(SearchField item) returns string {
-//     return string `<ns1:type operator="${item.operator.toString()}" xsi:type="urn1:SearchEnumMultiSelectField">
-//     <urn1:searchValue xsi:type="xsd:string">${item?.value.toString()}</urn1:searchValue></ns1:type>`;
-// }
-
-
-
-// isolated function getSearchMultiSelectFieldElement(SearchField item) returns string {
-//     //string searchMultiSelectFieldTemplate = string `<${item?.elementName.toString()}  operator="${item.operator.toString()}" xsi:type="urn1:SearchMultiSelectField">    <urn1:searchValue xsi:type="urn1:RecordRef">      <name internalId="${item?.internalId.toString()}" externalId="${item?.externalId.toString()}" type = "platformCoreTyp:NetSuiteInstance" xmlns:platformCoreTyp = "urn:types.core_2020_2.platform.webservices.netsuite.com">${item?.value.toString()}</name></urn1:searchValue></${item?.elementName.toString()}>`;
-//     //return searchMultiSelectFieldTemplate;
-//     string value = "";
-//     if(item?.internalId != "") {
-//         value = string `<${item?.elementName.toString()}  operator="${item.operator.toString()}" 
-//         xsi:type="urn1:SearchMultiSelectField">
-//         <urn1:searchValue internalId="${item?.internalId.toString()}"  xsi:type="urn1:RecordRef"/>
-//         </${item?.elementName.toString()}>`;
-//     } else if( item?.externalId != "") {
-//         value = string `<${item?.elementName.toString()}  operator="${item.operator.toString()}" 
-//         xsi:type="urn1:SearchMultiSelectField">
-//         <urn1:searchValue externalId="${item?.externalId.toString()}"  xsi:type="urn1:RecordRef"/>
-//         </${item?.elementName.toString()}>`;
-//     }
-//     return value;
-// }
-
-// ////////
-// // <ns1:name operator="is">
-// // <xsi:type="urn:SearchStringField">
-// // <urn:searchValue>danushka</urn:searchValue>
-// // </<xsi:type> 
-// // <ns1:name> 
-// // ///
-// //01 getSeaarchElemnent() <-- search element--> 01 if check type
-
-// // function getSearchElement(SearchElement searchElement) {
-// //     string searchStringFieldTemplate =  string `<ns1:${searchElement.fieldName} 
-// //     operator="${searchElement.operator}" 
-// //     xsi:type="urn1:SearchStringField">
-// //     <urn1:searchValue>
-// //     ${searchElement.value1}
-// //     </urn1:searchValue>
-// //     </ns1:${searchElement.fieldName}>`;
-// // }
-
-// // function getSearchElementType() returns string {
-// //     //match and return field type;
-// //     return "";
-// // }
-// // public type SearchElement record {
-// //     string fieldName;
-// //     string operator;
-// //     //enum searechTypes-->string/boolen
-// //     string value1;
-// //     string value2?;
-// // };
-
-// isolated function getDateFieldElement(SearchField item) returns string|error {    
-//     DateField? dates = item?.dateField;
-//     if(!(dates is ())) {
-//         if(!(dates?.preDefinedDate is ())) {
-//             return string `<ns1:${item?.elementName.toString()} operator="${dates.operator.toString()}" 
-//             xsi:type="urn1:SearchDateField">
-//             <urn1:predefinedSearchValue xsi:type="ns11:SearchDate" 
-//             xmlns:ns11="urn:types.core_2017_1.platform.webservices.netsuite.com">
-//             ${dates?.preDefinedDate.toString()}
-//             </urn1:predefinedSearchValue>
-//             </ns1:${item?.elementName.toString()}>`;
-//         } else if(!(dates?.date is ()) && dates?.date is () ) { //ToDo: add more validation
-//             return string `<ns1:${item?.elementName.toString()} operator="${dates.operator.toString()}" 
-//             xsi:type="urn1:SearchDateField">
-//             <urn1:searchValue>${dates?.date.toString()}</urn1:searchValue>
-//             </ns1:${item?.elementName.toString()}>`;
-//         } else {
-//             return string `<ns1:${item?.elementName.toString()} operator="${dates.operator.toString()}" 
-//             xsi:type="urn1:SearchDateField">
-//             <urn1:searchValue>${dates?.date.toString()}</urn1:searchValue>
-//             <urn1:searchValue2>${dates?.date2.toString()}</urn1:searchValue2>
-//             </ns1:${item?.elementName.toString()}>`;
-//         }
-//     } else {
-//         fail error("No Any Date Record Found");
-//     }    
-// }
-
-// isolated function getSearchDateFieldElement(SearchField item) returns string { 
-//     string searchStringFieldTemplate =  string `<${item?.elementName.toString()} operator="${item.operator.toString()}" 
-//     xsi:type="urn1:SearchStringField"><urn1:searchValue>${item?.value.toString()}</urn1:searchValue>
-//     </${item?.elementName.toString()}>`;
-//     return searchStringFieldTemplate;
-// }
-
-// isolated function getSearchEnumMultiSelectField(SearchField item) returns string {
-//     string searchStringFieldTemplate =  string `<ns1:${item?.elementName.toString()} operator="${item.operator.toString()}" 
-//     xsi:type="urn1:SearchEnumMultiSelectField"><urn1:searchValue>${item?.value.toString()}</urn1:searchValue>
-//     </ns1:${item?.elementName.toString()}>`;
-//     return searchStringFieldTemplate;
-// }
-
-// isolated function getSearchDoubleFieldElemet(SearchField item) returns string|error{
-//     DoubleField? doubleField = item?.doubleField;
-//     if(doubleField is DoubleField) {
-//        if(doubleField.operator == BETWEEN_DFIELD || doubleField.operator == NOTBETWEEN_DFIELD ) {
-//            return string `<ns1:${item?.elementName.toString()} operator="${doubleField.operator.toString()}" 
-//            xsi:type="urn1:SearchDoubleField">
-//           <urn1:searchValue>${doubleField?.searchValue.toString()}</urn1:searchValue>
-//           <urn1:searchValue2>${doubleField?.searchValue2.toString()}</urn1:searchValue2>
-//           </ns1:${item?.elementName.toString()}>`;
-//        } else {
-//            return string `<ns1:${item?.elementName.toString()} operator="${doubleField.operator.toString()}" 
-//            xsi:type="urn1:SearchDoubleField">
-//           <urn1:searchValue>${doubleField?.searchValue.toString()}</urn1:searchValue>
-//           </ns1:${item?.elementName.toString()}>`;
-//        }
-//     } else {
-//        fail error("No DoubleField is provided");
-//     }
-// }
-
-// // serach field cat..
-// // 

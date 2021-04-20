@@ -25,11 +25,11 @@ function mapContactRecordFields(Contact contact) returns string {
             if (item is string|boolean) {
                 finalResult += setSimpleType(keys[position], item, "listRel");
             } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item, "listRel");
+                finalResult += getXMLRecordRef(<RecordRef>item);
             } else if (item is Category[]) {
                 string categoryList = "";
                 foreach RecordRef category in item {
-                    categoryList += getXMLRecordRef(category, "listRel");
+                    categoryList += getXMLRecordRef(category);
                 }
                 finalResult += string `<listRel:categoryList>${categoryList}</listRel:categoryList>`;
             } else if (item is GlobalSubscriptionStatusType) {
@@ -72,19 +72,7 @@ function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
                     addressList += string `<${AddressItemKeys[mainPosition]}>${item.toString()}
                     </${AddressItemKeys[mainPosition]}>`;
                 } else if(item is Address[]) {
-                    foreach Address addressItem in item {
-                        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnydata);
-                        int position = 0;
-                        string addressBook ="";
-                        foreach var element in addressItem {
-                            if (AddressMap is map<anydata>) {
-                                string[] keys = AddressMap.keys();
-                                addressBook += string `<${keys[position]}>${element.toString()}</${keys[position]}>`;
-                            }
-                            position += 1;  
-                        }
-                        addressList += string `<addressbookAddress>${addressBook}</addressbookAddress>`;  
-                    }
+                    addressList = getAddressListInXML(item);
                 }
                 mainPosition += 1;
             }
@@ -92,4 +80,22 @@ function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
         contactAddressBook += string`<addressbook>${addressList}</addressbook>`;
     }
     return contactAddressBook;
+}
+
+function getAddressListInXML(Address[] addresses) returns string {
+    string addressList = "";
+    foreach Address addressItem in addresses {
+        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnydata);
+        int position = 0;
+        string addressBook ="";
+        foreach var element in addressItem {
+            if (AddressMap is map<anydata>) {
+                string[] keys = AddressMap.keys();
+                addressBook += string `<${keys[position]}>${element.toString()}</${keys[position]}>`;
+            }
+            position += 1;  
+        }
+        addressList += string `<addressbookAddress>${addressBook}</addressbookAddress>`;  
+    }
+    return addressList;
 }

@@ -25,7 +25,7 @@ public type TokenData record {
 };
 
 public type RecordCreationInfo record {
-    NetSuiteInstance instance;
+    RecordType instance;
     string recordType;
 };
 
@@ -52,12 +52,10 @@ public type RecordDetail record {
 };
 
 public type RecordUpdateInfo record {
-    NetSuiteInstance instance;
+    RecordType instance;
     string internalId;
     RecordCoreType recordType;
 };
-
-
 
 public type SavedSearchResponse record {
     int numberOfRecords?;
@@ -65,19 +63,6 @@ public type SavedSearchResponse record {
     RecordRef[] recordRefList = [];
 };
 
-public type DoubleField record {
-    SearchDoubleFieldOperator operator;
-    string searchValue;
-    string searchValue2;
-};
-
-public type DateField record {
-    SearchDateFieldOperator operator;
-    string preDefinedDate?;
-    string date?;
-    string date2?;
-};
-
-public type NetSuiteInstance Customer|Contact|Currency|Invoice|Classification;// change names RecordTypes
+public type RecordType Customer|Contact|Currency|Invoice|Classification;// change names RecordTypes
 
 type MapAnydata map<anydata>;

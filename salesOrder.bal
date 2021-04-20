@@ -24,7 +24,7 @@ function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
             if (item is string|boolean|decimal|int|SalesOrderOrderStatus) {
                 finalResult += setSimpleType(keys[position], item, "tranSales");
             } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item, "tranSales");
+                finalResult += getXMLRecordRef(<RecordRef>item);
             } else if (item is Address) {
                 string addressLines = "";
                 map<anydata>|error AddressMap = item.cloneWithType(MapAnydata);
@@ -50,7 +50,7 @@ function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
                             if(element is string|int|boolean|decimal) {
                                 itemValue += string `<${itemKeys[itemPosition]}>${element.toString()}</${itemKeys[itemPosition]}>`;
                             } else if (element is RecordRef){
-                                itemValue += getXMLRecordRef(<RecordRef>element, "tranSales");
+                                itemValue += getXMLRecordRef(<RecordRef>element);
                             }
                         }
                         itemPosition += 1;  

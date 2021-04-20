@@ -25,7 +25,7 @@ function mapClassificationRecordFields(Classification classification) returns st
             if (item is string) {
                 finalResult += setSimpleType(keys[position], item, "listAcct");
             } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item, "listAcct");
+                finalResult += getXMLRecordRef(<RecordRef>item);
             }    
             position += 1;
         }
@@ -37,5 +37,12 @@ function wrapClassificationElementsToBeCreatedWithParentElement(string subElemen
     return string `<urn:record xsi:type="listAcct:Classification" 
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
-         </urn:record>`;
+        </urn:record>`;
+}
+
+function wrapClassificationElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+    return string `<urn:record xsi:type="listAcct:Classification" internalId="${internalId}" 
+        xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
+            ${subElements}
+        </urn:record>`;
 }

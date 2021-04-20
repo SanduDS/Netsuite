@@ -1,4 +1,3 @@
-import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
@@ -13,7 +12,7 @@ function mapCustomerRecordFields(Customer customer) returns string {
             if (item is string|boolean) {
                 finalResult += setSimpleType(keys[position], item, "listRel");
             } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item, "listRel");
+                finalResult += getXMLRecordRef(<RecordRef>item);
             } else if (item is CustomerAddressbook[]) {
                 string addressList = prepareAddressList(item);
                 finalResult += string`<listRel:addressbookList>${addressList}</listRel:addressbookList>`;
@@ -88,7 +87,7 @@ function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
                     currencyList += string `<${currencyItemKeys[mainPosition]}>${item.toString()}
                     </${currencyItemKeys[mainPosition]}>`;
                 } else if (item is RecordRef) {
-                    currencyList += getXMLRecordRef(<RecordRef>item, "listRel");
+                    currencyList += getXMLRecordRef(<RecordRef>item);
                 }
                 mainPosition += 1;
             }
@@ -108,19 +107,13 @@ function getCustomerSearchRequestBody(SearchElement[] searchElements) returns st
     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
 }
 
-function buildCustomerSearchPayload(NetsuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
+function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getCustomerSearchRequestBody(searchElement);
-    string requestPayload = requestHeader + requestBody;
-    xml xmlPayload = check xmlLib:fromString(requestPayload);
-    return xmlPayload; 
+    return check getFinalPayload(requestHeader, requestBody); 
 }
 
-function getCustomerSearchResponse(http:Response response) returns Customer|error {
-    return mapCustomerRecordWithTheResponse(response);
-}
-
-function mapCustomerRecordWithTheResponse(http:Response response) returns Customer|error {
+function getCustomerSearchResult(http:Response response) returns Customer|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, "listRel:");
     string|error instanceType =  xmlValue.xsi_type;
@@ -135,8 +128,9 @@ function mapCustomerRecordWithTheResponse(http:Response response) returns Custom
     return customer;
 }
 
-function mapCustomerFields(json customerJsonType, Customer customer) returns error? {
-    json[] valueList = <json[]>getValidJson(customerJsonType.'record.'record);
+
+function mapCustomerFields(json customerTypeJson, Customer customer) returns error? {
+    json[] valueList = <json[]>getValidJson(customerTypeJson.'record.'record);
     foreach json element in valueList {
         boolean? extractedValue = extractBooleanValueFromJson(element.isPerson);
         if(extractedValue is boolean) {

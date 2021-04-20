@@ -15,144 +15,216 @@
 // under the License.
 
 import ballerina/http;
-# Description
+
+# HTTP Client for NetSuite SOAP web service
 #
-# + basicClient - Netsuite HTTP Client  
+# + basicClient - NetSuite HTTP Client  
 public client class Client {
     public http:Client basicClient;
-    private NetsuiteConfiguration config;
+    private NetSuiteConfiguration config;
 
-    public function init(NetsuiteConfiguration config)returns error? {
+    public function init(NetSuiteConfiguration config)returns error? {
         self.config = config;
         self.basicClient = check new (config.baseURL);
     }
 
-    # This remote operation creates a record instance in Netsuite according to the given detail if they are valid
+    # This remote operation creates a record instance in NetSuite according to the given detail
     #
-    # + customer - Details of netsuite record instance creation
-    # + return - if success returns a RecordCreationResponse type record otherwise the relevant error
+    # + customer - Details of NetSuite record instance creation
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewCustomer(Customer customer) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(customer, CUSTOMER, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
+    # This remote operation creates a record instance in NetSuite according to the given detail
+    #
+    # + contact - Details of NetSuite record instance creation
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewContact(Contact contact) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(contact, CONTACT, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
+    # This remote operation creates a record instance in NetSuite according to the given detail
+    #
+    # + invoice - Invoice type record with detail
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error  
     remote function addNewInvoice(Invoice invoice) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(invoice, INVOICE, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
+    # This remote operation creates a record instance in NetSuite according to the given detail
+    #
+    # + currency - Currency type record with detail
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error 
     remote function addNewCurrency(Currency currency) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(currency, CURRENCY, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
+    # This remote operation creates a record instance in NetSuite according to the given detail
+    #
+    # + salesOrder - SalesOrder type record with detail
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error 
     remote function addNewSalesOrder(SalesOrder salesOrder) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(salesOrder, SALES_ORDER, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
+    # This remote operation creates a record instance in NetSuite according to the given detail
+    #
+    # + classification - Classification type record with detail
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewClassification(Classification classification) returns RecordAddResponse|error {
         xml payload = check buildAddRecordPayload(classification, CLASSIFICATION, self.config);
         http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
         return getRecordCreationResult(response); 
     }
 
-    # This remote operation deletes a record instance from Netsuite according to the given detail if they are valid.
+    # This remote operation creates a record instance in NetSuite according to the given detail
     #
-    # + info - Details of netsuite record instance to be deleted
-    # + return - if success returns a RecordDeletionResponse type record otherwise the relevant error
+    # + account - Account type record with detail
+    # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
+    remote function addNewAccount(Account account) returns RecordAddResponse|error {
+        xml payload = check buildAddRecordPayload(account, ACCOUNT, self.config);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreationResult(response); 
+    }
+
+    # This remote operation deletes a record instance from NetSuite according to the given detail if they are valid.
+    #
+    # + info - Details of NetSuite record instance to be deleted
+    # + return - If success returns a RecordDeletionResponse type record otherwise the relevant error
     remote function deleteRecord(RecordDetail info) returns @tainted RecordDeletionResponse|error{
         xml payload = check buildDeleteRecordPayload(info, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "delete", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, DELETE_SOAP_ACTION, payload);
         return getRecordDeleteResponse(response); 
     }
-
-    # This remote operation updates a record instance from Netsuite according to the given detail if they are valid
-    #
-    # + recordUpdateInfo - Details of netsuite record instance to be deleted
-    # + return - if success returns a RecordUpdateResponse type record otherwise the relevant error
-    // remote function updateRecord(RecordUpdateInfo recordUpdateInfo) returns @tainted RecordUpdateResponse|error {
-    //     http:Request request = new;
-    //     xml payload = check buildUpdateRecordPayload(recordUpdateInfo, self.config);
-    //     request.setXmlPayload(payload);
-    //     request.setHeader("SOAPAction", "update");
-    //     http:Response response = check makeHTTPRequestCall(self.basicClient, request);
-    //     return getRecordUpdateResponse(response); 
-    // }
     
+    # Updates a NetSuite customer instance by internalId
+    #
+    # + customer - Customer record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error   
     remote function updateCustomerRecord(Customer customer) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(customer, CUSTOMER , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "update", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
+    # Updates a NetSuite contact instance by internalId
+    #
+    # + contact - Contact record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateContactRecord(Contact contact) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(contact, CONTACT , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "update", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
     
+    # Updates a NetSuite currency instance by internalId
+    #
+    # + currency - Currency record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateCurrencyRecord(Currency currency) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(currency, CURRENCY , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "update", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
+    # Updates a NetSuite invoice instance by internalId
+    #
+    # + invoice - Invoice record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateInvoiceRecord(Invoice invoice) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(invoice, INVOICE , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "update", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
+    # Updates a NetSuite salesOrder instance by internalId
+    #
+    # + salesOrder - SalesOrder record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateSalesOrderRecord(SalesOrder salesOrder) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(salesOrder, SALES_ORDER , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "update", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
-    # This remote operation retrieves instances from Netsuite according to a given type  if they are valid
+
+    # Updates a NetSuite classification instance by internalId
     #
-    # + recordInfo - A Netsuite record instance to be retrieved from Netsuite
+    # + classification - Classification record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
+    remote function updateClassificationRecord(Classification classification) returns @tainted RecordUpdateResponse|
+                                                error {
+        xml payload = check buildUpdateRecordPayload(classification, CLASSIFICATION , self.config);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        return getRecordUpdateResponse(response); 
+    }
+
+    # Updates a NetSuite Account instance by internalId
+    #
+    # + account - Account record with details and internalId
+    # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
+    remote function updateAccountRecord(Account account) returns @tainted RecordUpdateResponse|
+                                                error {
+        xml payload = check buildUpdateRecordPayload(account, ACCOUNT , self.config);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        return getRecordUpdateResponse(response); 
+    }
+
+    # This remote operation retrieves instances from NetSuite according to a given type  if they are valid
+    #
+    # + recordInfo - A NetSuite record instance to be retrieved from NetSuite
     # + return - If success returns a json array otherwise the relevant error
     remote function getAll(RecordGetAllType recordInfo) returns @tainted json[]|error {
         xml payload = check buildGetAllPayload(recordInfo, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "getAll", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, GET_ALL_SOAP_ACTION, payload);
         return formatGetAllResponse(response);
     }
 
-    # This remote operation retrieves a savedSearch type instance from Netsuite according to the given detail 
+    # This remote operation retrieves a savedSearch type instance from NetSuite according to the given detail 
     # if they are valid
     #
-    # + recordInfo - A Netsuite SavedSearch record type to be retrieved from Netsuite
+    # + recordInfo - A NetSuite SavedSearch record type to be retrieved from NetSuite
     # + return - If success returns a json array otherwise the relevant error
     remote function getSavedSearch(RecordSaveSearchType recordInfo) returns @tainted json[]|error {
         xml payload = check buildGetSavedSearchPayload(recordInfo, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "getSavedSearch", payload);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, GET_SAVED_SEARCH_SOAP_ACTION, payload);
         return getSavedSearchResponse(response);
     }
 
-    # This remote operation retrieves Netsuite instances from Netsuite according to the given detail 
+    # This remote operation retrieves NetSuite instances from NetSuite according to the given detail 
     # if they are valid
     #
-    # + searchElements - Details of a Netsuite record to be retrieved from Netsuite
+    # + searchElements - Details of a NetSuite record to be retrieved from NetSuite
     # + return - If success returns a json otherwise the relevant error
     remote function searchCustomerRecord(SearchElement[] searchElements) returns @tainted Customer|error {
         xml payload = check buildCustomerSearchPayload(self.config, searchElements);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, "search", payload);
-        return getCustomerSearchResponse(response);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, SEARCH_SOAP_ACTION, payload);
+        return getCustomerSearchResult(response);
+    }
+
+    # This remote operation retrieves NetSuite account record instances from NetSuite according to the given detail 
+    # if they are valid
+    #
+    # + searchElements - Details of a NetSuite record to be retrieved from NetSuite
+    # + return - If success returns a json otherwise the relevant error
+    remote function searchAccountRecord(SearchElement[] searchElements) returns @tainted Account|error {
+        xml payload = check buildAccountSearchPayload(self.config, searchElements);
+        http:Response response = check makeHTTPRequestCall(self.basicClient, SEARCH_SOAP_ACTION, payload);
+        return getAccountSearchResult(response);
     }
  }
 
-public type NetsuiteConfiguration record {
+public type NetSuiteConfiguration record {
     string accountId;
     string consumerId;
     string consumerSecret;

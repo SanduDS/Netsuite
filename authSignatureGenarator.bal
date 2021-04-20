@@ -8,7 +8,7 @@ import ballerina/regex;
 // import ballerina/lang.value as value;
 // import ballerina/lang.'map as mapLib;
 
-isolated function getNetsuiteSignature(string timeNow, string UUID, NetsuiteConfiguration config) returns string|error {
+isolated function getNetsuiteSignature(string timeNow, string UUID, NetSuiteConfiguration config) returns string|error {
     TokenData tokenData = {
         accountId: config.accountId,
         consumerId: config.consumerId,

@@ -30,14 +30,6 @@ public type Item record {
     RecordRef location?;
 };
 
-public type Account record {
-    string acctname?;
-    string acctnumber?;
-    Currency currency?;
-    string accttype?;
-    Subsidiary subsidiary?;
-};
-
 public type SalesOrder record {
     string internalId?;
     string createdDate?;
