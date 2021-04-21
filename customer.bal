@@ -17,6 +17,8 @@
 import ballerina/jsonutils;
 import ballerina/http;
 
+xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
+
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapCustomerRecordFields(Customer customer) returns string {
     string finalResult = EMPTY_STRING;
@@ -208,3 +210,46 @@ function mapCustomerFields(json customerTypeJson, Customer customer) returns err
         }
     }
 }
+
+function mapCustomerRecord(xml response) returns Customer|error {
+    Customer customer  = {
+        internalId: check response/**/<'record>.internalId,
+        entityId: (response/**/<listRel:entityId>/*).toString(),
+        isPerson: check extractBooleanValueFromXMLOrText(response/**/<listRel:isPerson>/*),
+        firstName: (response/**/<listRel:firstName>/*).toString(),
+        lastName: (response/**/<listRel:lastName>/*).toString(),
+        middleName: (response/**/<listRel:middleName>/*).toString(),
+        companyName: (response/**/<listRel:companyName>/*).toString(),
+        email: (response/**/<listRel:email>/*).toString(),
+        title: (response/**/<listRel:title>/*).toString(),
+        phone:  (response/**/<listRel:phone>/*).toString(),
+        fax:  (response/**/<listRel:fax>/*).toString(),
+        defaultAddress: (response/**/<listRel:defaultAddress>/*).toString(),
+        subsidiary: {
+            internalId: check response/**/<listRel:subsidiary>.internalId,
+            name: (response/**/<listRel:subsidiary>/<name>/*).toString()
+        },
+        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listRel:isInactive>/*),
+        mobilePhone: (response/**/<listRel:mobilePhone>/*).toString(),
+        salutation: (response/**/<listRel:salutation>/*).toString(),
+        accountNumber: (response/**/<listRel:accountNumber>/*).toString()
+    };
+    return customer;   
+}
+
+
+ function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Customer|error{
+    xml xmlValue = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapCustomerRecord(xmlValue);
+        } else {
+            fail error("No any record found, Check the record detail");
+        }
+    } else {
+        fail error("No any record found");
+    }  
+ }
+

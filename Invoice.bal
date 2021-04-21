@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+import ballerina/lang.'decimal as decimalLib;
+xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapInvoiceRecordFields(Invoice invoice) returns string {
     string finalResult = EMPTY_STRING;
@@ -45,4 +48,38 @@ function wrapInvoiceElementsToBeUpdatedWithParentElement(string subElements, str
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
+}
+
+function mapInvoiceRecord(xml response) returns Invoice|error {
+    Invoice invoice  = {
+        ///amountPaid: check decimalLib:fromString((response/**/<tranSales:amountPaid>/*).toString()),
+        //balance: check decimalLib:fromString((response/**/<tranSales:balance>/*).toString()),
+        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
+        createdDate: (response/**/<tranSales:total>/*).toString(),
+        currencyName: (response/**/<tranSales:currencyName>/*).toString(),
+        lastModifiedDate: (response/**/<tranSales:createdDate>/*).toString(),
+        dueDate: (response/**/<tranSales:dueDate>/*).toString(),
+        status: (response/**/<tranSales:status>/*).toString(),
+        transactionId: (response/**/<tranSales:transactionId>/*).toString(),
+        entity: {
+            internalId: (check response/**/<tranSales:entity>.internalId)
+        },
+        invoiceId: check response/**/<tranSales:'record>.internalId
+    };
+    return invoice;
+}
+
+function getInvoiceRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Invoice|error{
+    xml xmlValue = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapInvoiceRecord(xmlValue);
+        } else {
+            fail error("No any record found");
+        }
+    } else {
+        fail error("No any record found");
+    }
 }

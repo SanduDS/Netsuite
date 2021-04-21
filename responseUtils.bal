@@ -112,51 +112,7 @@ function formatGetAllResponse(http:Response response) returns @tainted json[]|er
         if(isSuccess == true) {
             xml:Element records = <xml:Element> xmlValure/**/<recordList>;
             xml baseRef  = xmlLib:getChildren(records);
-            json[] recordList = [];
-            var xx = xmlLib:forEach(baseRef,function(xml platformCoreRecord) {
-                string|error count =  platformCoreRecord.xsi_type;
-                if(count is string ) {
-                    match count {
-                        "listAcct:Currency" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listAcct:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                recordList.push(afterSubmissionResponse);
-                            }
-                        }
-                        "listAcct:budgetCategory" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listAcct:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                recordList.push(afterSubmissionResponse);
-                            }  
-                        }
-                        "listMkt:campaignAudience" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listMkt:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                recordList.push(afterSubmissionResponse);
-                            }  
-                        }
-                        "listAcct:taxAcct" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listAcct:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                recordList.push(afterSubmissionResponse);
-                            }  
-                        }
-                        "listRel:state" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listRel:");
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
-                            if(afterSubmissionResponse is json) {
-                                recordList.push(afterSubmissionResponse);
-                            }  
-                        }
-
-                    }
-                }
-            });
-            return recordList;
+            return categorizeGetALLResponse(baseRef);
         } else {
             json errorMessage= check jsonutils:fromXML(xmlValure/**/<platformCore_statusDetail>/*);
             fail error(errorMessage.toString());
@@ -164,6 +120,53 @@ function formatGetAllResponse(http:Response response) returns @tainted json[]|er
     } else {
         fail error(xmlValure.toString());
     }
+}
+
+function categorizeGetALLResponse(xml baseRef) returns json[] {
+    json[] recordList = [];
+    xmlLib:forEach(baseRef, function(xml platformCoreRecord) {
+        string|error count =  platformCoreRecord.xsi_type;
+        if(count is string ) {
+            match count {
+                "listAcct:Currency" => {
+                    xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
+                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    if(afterSubmissionResponse is json) {
+                        recordList.push(afterSubmissionResponse);
+                    }
+                }
+                "listAcct:budgetCategory" => {
+                    xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
+                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    if(afterSubmissionResponse is json) {
+                        recordList.push(afterSubmissionResponse);
+                    }  
+                }
+                "listMkt:campaignAudience" => {
+                    xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_MRK_WITH_COLON);
+                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    if(afterSubmissionResponse is json) {
+                        recordList.push(afterSubmissionResponse);
+                    }  
+                }
+                "listAcct:taxAcct" => {
+                    xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
+                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    if(afterSubmissionResponse is json) {
+                        recordList.push(afterSubmissionResponse);
+                    }  
+                }
+                "listRel:state" => {
+                    xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_REL_WITH_COLON);
+                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    if(afterSubmissionResponse is json) {
+                        recordList.push(afterSubmissionResponse);
+                    }  
+                }
+            }
+        }
+    });
+    return recordList;
 }
 
 function replaceRegexInXML(xml value, string regex, string replacement = EMPTY_STRING) returns xml|error {
@@ -197,7 +200,7 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
                 if(count is string ) {
                     match count {
                         "CustomizationRef" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listAcct:");
+                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
                             json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
                             if(afterSubmissionResponse is json) {
                                 recordList.push(afterSubmissionResponse);
@@ -237,3 +240,6 @@ function getXMLRecordListFromSearchResult(http:Response response) returns @taint
         fail error(xmlValue.toString());
     }
 }
+
+
+

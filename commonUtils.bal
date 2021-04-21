@@ -191,6 +191,20 @@ function getRecordElementsForAddOperation(RecordType info, RecordCoreType record
     }
 }
 
+function buildGetOperationPayload(RecordDetail records, NetSuiteConfiguration config) returns xml|error {
+    string header = check buildXMLPayloadHeader(config);
+    string elements = prepareElementsForGetOperation(records);
+    string body = string `<soapenv:Body><urn:get xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${elements}
+    </urn:get></soapenv:Body></soapenv:Envelope>`;
+    return getSoapPayload(header, body);
+}
+
+function prepareElementsForGetOperation(RecordDetail recordDetail) returns string {
+    string elements = string `<urn:baseRef internalId="${recordDetail.recordInternalId}" type="${recordDetail.recordType}"
+    xsi:type="urn1:RecordRef"/>`;
+    return elements;
+}
+
 function getDeletePayload(RecordDetail recordDetail) returns string{
     if(recordDetail?.deletionReasonId is () || recordDetail?.deletionReasonMemo is ()) {
         return getXMLElementForDeletion(recordDetail);
@@ -277,3 +291,4 @@ function getRecordRef(json element, json elementInfo) returns RecordRef{
     };
     return recordRef;
 }
+

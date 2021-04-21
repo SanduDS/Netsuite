@@ -19,6 +19,7 @@ public const string DELETE_SOAP_ACTION = "delete";
 public const string UPDATE_SOAP_ACTION = "update";
 public const string GET_ALL_SOAP_ACTION = "getAll";
 public const string SEARCH_SOAP_ACTION = "search";
+public const string GET_SOAP_ACTION = "get";
 public const string GET_SAVED_SEARCH_SOAP_ACTION = "getSavedSearch";
 public const string SOAP_ACTION_HEADER = "SOAPAction";
 public const string EMPTY_STRING = "";
@@ -32,7 +33,7 @@ public const string NO_RECORD_FOUND = "No record found!";
 public const string LIST_ACCT = "listAcct";
 public const string TRAN_SALES = "tranSales";
 
-//String templates
+//String Replacements
 public const string MESSAGES_NS = "xmlns=\"urn:messages_2020_2.platform.webservices.netsuite.com\"";
 public const string CORE_NS = "xmlns:platformCore=\"urn:core_2020_2.platform.webservices.netsuite.com\"";
 public const string XSI_NS = "xmlns:xsi=\"http://www.w3.org/http:STATUS_OK1/XMLSchema-instance\"";
@@ -43,3 +44,6 @@ public const string XSI = "xsi:";
 public const string XSI_ = "xsi_";
 public const string SOAP_ENV = "soapenv:";
 public const string SOAP_ENV_ = "soapenv_";
+public const string LIST_ACCT_WITH_COLON = "listAcct:";
+public const string LIST_MRK_WITH_COLON = "listMkt:";
+public const string LIST_REL_WITH_COLON = "listRel:";

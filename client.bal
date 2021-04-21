@@ -221,6 +221,33 @@ public client class Client {
         http:Response response = check doHTTPRequest(self.basicClient, SEARCH_SOAP_ACTION, payload);
         return getAccountSearchResult(response);
     }
+
+    remote function getCustomerRecord(RecordDetail RecordDetail) returns Customer|error {
+        http:Request request = new;
+        xml payload = check buildGetOperationPayload(RecordDetail, self.config);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
+        return getCustomerRecordGetOperationResult(response, CUSTOMER);
+    }
+
+    remote function getCurrencyRecord(RecordDetail RecordDetail) returns Currency|error {
+        http:Request request = new;
+        xml payload = check buildGetOperationPayload(RecordDetail, self.config);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
+        return getCurrencyRecordGetOperationResult(response, CURRENCY);
+    }
+
+    remote function getClassificationRecord(RecordDetail RecordDetail) returns Classification|error {
+        http:Request request = new;
+        xml payload = check buildGetOperationPayload(RecordDetail, self.config);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
+        return getClassificationRecordGetOperationResult(response, CLASSIFICATION);
+    }
+    remote function getInvoiceRecord(RecordDetail RecordDetail) returns Classification|error {
+        http:Request request = new;
+        xml payload = check buildGetOperationPayload(RecordDetail, self.config);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
+        return getInvoiceRecordGetOperationResult(response, INVOICE);
+    }
  }
 
 # Configuration record for NetSuite

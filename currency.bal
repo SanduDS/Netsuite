@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
+
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapCurrencyRecordFields(Currency currency) returns string {
     string finalResult = EMPTY_STRING;
@@ -44,3 +47,30 @@ function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, st
             ${subElements}
          </urn:record>`;
 }
+
+function mapCurrencyRecord(xml response) returns Currency|error {
+    Currency currency  = {
+        name: (response/**/<listAcct:name>/*).toString(),
+        symbol: (response/**/<listAcct:symbol>/*).toString(),
+        currencyPrecision:  (response/**/<listAcct:currencyPrecision>/*).toString(),
+        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*),
+        isBaseCurrency: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*)
+    };
+    return currency;
+}
+
+function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Currency|error{
+    xml xmlValue = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapCurrencyRecord(xmlValue);
+        } else {
+            fail error("No any record found");
+        }
+    } else {
+        fail error("No any record found");
+    }
+}
+ 

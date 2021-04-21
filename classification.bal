@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapClassificationRecordFields(Classification classification) returns string {
     string finalResult = EMPTY_STRING;
@@ -45,4 +47,33 @@ function wrapClassificationElementsToBeUpdatedWithParentElement(string subElemen
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
         </urn:record>`;
+}
+
+function mapClassificationRecord(xml response) returns Classification|error {
+    xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
+    Classification 'class  = {
+        name: (response/**/<listAcct:name>/*).toString(),
+        includeChildren: check extractBooleanValueFromXMLOrText(response/**/<listAcct:includeChildren>/*),
+        parent: {
+            internalId: check response/**/<listAcct:parent>/*.internalId
+        },
+        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*),
+        internalId: check response/**/<listAcct:internalId>/*.internalId
+    };
+    return 'class;
+}
+
+function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Classification|error{
+    xml xmlValue = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapClassificationRecord(xmlValue);
+        } else {
+            fail error("No any record found");
+        }
+    } else {
+        fail error("No any record found");
+    }
 }
