@@ -1,12 +1,23 @@
+// Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/crypto;
 import ballerina/lang.'array;
-// import ballerina/lang.'xml as xmlLib;
-// import ballerina/lang.'string as stringLib;
-// import ballerina/time;
 import ballerina/uuid;
 import ballerina/regex;
-// import ballerina/lang.value as value;
-// import ballerina/lang.'map as mapLib;
 
 isolated function getNetsuiteSignature(string timeNow, string UUID, NetSuiteConfiguration config) returns string|error {
     TokenData tokenData = {
@@ -28,13 +39,13 @@ isolated function getRandomString() returns string {
 }
 
 isolated function makeBaseString(TokenData values) returns string {
-    string token = values.accountId + "&" + values.consumerId + "&" + values.token + "&" + values.nounce + "&" + values.
-    timestamp;
+    string token = values.accountId + AMPERSAND + values.consumerId + AMPERSAND + values.token + AMPERSAND 
+    + values.nounce + AMPERSAND + values.timestamp;
     return token;
 }
 
 isolated function createKey(TokenData values) returns string {
-    string keyValue = values.consumerSecret + "&" + values.tokenSecret;
+    string keyValue = values.consumerSecret + AMPERSAND + values.tokenSecret;
     return keyValue;
 }
 

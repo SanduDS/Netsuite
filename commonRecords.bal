@@ -24,11 +24,6 @@ public type TokenData record {
     string timestamp;
 };
 
-public type RecordCreationInfo record {
-    RecordType instance;
-    string recordType;
-};
-
 public type RecordAddResponse record {
     boolean isSuccess;
     boolean afterSubmitFailed?;
@@ -63,6 +58,6 @@ public type SavedSearchResponse record {
     RecordRef[] recordRefList = [];
 };
 
-public type RecordType Customer|Contact|Currency|Invoice|Classification;// change names RecordTypes
+public type RecordType Customer|Contact|Currency|Invoice|Classification;
 
-type MapAnydata map<anydata>;
+type MapAnyData map<anydata>;

@@ -34,8 +34,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewCustomer(Customer customer) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(customer, CUSTOMER, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -44,8 +44,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewContact(Contact contact) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(contact, CONTACT, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -54,8 +54,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error  
     remote function addNewInvoice(Invoice invoice) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(invoice, INVOICE, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -64,8 +64,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error 
     remote function addNewCurrency(Currency currency) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(currency, CURRENCY, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -74,8 +74,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error 
     remote function addNewSalesOrder(SalesOrder salesOrder) returns RecordAddResponse|error{
         xml payload = check buildAddRecordPayload(salesOrder, SALES_ORDER, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -84,8 +84,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewClassification(Classification classification) returns RecordAddResponse|error {
         xml payload = check buildAddRecordPayload(classification, CLASSIFICATION, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation creates a record instance in NetSuite according to the given detail
@@ -94,8 +94,8 @@ public client class Client {
     # + return - If success returns a RecordCreationResponse type record otherwise the relevant error
     remote function addNewAccount(Account account) returns RecordAddResponse|error {
         xml payload = check buildAddRecordPayload(account, ACCOUNT, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, ADD_SOAP_ACTION, payload);
-        return getRecordCreationResult(response); 
+        http:Response response = check doHTTPRequest(self.basicClient, ADD_SOAP_ACTION, payload);
+        return getRecordCreateResponse(response); 
     }
 
     # This remote operation deletes a record instance from NetSuite according to the given detail if they are valid.
@@ -104,7 +104,7 @@ public client class Client {
     # + return - If success returns a RecordDeletionResponse type record otherwise the relevant error
     remote function deleteRecord(RecordDetail info) returns @tainted RecordDeletionResponse|error{
         xml payload = check buildDeleteRecordPayload(info, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, DELETE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, DELETE_SOAP_ACTION, payload);
         return getRecordDeleteResponse(response); 
     }
     
@@ -114,7 +114,7 @@ public client class Client {
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error   
     remote function updateCustomerRecord(Customer customer) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(customer, CUSTOMER , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -124,7 +124,7 @@ public client class Client {
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateContactRecord(Contact contact) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(contact, CONTACT , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
     
@@ -134,7 +134,7 @@ public client class Client {
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateCurrencyRecord(Currency currency) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(currency, CURRENCY , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -144,7 +144,7 @@ public client class Client {
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateInvoiceRecord(Invoice invoice) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(invoice, INVOICE , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -154,7 +154,7 @@ public client class Client {
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
     remote function updateSalesOrderRecord(SalesOrder salesOrder) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(salesOrder, SALES_ORDER , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -165,7 +165,7 @@ public client class Client {
     remote function updateClassificationRecord(Classification classification) returns @tainted RecordUpdateResponse|
                                                 error {
         xml payload = check buildUpdateRecordPayload(classification, CLASSIFICATION , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -173,10 +173,9 @@ public client class Client {
     #
     # + account - Account record with details and internalId
     # + return - If success returns a RecordUpdateResponse type record otherwise the relevant error 
-    remote function updateAccountRecord(Account account) returns @tainted RecordUpdateResponse|
-                                                error {
+    remote function updateAccountRecord(Account account) returns @tainted RecordUpdateResponse|error {
         xml payload = check buildUpdateRecordPayload(account, ACCOUNT , self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, UPDATE_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, UPDATE_SOAP_ACTION, payload);
         return getRecordUpdateResponse(response); 
     }
 
@@ -186,7 +185,7 @@ public client class Client {
     # + return - If success returns a json array otherwise the relevant error
     remote function getAll(RecordGetAllType recordInfo) returns @tainted json[]|error {
         xml payload = check buildGetAllPayload(recordInfo, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, GET_ALL_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_ALL_SOAP_ACTION, payload);
         return formatGetAllResponse(response);
     }
 
@@ -197,7 +196,7 @@ public client class Client {
     # + return - If success returns a json array otherwise the relevant error
     remote function getSavedSearch(RecordSaveSearchType recordInfo) returns @tainted json[]|error {
         xml payload = check buildGetSavedSearchPayload(recordInfo, self.config);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, GET_SAVED_SEARCH_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SAVED_SEARCH_SOAP_ACTION, payload);
         return getSavedSearchResponse(response);
     }
 
@@ -208,7 +207,7 @@ public client class Client {
     # + return - If success returns a json otherwise the relevant error
     remote function searchCustomerRecord(SearchElement[] searchElements) returns @tainted Customer|error {
         xml payload = check buildCustomerSearchPayload(self.config, searchElements);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, SEARCH_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, SEARCH_SOAP_ACTION, payload);
         return getCustomerSearchResult(response);
     }
 
@@ -219,11 +218,19 @@ public client class Client {
     # + return - If success returns a json otherwise the relevant error
     remote function searchAccountRecord(SearchElement[] searchElements) returns @tainted Account|error {
         xml payload = check buildAccountSearchPayload(self.config, searchElements);
-        http:Response response = check makeHTTPRequestCall(self.basicClient, SEARCH_SOAP_ACTION, payload);
+        http:Response response = check doHTTPRequest(self.basicClient, SEARCH_SOAP_ACTION, payload);
         return getAccountSearchResult(response);
     }
  }
 
+# Configuration record for NetSuite
+#
+# + accountId - NetSuite account ID  
+# + consumerSecret - Netsuite Integration App consumer secret
+# + baseURL - Netsuite baseURL for web services   
+# + consumerId - Netsuite Integration App consumer ID   
+# + tokenSecret - Netsuite user role access secret 
+# + token - Netsuite user role access token 
 public type NetSuiteConfiguration record {
     string accountId;
     string consumerId;

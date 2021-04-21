@@ -14,6 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public enum SearchType {
+   SEARCH_STRING_FIELD = "SearchStringField",
+   SEARCH_BOOLEAN_FIELD = "SearchBooleanField",
+   SEARCH_DOUBLE_FIELD = "SearchDoubleField",
+   SEARCH_LONG_FIELD = "SearchLongField",
+   SEARCH_TEXT_NUMBER_FIELD = "SearchTextNumberField",
+   SEARCH_DATE_FIELD = "SearchDateField" 
+}
+
 public enum RecordCoreType {
     ACCOUNT = "account",
     ACCOUNTING_PERIOD = "accountingPeriod",

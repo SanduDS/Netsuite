@@ -1,3 +1,19 @@
+// Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/jsonutils;
 import ballerina/http;
 
@@ -8,14 +24,14 @@ public enum ConsolidatedRate {
 }
 
 function mapAccountRecordFields(Account account) returns string {
-    string finalResult = "";
-    map<anydata>|error accountMap = account.cloneWithType(MapAnydata);
+    string finalResult = EMPTY_STRING;
+    map<anydata>|error accountMap = account.cloneWithType(MapAnyData);
     if (accountMap is map<anydata>) {
         string[] keys = accountMap.keys();
         int position = 0;
         foreach var item in accountMap {
             if (item is string|boolean|decimal) {
-                finalResult += setSimpleType(keys[position], item, "listAcct");
+                finalResult += setSimpleType(keys[position], item, LIST_ACCT);
             } else if (item is RecordRef) {
                 finalResult += getXMLRecordRef(<RecordRef>item);
             }
@@ -53,7 +69,7 @@ function getAccountSearchRequestBody(SearchElement[] searchElements) returns str
 function buildAccountSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getAccountSearchRequestBody(searchElement);
-    return check getFinalPayload(requestHeader, requestBody);   
+    return check getSoapPayload(requestHeader, requestBody);   
 }
 
 function getAccountSearchResult(http:Response response) returns Account|error {

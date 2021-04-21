@@ -19,32 +19,18 @@ import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
-function getRecordCreationResult(http:Response response) returns @tainted RecordAddResponse|error {
+function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml xmlValue = check formatPayload(response);
-    if (response.statusCode == 200) {
-        xml output  = xmlValue/**/<status>;
-        json  afterSubmissionResponse= check jsonutils:fromXML(xmlValue/**/<afterSubmitFailed>);
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true" && afterSubmissionResponse.afterSubmitFailed == "false" ) {
-            xml baseRef  = xmlValue/**/<baseRef>;
-            RecordAddResponse instanceCreationResponse = {
-                isSuccess: true,
-                afterSubmitFailed: false,
-                internalId: check baseRef.internalId,
-                recordType: check baseRef.'type
-            };
-            return instanceCreationResponse;
-        } else if(isSuccess == "false" && afterSubmissionResponse.afterSubmitFailed == "true") {
-            xml baseRef  = xmlValue/**/<baseRef>;
-            RecordAddResponse instanceCreationResponse = {
-                isSuccess: false,
-                afterSubmitFailed: true,
-                internalId: check baseRef.internalId,
-                recordType: check baseRef.'type
-            };
-            return instanceCreationResponse;
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>; 
+        boolean afterSubmissionResponse = check extractBooleanValueFromXMLOrText(xmlValue/**/<afterSubmitFailed>/*);
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true && afterSubmissionResponse == false ) { 
+            return  prepareResponseAfterSubmitPassed(xmlValue);
+        } else if(isSuccess == false && afterSubmissionResponse == true) {
+            return prepareResponseAfterSubmitFailed(xmlValue);
         }else {
-            xml errorMessage= xmlValue/**/<statusDetail>;
+            xml errorMessage= xmlValue/**/<statusDetail>/*;
             fail error(errorMessage.toString());
         }    
     } else {
@@ -52,13 +38,35 @@ function getRecordCreationResult(http:Response response) returns @tainted Record
     }
 }
 
+function prepareResponseAfterSubmitFailed(xml xmlValue) returns RecordAddResponse|error {
+    xml baseRef  = xmlValue/**/<baseRef>;
+    RecordAddResponse instanceCreationResponse = {
+        isSuccess: false,
+        afterSubmitFailed: true,
+        internalId: check baseRef.internalId,
+        recordType: check baseRef.'type
+    };
+    return instanceCreationResponse;
+}
+
+function prepareResponseAfterSubmitPassed(xml xmlValue) returns RecordAddResponse|error {
+    xml baseRef  = xmlValue/**/<baseRef>;
+    RecordAddResponse instanceCreationResponse = {
+        isSuccess: true,
+        afterSubmitFailed: false,
+        internalId: check baseRef.internalId,
+        recordType: check baseRef.'type
+    };
+    return instanceCreationResponse;
+}
+
 function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
-    xml xmlValure = check formatPayload(response);
-    if (response.statusCode == 200) {
-        xml output  = xmlValure/**/<status>;
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true") {
-            xml baseRef  = xmlValure/**/<baseRef>;
+    xml formattedPayload = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) {
+        xml output  = formattedPayload/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true) {
+            xml baseRef  = formattedPayload/**/<baseRef>;
             RecordDeletionResponse deleteResponse = {
                 isSuccess: true,
                 internalId: check baseRef.internalId,
@@ -66,20 +74,20 @@ function getRecordDeleteResponse(http:Response response) returns @tainted Record
             };
             return deleteResponse;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
+            json errorMessage= check jsonutils:fromXML(formattedPayload/**/<statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
-        fail error(xmlValure.toString());
+        fail error(formattedPayload.toString());
     }
 }
 
 function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
     xml xmlValure = check formatPayload(response);
-    if (response.statusCode == 200) {
+    if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValure/**/<status>;
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true") {
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true) {
             xml baseRef  = xmlValure/**/<baseRef>;
             RecordUpdateResponse updateResponse = {
                 isSuccess: true,
@@ -98,10 +106,10 @@ function getRecordUpdateResponse(http:Response response) returns @tainted Record
  
 function formatGetAllResponse(http:Response response) returns @tainted json[]|error {
     xml xmlValure = check formatPayload(response);
-    if (response.statusCode == 200) {
+    if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValure/**/<status>;
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true") {
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true) {
             xml:Element records = <xml:Element> xmlValure/**/<recordList>;
             xml baseRef  = xmlLib:getChildren(records);
             json[] recordList = [];
@@ -138,7 +146,7 @@ function formatGetAllResponse(http:Response response) returns @tainted json[]|er
                             }  
                         }
                         "listRel:state" => {
-                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, " listRel:");
+                            xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, "listRel:");
                             json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
                             if(afterSubmissionResponse is json) {
                                 recordList.push(afterSubmissionResponse);
@@ -148,10 +156,9 @@ function formatGetAllResponse(http:Response response) returns @tainted json[]|er
                     }
                 }
             });
-             
             return recordList;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<platformCore_statusDetail>);
+            json errorMessage= check jsonutils:fromXML(xmlValure/**/<platformCore_statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
@@ -159,33 +166,30 @@ function formatGetAllResponse(http:Response response) returns @tainted json[]|er
     }
 }
 
-function replaceRegexInXML(xml value, string regex, string replacement = "") returns xml|error {
+function replaceRegexInXML(xml value, string regex, string replacement = EMPTY_STRING) returns xml|error {
     string formattedXMLResponse = regex:replaceAll(value.toString(), regex, replacement);
     return check xmlLib:fromString(formattedXMLResponse);
 } 
 
 function formatPayload(http:Response response) returns @tainted xml|error {
     xml xmlValure  = check response.getXmlPayload();
-    string formattedXMLResponse = regex:replaceAll(xmlValure.toString(), "soapenv:", "soapenv_");
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, "xsi:", "xsi_");
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, "platformCore:", "");
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, "platformMsgs:", "platformMsgs_");
-    string regex01 = string `xmlns="urn:messages_2020_2.platform.webservices.netsuite.com"`;
-    string regex02 = string `xmlns:platformCore="urn:core_2020_2.platform.webservices.netsuite.com"`;
-    string regex03 = string `xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"`;
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse,regex01,"");
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse,regex02,"");
-    formattedXMLResponse = regex:replaceAll(formattedXMLResponse,regex03,"");
+    string formattedXMLResponse = regex:replaceAll(xmlValure.toString(), SOAP_ENV, SOAP_ENV_);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, XSI, XSI_);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, PLATFORM_CORE, EMPTY_STRING);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, PLATFORM_MSGS, PLATFORM_MSGS_);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, MESSAGES_NS, EMPTY_STRING);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, CORE_NS, EMPTY_STRING);
+    formattedXMLResponse = regex:replaceAll(formattedXMLResponse, XSI_NS, EMPTY_STRING);
     return check xmlLib:fromString(formattedXMLResponse);
 }
 
 function getSavedSearchResponse(http:Response response) returns json[]|error {
-    xml xmlValure = check formatPayload(response);
-    if (response.statusCode == 200) {
-        xml output  = xmlValure/**/<status>;
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true") {
-            xml:Element records = <xml:Element> xmlValure/**/<recordRefList>;
+    xml formattedPayload = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) {
+        xml output  = formattedPayload/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true) {
+            xml:Element records = <xml:Element> formattedPayload/**/<recordRefList>;
             xml baseRef  = xmlLib:getChildren(records);
             json[] recordList = [];
             var xx = xmlLib:forEach(baseRef,function(xml platformCoreRecord) {
@@ -204,24 +208,24 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
             });          
             return recordList;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
+            json errorMessage= check jsonutils:fromXML(formattedPayload/**/<statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
-        fail error(xmlValure.toString());
+        fail error(formattedPayload.toString());
     }
 }
 
 function getXMLRecordListFromSearchResult(http:Response response) returns @tainted xml|error {
     xml xmlValue = check formatPayload(response);
-    if (response.statusCode == 200) {
+    if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValue/**/<status>;
-        string isSuccess = check output.isSuccess;
-        if(isSuccess == "true") {
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess == true) {
             xml:Element records = <xml:Element> xmlValue/**/<recordList>;
             xml baseRef  = xmlLib:getChildren(records); 
             if(baseRef.length() == 0) {
-                fail error("No record found!");
+                fail error(NO_RECORD_FOUND);
             }    
             return baseRef;
         } else {

@@ -34,7 +34,7 @@ public type SalesOrder record {
     string internalId?;
     string createdDate?;
     RecordRef customForm?;
-    RecordRef entity;
+    RecordRef entity?;
     RecordRef job?;
     RecordRef currency?;
     RecordRef drAccount?;
@@ -42,7 +42,6 @@ public type SalesOrder record {
     string tranDate?;
     string tranId?;
     RecordRef entityTaxRegNum?;
-    //string source?;
     RecordRef createdFrom?;
     SalesOrderOrderStatus orderStatus?;
     string nextBill?;

@@ -20,11 +20,11 @@ import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'boolean as booleanLib;
 
-function makeHTTPRequestCall(http:Client basicClient, string action, xml payload) returns http:Response|error {
+function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
     http:Request request = new;
     request.setXmlPayload(payload);
-    request.setHeader("SOAPAction", action);
-    return <http:Response>check basicClient->post("", request);
+    request.setHeader(SOAP_ACTION_HEADER, action);
+    return <http:Response>check basicClient->post(EMPTY_STRING, request);
 }
 
 isolated function buildXMLPayloadHeader(NetSuiteConfiguration config) returns string|error {
@@ -103,18 +103,14 @@ function buildAddRecordPayload(RecordType info, RecordCoreType recordCoreType, N
     string header = check buildXMLPayloadHeader(config);
     string subElements = check getRecordElementsForAddOperation(info, recordCoreType);
     string body = getAddXMLBodyWithParentElement(subElements);
-    string payload = header + body;
-    xml xmlPayload = check xmlLib:fromString(payload);
-    return xmlPayload;
+    return getSoapPayload(header, body);
 }
 
 function buildDeleteRecordPayload(RecordDetail info, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
     string subElements = getDeletePayload(info);
     string body = getDeleteXMLBodyWithParentElement(subElements);
-    string payload = header + body;
-    xml xmlPayload = check xmlLib:fromString(payload);
-    return xmlPayload;
+    return getSoapPayload(header, body);
 }
 
 function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) returns 
@@ -122,13 +118,11 @@ function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType
     string header = check buildXMLPayloadHeader(config);
     string elements = check getRecordElementsForUpdateOperation(info, recordCoreType);
     string body = getUpdateXMLBodyWithParentElement(elements);
-    string payload = header + body;
-    xml xmlPayload = check xmlLib:fromString(payload);
-    return xmlPayload;
+    return getSoapPayload(header, body);    
 }
 
 function getRecordElementsForUpdateOperation(RecordType info, RecordCoreType recordCoreType) returns string|error {
-    string subElements = "";   
+    string subElements = EMPTY_STRING;   
     match recordCoreType {
         CUSTOMER => {
              subElements = mapCustomerRecordFields(<Customer>info); 
@@ -155,13 +149,13 @@ function getRecordElementsForUpdateOperation(RecordType info, RecordCoreType rec
             return wrapAccountElementsToUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         _ => {
-                fail error("Connector couldn't identify the recordType, Please check the record fields.");
-            }
+                fail error(UNKNOWN_TYPE);
+        }
     }
 }
 
 function getRecordElementsForAddOperation(RecordType info, RecordCoreType recordCoreType) returns string|error{ 
-    string subElements = "";   
+    string subElements = EMPTY_STRING;   
     match recordCoreType {
         CUSTOMER => {
              subElements = mapCustomerRecordFields(<Customer>info); 
@@ -192,8 +186,8 @@ function getRecordElementsForAddOperation(RecordType info, RecordCoreType record
             return wrapAccountElementsToBeCreatedWithParentElement(subElements);
         }
         _ => {
-                fail error("Connector couldn't identify the recordType, Please check the record fields.");
-            }
+                fail error(UNKNOWN_TYPE);
+        }
     }
 }
 
@@ -241,9 +235,7 @@ function getXMLBodyForSavedSearchOperation(string recordType) returns string{
 function buildGetSavedSearchPayload(string recordType, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
     string body = getXMLBodyForSavedSearchOperation(recordType);
-    string payload = header + body;
-    xml xmlPayload = check xmlLib:fromString(payload);
-    return xmlPayload;
+    return getSoapPayload(header, body);
 }
 
 function getValidJson(json|error element) returns json?{
@@ -264,12 +256,19 @@ function checkStringValidity(string|error element) returns string?{
     } 
 }
 
-function extractBooleanValueFromJson(json|error element) returns boolean? {
-    boolean|error extractedValue = booleanLib:fromString(getValidJson(element).toString());
-    if(extractedValue is boolean) {
-        return extractedValue;
-    }
+function extractBooleanValueFromJson(json|error element) returns boolean|error {
+    return booleanLib:fromString(getValidJson(element).toString());
 }
+
+function extractBooleanValueFromXMLOrText(xml|string|error element) returns boolean|error {
+   if(element is xml|string) {
+       return booleanLib:fromString(element.toString()); 
+   } else {
+       return element;
+   }
+   
+}
+
 function getRecordRef(json element, json elementInfo) returns RecordRef{
     RecordRef recordRef = {
         name: getValidJson(elementInfo.name).toString(),

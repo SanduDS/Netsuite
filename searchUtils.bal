@@ -24,17 +24,8 @@ public type SearchElement record {
     string value2?;
 };
 
-public enum SearchType {
-   SEARCH_STRING_FIELD = "SearchStringField",
-   SEARCH_BOOLEAN_FIELD = "SearchBooleanField",
-   SEARCH_DOUBLE_FIELD = "SearchDoubleField",
-   SEARCH_LONG_FIELD = "SearchLongField",
-   SEARCH_TEXT_NUMBER_FIELD = "SearchTextNumberField",
-   SEARCH_DATE_FIELD = "SearchDateField" 
-}
-
 function getSearchElement(SearchElement[] searchElements) returns string{
-    string searchElementInPayloadBody = "";
+    string searchElementInPayloadBody = EMPTY_STRING;
     foreach SearchElement element in searchElements {
         searchElementInPayloadBody += getXMLSearchElement(element);
     }
@@ -56,7 +47,7 @@ function getOptionalSearchValue(SearchElement searchElement) returns string?{
     }
 }
 
-function getFinalPayload(string header, string body) returns xml|error {
+function getSoapPayload(string header, string body) returns xml|error {
     string requestPayload = header + body;
     return check xmlLib:fromString(requestPayload);
 }

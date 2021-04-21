@@ -16,8 +16,8 @@
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapContactRecordFields(Contact contact) returns string {
-    string finalResult = "";
-    map<anydata>|error contactMap = contact.cloneWithType(MapAnydata);
+    string finalResult = EMPTY_STRING;
+    map<anydata>|error contactMap = contact.cloneWithType(MapAnyData);
     if (contactMap is map<anydata>) {
         string[] keys = contactMap.keys();
         int position = 0;
@@ -27,7 +27,7 @@ function mapContactRecordFields(Contact contact) returns string {
             } else if (item is RecordRef) {
                 finalResult += getXMLRecordRef(<RecordRef>item);
             } else if (item is Category[]) {
-                string categoryList = "";
+                string categoryList = EMPTY_STRING;
                 foreach RecordRef category in item {
                     categoryList += getXMLRecordRef(category);
                 }
@@ -60,11 +60,11 @@ function wrapContactElementsToBeUpdatedWithParentElement(string subElements, str
 }
 
 function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
-    string contactAddressBook= "";
+    string contactAddressBook= EMPTY_STRING;
     foreach ContactAddressBook addressBookItem in addressBooks {
-        map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnydata);
+        map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnyData);
         int mainPosition = 0;
-        string addressList = "";
+        string addressList = EMPTY_STRING;
         if(AddressItemMap is map<anydata>) {
             string[] AddressItemKeys = AddressItemMap.keys();
             foreach var item in addressBookItem {
@@ -83,11 +83,11 @@ function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
 }
 
 function getAddressListInXML(Address[] addresses) returns string {
-    string addressList = "";
+    string addressList = EMPTY_STRING;
     foreach Address addressItem in addresses {
-        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnydata);
+        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnyData);
         int position = 0;
-        string addressBook ="";
+        string addressBook =EMPTY_STRING;
         foreach var element in addressItem {
             if (AddressMap is map<anydata>) {
                 string[] keys = AddressMap.keys();

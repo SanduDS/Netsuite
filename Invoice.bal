@@ -16,14 +16,14 @@
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapInvoiceRecordFields(Invoice invoice) returns string {
-    string finalResult = "";
-    map<anydata>|error invoiceMap = invoice.cloneWithType(MapAnydata);
+    string finalResult = EMPTY_STRING;
+    map<anydata>|error invoiceMap = invoice.cloneWithType(MapAnyData);
     if (invoiceMap is map<anydata>) {
         string[] keys = invoiceMap.keys();
         int position = 0;
         foreach var item in invoice {
             if (item is string|decimal) {
-                finalResult += setSimpleType(keys[position], item, "tranSales");
+                finalResult += setSimpleType(keys[position], item, TRAN_SALES);
             } else if (item is RecordRef) {
                 finalResult += getXMLRecordRef(<RecordRef>item);
             }    

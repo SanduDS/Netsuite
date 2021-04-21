@@ -16,14 +16,14 @@
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapCurrencyRecordFields(Currency currency) returns string {
-    string finalResult = "";
-    map<anydata>|error currencyMap = currency.cloneWithType(MapAnydata);
+    string finalResult = EMPTY_STRING;
+    map<anydata>|error currencyMap = currency.cloneWithType(MapAnyData);
     if (currencyMap is map<anydata>) {
         string[] keys = currencyMap.keys();
         int position = 0;
         foreach var item in currency {
             if (item is string|boolean|decimal|int) {
-                finalResult += setSimpleType(keys[position], item, "listAcct");
+                finalResult += setSimpleType(keys[position], item, LIST_ACCT);
             }
             position += 1;
         }

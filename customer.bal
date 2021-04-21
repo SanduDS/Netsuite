@@ -1,10 +1,26 @@
+// Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/jsonutils;
 import ballerina/http;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
 function mapCustomerRecordFields(Customer customer) returns string {
-    string finalResult = "";
-    map<anydata>|error customerMap = customer.cloneWithType(MapAnydata);
+    string finalResult = EMPTY_STRING;
+    map<anydata>|error customerMap = customer.cloneWithType(MapAnyData);
     if (customerMap is map<anydata>) {
         string[] keys = customerMap.keys();
         int position = 0;
@@ -40,11 +56,11 @@ function wrapCustomerElementsToBeUpdatedWithParentElement(string subElements, st
 }
 
 function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns string {
-    string customerAddressBook= "";
+    string customerAddressBook= EMPTY_STRING;
     foreach CustomerAddressbook addressBookItem in addressBooks {
-        map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnydata);
+        map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnyData);
         int mainPosition = 0;
-        string addressList = "";
+        string addressList = EMPTY_STRING;
         if(AddressItemMap is map<anydata>) {
             string[] AddressItemKeys = AddressItemMap.keys();
             foreach var item in addressBookItem {
@@ -53,9 +69,9 @@ function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns 
                     </${AddressItemKeys[mainPosition]}>`;
                 } else if(item is Address[]) {
                     foreach Address addressItem in item {
-                        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnydata);
+                        map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnyData);
                         int position = 0;
-                        string addressBook ="";
+                        string addressBook =EMPTY_STRING;
                         foreach var element in addressItem {
                             if (AddressMap is map<anydata>) {
                                 string[] keys = AddressMap.keys();
@@ -75,11 +91,11 @@ function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns 
 }
 
 function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
-    string customerCurrencyList= "";
+    string customerCurrencyList= EMPTY_STRING;
     foreach CustomerCurrency customerCurrencyItem in currencyLists {
-        map<anydata>|error currencyItemMap = customerCurrencyItem.cloneWithType(MapAnydata);
+        map<anydata>|error currencyItemMap = customerCurrencyItem.cloneWithType(MapAnyData);
         int mainPosition = 0;
-        string currencyList = "";
+        string currencyList = EMPTY_STRING;
         if(currencyItemMap is map<anydata>) {
             string[] currencyItemKeys = currencyItemMap.keys();
             foreach var item in customerCurrencyItem {
@@ -110,15 +126,13 @@ function getCustomerSearchRequestBody(SearchElement[] searchElements) returns st
 function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getCustomerSearchRequestBody(searchElement);
-    return check getFinalPayload(requestHeader, requestBody); 
+    return check getSoapPayload(requestHeader, requestBody); 
 }
 
 function getCustomerSearchResult(http:Response response) returns Customer|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, "listRel:");
     string|error instanceType =  xmlValue.xsi_type;
-    // xml:Text x = <xml:Text>xmlValue/<entityId>;
-    // string test=  xmlLib:getContent(x).toString();
     string internalId = checkStringValidity(xmlValue.internalId).toString();
     Customer customer = {
         internalId: internalId
@@ -132,12 +146,13 @@ function getCustomerSearchResult(http:Response response) returns Customer|error 
 function mapCustomerFields(json customerTypeJson, Customer customer) returns error? {
     json[] valueList = <json[]>getValidJson(customerTypeJson.'record.'record);
     foreach json element in valueList {
-        boolean? extractedValue = extractBooleanValueFromJson(element.isPerson);
-        if(extractedValue is boolean) {
+        boolean extractedValue = false;
+        if(element.isPerson is json) {
+            extractedValue = check extractBooleanValueFromJson(element.isPerson);
             customer.isPerson = extractedValue;
-        } 
-        extractedValue = extractBooleanValueFromJson(element.isInactive); 
-        if(extractedValue is boolean) {
+        }   
+        if(element.isInactive is json) {
+            extractedValue = check extractBooleanValueFromJson(element.isInactive); 
             customer.isInactive = extractedValue;
         }
         if(element.entityId is json) {
