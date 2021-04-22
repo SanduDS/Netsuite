@@ -1,4 +1,4 @@
-#Netsuite Connector
+# Netsuite Connector
 based on  SOAP webservice
 
 
@@ -21,7 +21,7 @@ The following sections provide you details on how to use the NetSuite connector.
 
 |                             |           Version                    |
 |:---------------------------:|:------------------------------------:|
-| Ballerina Language          |     Swan Lake Alpha2                 |
+| Ballerina Language          |     Swan Lake Alpha4                 |
 | NetSuite SOAP API           |     SOAP 1.1                         |
 | WSDL version                |     2020.2.0                         |
 
@@ -40,9 +40,9 @@ Download and install [Ballerina](https://ballerinalang.org/downloads/).
 * GetAll
 * GetList
 * GetSavedSearch
-* AddRecord
-* DeleteRecord
-* UpdateRecord
+* AddRecords
+* DeleteRecords
+* UpdateRecords
 
 ### Pull the Module
 Execute the below command to pull the NetSuite module from Ballerina Central:

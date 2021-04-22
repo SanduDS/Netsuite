@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jsonutils;
+import ballerina/xmldata;
 import ballerina/http;
 
 xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
@@ -125,21 +125,22 @@ isolated function getCustomerSearchRequestBody(SearchElement[] searchElements) r
     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
 }
 
-isolated function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
+isolated function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns 
+                                            xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getCustomerSearchRequestBody(searchElement);
     return check getSoapPayload(requestHeader, requestBody); 
 }
 
-function getCustomerSearchResult(http:Response response) returns Customer|error {
+isolated function getCustomerSearchResult(http:Response response) returns Customer|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
-    xmlValue = check replaceRegexInXML(xmlValue, "listRel:");
+    xmlValue = check replaceRegexInXML(xmlValue, LIST_REL_WITH_COLON);
     string|error instanceType =  xmlValue.xsi_type;
     string internalId = checkStringValidity(xmlValue.internalId).toString();
     Customer customer = {
         internalId: internalId
     };
-    json validatedJson = getValidJson(jsonutils:fromXML(xmlValue));
+    json validatedJson = getValidJson(xmldata:toJson(xmlValue));
     check mapCustomerFields(validatedJson, customer);
     return customer;
 }
@@ -237,7 +238,6 @@ isolated function mapCustomerRecord(xml response) returns Customer|error {
     return customer;   
 }
 
-
 isolated function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Customer|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
@@ -246,10 +246,9 @@ isolated function getCustomerRecordGetOperationResult(http:Response response, Re
         if(isSuccess) {
             return mapCustomerRecord(xmlValue);
         } else {
-            fail error("No any record found, Check the record detail");
+            fail error(NO_RECORD_CHECK);
         }
     } else {
-        fail error("No any record found");
+        fail error(xmlValue.toString());
     }  
  }
-

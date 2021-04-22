@@ -154,7 +154,7 @@ isolated function getTransactionSearchResult(http:Response response) returns Rec
         }
         boolean|error isSuccess = extractBooleanValueFromXMLOrText(successStatus);
         if(isSuccess is error) {
-            fail error("Error in search results");
+            fail error(ERROR_IN_RESULTS);
         } else {
             if(isSuccess == true) {
                 xml recordList = xmlValue/**/<recordList>/*;
@@ -173,7 +173,7 @@ isolated function getTransactionSearchResult(http:Response response) returns Rec
                 };
                 return recordSet;
             } else {
-                fail error("Search was not successful in Netsuite");
+                fail error(NOT_SUCCESS);
             }
         }
     } else {

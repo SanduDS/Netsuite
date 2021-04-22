@@ -23,7 +23,7 @@ isolated function mapContactRecordFields(Contact contact) returns string {
         int position = 0;
         foreach var item in contact {
             if (item is string|boolean) {
-                finalResult += setSimpleType(keys[position], item, "listRel");
+                finalResult += setSimpleType(keys[position], item, LIST_REL);
             } else if (item is RecordRef) {
                 finalResult += getXMLRecordRef(<RecordRef>item);
             } else if (item is Category[]) {

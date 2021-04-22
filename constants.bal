@@ -28,6 +28,9 @@ public const string AMPERSAND = "&";
 //Error Messages
 public const string UNKNOWN_TYPE = "Unknown record type provided";
 public const string NO_RECORD_FOUND = "No record found!";
+public const string NO_RECORD_CHECK = "No any record found, Check the record detail";
+public const string NOT_SUCCESS = "Search was not successful in Netsuite";
+public const string ERROR_IN_RESULTS = "Error in search results";
 
 //XSD types
 public const string LIST_ACCT = "listAcct";
@@ -47,3 +50,4 @@ public const string SOAP_ENV_ = "soapenv_";
 public const string LIST_ACCT_WITH_COLON = "listAcct:";
 public const string LIST_MRK_WITH_COLON = "listMkt:";
 public const string LIST_REL_WITH_COLON = "listRel:";
+public const string LIST_REL = "listRel";

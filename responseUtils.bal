@@ -16,10 +16,10 @@
 
 import ballerina/regex;
 import ballerina/lang.'xml as xmlLib;
-import ballerina/jsonutils;
+import ballerina/xmldata;
 import ballerina/http;
 
- function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
+isolated function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         string|error statusDetailType = formattedPayload/**/<statusDetail>.'type;
@@ -28,17 +28,21 @@ import ballerina/http;
             if(statusDetailType == "ERROR" && afterSubmissionResponse is error) {
                 fail error((formattedPayload/**/<message>/*).toString());
             }
-        }
-        xml output  = formattedPayload/**/<status>; 
-        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
-        if(isSuccess == true && afterSubmissionResponse == false ) { 
-            return  prepareResponseAfterSubmitPassed(formattedPayload);
-        } else if(isSuccess == false && afterSubmissionResponse == true) {
-            return prepareResponseAfterSubmitFailed(formattedPayload);
-        }else {
-            xml errorMessage= formattedPayload/**/<statusDetail>/*;
-            fail error(errorMessage.toString());
-        }    
+        } 
+        if(afterSubmissionResponse is boolean) {
+            xml output  = formattedPayload/**/<status>; 
+            boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+            if(isSuccess == true && afterSubmissionResponse == false ) { 
+                return  prepareResponseAfterSubmitPassed(formattedPayload);
+            } else if(isSuccess == false && afterSubmissionResponse == true) {
+                return prepareResponseAfterSubmitFailed(formattedPayload);
+            }else {
+                xml errorMessage= formattedPayload/**/<statusDetail>/*;
+                fail error(errorMessage.toString());
+            }
+        } else {
+            fail error((formattedPayload/**/<message>/*).toString());
+        }   
     } else {
         fail error(formattedPayload.toString());
     }
@@ -68,7 +72,7 @@ isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns
     return instanceCreationResponse;
 }
 
- function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
+isolated function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
     xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = formattedPayload/**/<status>;
@@ -82,7 +86,7 @@ isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns
             };
             return deleteResponse;
         } else {
-            json errorMessage= check jsonutils:fromXML(formattedPayload/**/<statusDetail>/*);
+            json errorMessage= check xmldata:toJson(formattedPayload/**/<statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
@@ -90,7 +94,7 @@ isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns
     }
 }
 
- function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
+isolated function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValure/**/<status>;
@@ -104,7 +108,7 @@ isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns
             };
             return updateResponse;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<statusDetail>);
+            json errorMessage= check xmldata:toJson(xmlValure/**/<statusDetail>);
             fail error(errorMessage.toString());
         }    
     } else {
@@ -122,7 +126,7 @@ isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns
             xml baseRef  = xmlLib:getChildren(records);
             return categorizeGetALLResponse(baseRef);
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValure/**/<platformCore_statusDetail>/*);
+            json errorMessage= check xmldata:toJson(xmlValure/**/<platformCore_statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
@@ -138,35 +142,35 @@ function categorizeGetALLResponse(xml baseRef) returns json[] {
             match count {
                 "listAcct:Currency" => {
                     xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
-                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                     if(afterSubmissionResponse is json) {
                         recordList.push(afterSubmissionResponse);
                     }
                 }
                 "listAcct:budgetCategory" => {
                     xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
-                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                     if(afterSubmissionResponse is json) {
                         recordList.push(afterSubmissionResponse);
                     }  
                 }
                 "listMkt:campaignAudience" => {
                     xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_MRK_WITH_COLON);
-                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                     if(afterSubmissionResponse is json) {
                         recordList.push(afterSubmissionResponse);
                     }  
                 }
                 "listAcct:taxAcct" => {
                     xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
-                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                     if(afterSubmissionResponse is json) {
                         recordList.push(afterSubmissionResponse);
                     }  
                 }
                 "listRel:state" => {
                     xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_REL_WITH_COLON);
-                    json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                    json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                     if(afterSubmissionResponse is json) {
                         recordList.push(afterSubmissionResponse);
                     }  
@@ -210,7 +214,7 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
                     match count {
                         "CustomizationRef" => {
                             xml recordItems = checkpanic replaceRegexInXML(platformCoreRecord, LIST_ACCT_WITH_COLON);
-                            json|error  afterSubmissionResponse = jsonutils:fromXML(recordItems/*);
+                            json|error  afterSubmissionResponse = xmldata:toJson(recordItems/*);
                             if(afterSubmissionResponse is json) {
                                 recordList.push(afterSubmissionResponse);
                             }
@@ -220,7 +224,7 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
             });          
             return recordList;
         } else {
-            json errorMessage= check jsonutils:fromXML(formattedPayload/**/<statusDetail>/*);
+            json errorMessage= check xmldata:toJson(formattedPayload/**/<statusDetail>/*);
             fail error(errorMessage.toString());
         }    
     } else {
@@ -228,7 +232,7 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
     }
 }
 
-function getXMLRecordListFromSearchResult(http:Response response) returns @tainted xml|error {
+isolated function getXMLRecordListFromSearchResult(http:Response response) returns @tainted xml|error {
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValue/**/<status>;
@@ -241,14 +245,11 @@ function getXMLRecordListFromSearchResult(http:Response response) returns @taint
             }    
             return baseRef;
         } else {
-            json errorMessage= check jsonutils:fromXML(xmlValue/**/<statusDetail>);
-            errorMessage= check jsonutils:fromXML(xmlValue/**/<soapenv_Fault>/<faultstring>);
+            json errorMessage= check xmldata:toJson(xmlValue/**/<statusDetail>);
+            errorMessage= check xmldata:toJson(xmlValue/**/<soapenv_Fault>/<faultstring>);
             fail error(errorMessage.toString());
         }    
     } else {
         fail error(xmlValue.toString());
     }
 }
-
-
-

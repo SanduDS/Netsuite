@@ -14,6 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Description
+#
+# + internalId - Netsuite Internal Id  
+# + country - Country from NetSuite country List
+# + attention - Field Description  
+# + addressee - addressee of this record  
+# + addrPhone - Address phone  
+# + addr1 - Address Part01
+# + addr2 - Address Part02  
+# + addr3 - Address Part03  
+# + city - City of the Address 
+# + state - State of the Address  
+# + zip - Zip code the area 
+# + addrText - Address stress 
+# + override - override the existing address 
 public type Address record {
     string internalId?;
     Country|string country?;

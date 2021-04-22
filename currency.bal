@@ -41,7 +41,8 @@ isolated function wrapCurrencyElementsToBeCreatedWithParentElement(string subEle
          </urn:record>`;
 }
 
-isolated function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+isolated function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns 
+                                                                    string {
     return string `<urn:record xsi:type="listAcct:Currency" internalId="${internalId}"
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}

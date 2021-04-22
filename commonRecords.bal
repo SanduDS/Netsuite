@@ -76,6 +76,7 @@ public type SavedSearchResponse record {
 # RecordType Connector supports for creation operation for now.  
 public type RecordType Customer|Contact|Currency|Invoice|Classification;
 
+#Map type for record to Map conversion
 type MapAnyData map<anydata>;
 
 # Description

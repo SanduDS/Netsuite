@@ -44,9 +44,9 @@ string customerAccountId = EMPTY_STRING;
 string invoiceId = EMPTY_STRING;
 
 //----------------------------------------------------- Beginning of Record Addition Tests------------------------------
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddContactRecord() {
-    log:print("testAddContactRecord");
+    log:printInfo("testAddContactRecord");
     RecordRef cusForm = {
         internalId : "-40",
         'type: "customForm"
@@ -105,7 +105,7 @@ function testAddContactRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewContact(contact);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         contactId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
@@ -113,9 +113,9 @@ function testAddContactRecord() {
 }
 
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddNewCustomerRecord() {
-    log:print("testAddCustomerRecord");
+    log:printInfo("testAddCustomerRecord");
     RecordRef subsidiary = {
         internalId : "11",
         'type: "subsidiary"
@@ -176,7 +176,7 @@ function testAddNewCustomerRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewCustomer(customer);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         customerId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
@@ -184,9 +184,9 @@ function testAddNewCustomerRecord() {
 
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddCurrencyRecord() {
-    log:print("testAddCurrencyRecord");
+    log:printInfo("testAddCurrencyRecord");
     Currency currency = {
         name: "BLA",
         symbol: "BLA",
@@ -197,16 +197,16 @@ function testAddCurrencyRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewCurrency(currency);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         currencyId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddInvoiceRecord() {
-    log:print("testAddInvoiceRecord");
+    log:printInfo("testAddInvoiceRecord");
     RecordRef entity = {
         internalId : "5530",
         'type: "entity"
@@ -232,16 +232,16 @@ function testAddInvoiceRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewInvoice(invoice);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         invoiceId = output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testSalesOrderAddOperation() {
-    log:print("testSalesOrderRecordOperation");
+    log:printInfo("testSalesOrderRecordOperation");
     RecordRef entity = {
         internalId : "4045",
         'type: "entity"
@@ -279,16 +279,16 @@ function testSalesOrderAddOperation() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewSalesOrder(salesOrder);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         salesOrderId = output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddClassificationRecord() {
-    log:print("testAddClassificationRecord");
+    log:printInfo("testAddClassificationRecord");
     RecordRef recordRef = {
         internalId: "10",
         'type: "parent"
@@ -299,16 +299,16 @@ function testAddClassificationRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewClassification(classification);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         classificationId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testAddAccountRecord() {
-    log:print("testAddAccountRecord");
+    log:printInfo("testAddAccountRecord");
     RecordRef currency = {
         internalId: "1",
         'type: "currency"
@@ -320,7 +320,7 @@ function testAddAccountRecord() {
     };
     RecordAddResponse|error output = netsuiteClient->addNewAccount(account);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         customerAccountId = output.internalId;
     } else {
         test:assertFail(output.message());
@@ -330,9 +330,9 @@ function testAddAccountRecord() {
  //----------------------------------------------------- End of Addition Tests------------------------------------------
 
  //----------------------------------------------------- Beginning of Update Tests--------------------------------------
-@test:Config {enable: false, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
+@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
 function testUpdateCustomerRecord() {
-    log:print("testUpdateCustomerRecord");
+    log:printInfo("testUpdateCustomerRecord");
     RecordRef subsidiary = {
         internalId : "11",
         'type: "subsidiary"
@@ -394,15 +394,15 @@ function testUpdateCustomerRecord() {
     };
     RecordUpdateResponse|error output = netsuiteClient->updateCustomerRecord(customer);
     if (output is RecordUpdateResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testSalesOrderAddOperation]}
+@test:Config {enable: true, dependsOn: [testSalesOrderAddOperation]}
 function testSalesOrderUpdateOperation() {
-    log:print("testSalesOrderUpdateOperation");
+    log:printInfo("testSalesOrderUpdateOperation");
     RecordRef itemValue = {
         internalId : "961",
         'type: "item"
@@ -417,57 +417,53 @@ function testSalesOrderUpdateOperation() {
     };
     RecordUpdateResponse|error output = netsuiteClient->updateSalesOrderRecord(salesOrder);
     if (output is RecordUpdateResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
         salesOrderId = output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testAddClassificationRecord]}
+@test:Config {enable: true, dependsOn: [testAddClassificationRecord]}
 function testUpdateClassificationRecord() {
-    log:print("testUpdateClassificationRecord");
+    log:printInfo("testUpdateClassificationRecord");
     Classification classification = {
         name:"Ballerina test class_Updated",
         internalId: classificationId
     };
     RecordUpdateResponse|error output = netsuiteClient->updateClassificationRecord(classification);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testAddAccountRecord]}
+@test:Config {enable: true, dependsOn: [testAddAccountRecord]}
 function testUpdateAccountRecord() {
-    log:print("testUpdateAccountRecord");
+    log:printInfo("testUpdateAccountRecord");
     Account account = {
         acctName: "Ballerina test account_updated",
         internalId: customerAccountId
     };
     RecordUpdateResponse|error output = netsuiteClient->updateAccountRecord(account);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.message());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testAddInvoiceRecord, testAddCurrencyRecord]}
+@test:Config {enable: true, dependsOn: [testAddInvoiceRecord]}
 function testUpdateInvoiceRecord() {
-    log:print("testUpdateInvoiceRecord");
+    log:printInfo("testUpdateInvoiceRecord");
     Invoice invoice = {
         internalId: invoiceId,
-        email: "test@ecosystem.com",
-        'class: {
-            internalId: classificationId,
-            'type:"class"
-        }
+        email: "test@ecosystem.com"
     };
     RecordUpdateResponse|error output = netsuiteClient->updateInvoiceRecord(invoice);
     if (output is RecordAddResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.message());
     }
@@ -477,106 +473,106 @@ function testUpdateInvoiceRecord() {
 //---------------------------------------End of Update Tests------------------------------------------------------------
 
 //---------------------------------------Beginning of Deletion Tests----------------------------------------------------
-@test:Config {enable: false, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, testCustomerRecordGetOperation]}
+@test:Config {enable: true, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, testCustomerRecordGetOperation]}
 function testCustomerDeleteRecord() {
-    log:print("Record Deletion Start");
-    log:print("testCustomerDeleteRecord");
+    log:printInfo("Record Deletion Start");
+    log:printInfo("testCustomerDeleteRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : customerId,
         recordType: "customer"
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
-@test:Config {enable: false, dependsOn:[testAddContactRecord]}
+@test:Config {enable: true, dependsOn:[testAddContactRecord]}
 function testContactDeleteOperation() {
-    log:print("testContactDeleteRecord");
+    log:printInfo("testContactDeleteRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : contactId,
         recordType: "contact"
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
 
-@test:Config {enable: false, dependsOn:[testAddCurrencyRecord, testCurrencyRecordGetOperation]}
+@test:Config {enable: true, dependsOn:[testAddCurrencyRecord, testCurrencyRecordGetOperation]}
 function testCurrencyDeleteOperation() {
-    log:print("testCurrencyDeleteRecord");
+    log:printInfo("testCurrencyDeleteRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : currencyId,
         recordType: "currency"
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }   
     
-@test:Config {enable: false, dependsOn:[testUpdateClassificationRecord]}
+@test:Config {enable: true, dependsOn:[testUpdateClassificationRecord]}
 function testDeleteClassificationRecord() {
-    log:print("testDeleteClassificationRecord");
+    log:printInfo("testDeleteClassificationRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : classificationId,
         recordType: "classification"
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
 
-@test:Config {enable: false, dependsOn:[testAccountSearchOperation,testUpdateAccountRecord]}
+@test:Config {enable: true, dependsOn:[testAccountSearchOperation,testUpdateAccountRecord]}
 function testDeleteAccountRecord() {
-    log:print("testDeleteAccountRecord");
+    log:printInfo("testDeleteAccountRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : customerAccountId,
         recordType: ACCOUNT
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
 
-@test:Config {enable: false, dependsOn:[testSalesOrderUpdateOperation]}
+@test:Config {enable: true, dependsOn:[testSalesOrderUpdateOperation]}
 function testDeleteSalesOrderRecord() {
-    log:print("testDeleteAccountRecord");
+    log:printInfo("testDeleteAccountRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : salesOrderId,
         recordType: SALES_ORDER
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
 }
 
-@test:Config {enable: false, dependsOn:[testAddInvoiceRecord]}
+@test:Config {enable: true, dependsOn:[testUpdateInvoiceRecord]}
 function testDeleteInvoiceRecord() {
-    log:print("testDeleteAccountRecord");
+    log:printInfo("testDeleteInvoiceRecord");
     RecordDetail recordDeletionInfo = {
         recordInternalId : invoiceId,
         recordType: INVOICE
     };
     RecordDeletionResponse|error output = netsuiteClient->deleteRecord(recordDeletionInfo);
     if (output is RecordDeletionResponse) {
-        log:print(output.toString());
+        log:printInfo(output.toString());
     } else {
         test:assertFail(output.toString());
     }
@@ -584,9 +580,9 @@ function testDeleteInvoiceRecord() {
 //-----------------------------------------------------End of Deletion Tests----------------------------------------------
 
 //----------------------------------------------------Beginning of Search Tests-----------------------------------------
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testCustomerSearchOperation() {
-    log:print("testCustomerSearchOperation");
+    log:printInfo("testCustomerSearchOperation");
     SearchElement searchRecord = {
         fieldName: "lastName",
         searchType: SEARCH_STRING_FIELD,
@@ -597,15 +593,15 @@ function testCustomerSearchOperation() {
     searchData.push(searchRecord);
     Customer|error output = netsuiteClient->searchCustomerRecord(searchData);
     if (output is Customer) {
-        log:print(output?.entityId.toString());     
+        log:printInfo(output?.entityId.toString());     
     } else {
         test:assertFalse(true, output.message());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testUpdateAccountRecord]}
+@test:Config {enable: true, dependsOn: [testUpdateAccountRecord]}
 function testAccountSearchOperation() {
-    log:print("testAccountSearchOperation");
+    log:printInfo("testAccountSearchOperation");
     SearchElement searchRecord = {
         fieldName: "name",
         searchType: SEARCH_STRING_FIELD,
@@ -615,7 +611,7 @@ function testAccountSearchOperation() {
     SearchElement[] searchElements = [searchRecord];
     Account|error output = netsuiteClient->searchAccountRecord(searchElements);
     if (output is Account) {
-        log:print(output.toString());     
+        log:printInfo(output.toString());     
     } else {
         test:assertFalse(true, output.message());
     }
@@ -623,7 +619,7 @@ function testAccountSearchOperation() {
 
 @test:Config {enable: true}
 function testTransactionSearchOperation() {
-    log:print("testTransactionSearchOperation");
+    log:printInfo("testTransactionSearchOperation");
     SearchElement searchRecord1 = {
         fieldName: "amount",
         searchType: SEARCH_DOUBLE_FIELD,
@@ -642,7 +638,7 @@ function testTransactionSearchOperation() {
     SearchElement[] searchElements = [searchRecord1, searchRecord2];
     RecordList|error output = netsuiteClient->searchTransactionRecord(searchElements);
     if (output is RecordList) {
-        log:print(output.toString());     
+        log:printInfo(output.toString());     
     } else {
         test:assertFalse(true, output.message());
     }
@@ -651,31 +647,31 @@ function testTransactionSearchOperation() {
 //----------------------------------------------------End of Search Tests-----------------------------------------------
 
 //----------------------------------------------------Beginning of Miscellaneous tests----------------------------------
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testGetAll() {
-    log:print("testGetAll");
+    log:printInfo("testGetAll");
     json[]|error output = netsuiteClient->getAll("currency");
     if (output is json[]) {
-        log:print("Number of records found: " + output.length().toString());
+        log:printInfo("Number of records found: " + output.length().toString());
     } else {
         test:assertFalse(false, output.message());
     }
 }
 
-@test:Config {enable: false}
+@test:Config {enable: true}
 function testGetSavedSearchFunction() {
-    log:print("testGetSavedSearchFunction");
+    log:printInfo("testGetSavedSearchFunction");
     json[]|error output = netsuiteClient->getSavedSearch("transaction");
     if (output is json[]) {
-        log:print("Number of records found: " + output.length().toString());
+        log:printInfo("Number of records found: " + output.length().toString());
     } else {
         test:assertFalse(false, output.message());
     }
 }
 
-@test:Config {enable: false, dependsOn: [testAddNewCustomerRecord]} 
+@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord]} 
 function testCustomerRecordGetOperation() {
-    log:print("testCustomerRecordGetOperation");
+    log:printInfo("testCustomerRecordGetOperation");
     RecordDetail recordDetail = {
         recordInternalId: customerId,
         recordType: "customer"
@@ -684,13 +680,13 @@ function testCustomerRecordGetOperation() {
     if (output is error) {
         test:assertFalse(false, output.message());
     } else {
-       log:print(output.toString()); 
+       log:printInfo(output.toString()); 
     }
 }
 
-@test:Config {enable: false, dependsOn: [testAddCurrencyRecord]} 
+@test:Config {enable: true, dependsOn: [testAddCurrencyRecord]} 
 function testCurrencyRecordGetOperation() {
-    log:print("testCurrencyRecordGetOperation");
+    log:printInfo("testCurrencyRecordGetOperation");
     RecordDetail recordDetail = {
         recordInternalId: currencyId,
         recordType: "currency"
@@ -699,13 +695,13 @@ function testCurrencyRecordGetOperation() {
     if (output is error) {
         test:assertFalse(false, output.message());
     } else {
-       log:print(output.toString()); 
+       log:printInfo(output.toString()); 
     }
 }
 
-@test:Config {enable: false} 
+@test:Config {enable: true} 
 function testClassificationRecordGetOperation() {
-    log:print("testClassificationRecordGetOperation");
+    log:printInfo("testClassificationRecordGetOperation");
     RecordDetail recordDetail = {
         recordInternalId: "1",
         recordType: "classification"
@@ -714,13 +710,13 @@ function testClassificationRecordGetOperation() {
     if (output is error) {
         test:assertFalse(false, output.message());
     } else {
-       log:print(output.toString()); 
+       log:printInfo(output.toString()); 
     }
 }
 
-@test:Config {enable: false} 
+@test:Config {enable: true} 
 function testInvoiceRecordGetOperation() {
-    log:print("testInvoiceRecordGetOperation");
+    log:printInfo("testInvoiceRecordGetOperation");
     RecordDetail recordDetail = {
         recordInternalId: "1",
         recordType: "invoice"
@@ -729,12 +725,12 @@ function testInvoiceRecordGetOperation() {
     if (output is error) {
         test:assertFalse(false, output.message());
     } else {
-       log:print(output.toString()); 
+       log:printInfo(output.toString()); 
     }
 }
-@test:Config {enable: false} 
+@test:Config {enable: true} 
 function testSalesOrderGetOperation() {
-    log:print("testSalesOrderGetOperation");
+    log:printInfo("testSalesOrderGetOperation");
     RecordDetail recordDetail = {
         recordInternalId: "34888",
         recordType: SALES_ORDER
@@ -743,6 +739,6 @@ function testSalesOrderGetOperation() {
     if (output is error) {
         test:assertFalse(false, output.message());
     } else {
-       log:print(output.toString()); 
+       log:printInfo(output.toString()); 
     }
 }

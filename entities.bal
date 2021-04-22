@@ -77,7 +77,6 @@ public type Customer record {
 
 public type Subsidiary record {
     string name?;
-    //Currency currency?;
     string country?;
     string email?;
     boolean isElimination?;

@@ -19,8 +19,9 @@ import ballerina/time;
 import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'boolean as booleanLib;
+import ballerina/log;
 
-function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
+isolated function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
     http:Request request = new;
     request.setXmlPayload(payload);
     request.setHeader(SOAP_ACTION_HEADER, action);
@@ -28,8 +29,8 @@ function doHTTPRequest(http:Client basicClient, string action, xml payload) retu
 }
 
 isolated function buildXMLPayloadHeader(NetSuiteConfiguration config) returns string|error {
-    time:Time timeNow = time:currentTime();
-    string timeToSend = stringLib:substring(timeNow.time.toString(), 0, 10);
+    time:Utc timeNow = time:utcNow();
+    string timeToSend = stringLib:substring(timeNow.toString(), 0, 10);
     string uuid = getRandomString();
     string signature = check getNetsuiteSignature(timeToSend, uuid, config);
     string header = string `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
@@ -113,8 +114,8 @@ isolated function buildDeleteRecordPayload(RecordDetail info, NetSuiteConfigurat
     return getSoapPayload(header, body);
 }
 
-isolated function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) returns 
-                                    xml|error {
+isolated function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
+                                    returns xml|error {
     string header = check buildXMLPayloadHeader(config);
     string elements = check getRecordElementsForUpdateOperation(info, recordCoreType);
     string body = getUpdateXMLBodyWithParentElement(elements);
@@ -287,7 +288,7 @@ isolated function extractBooleanValueFromXMLOrText(xml|string|error element) ret
    
 }
 
-isolated function getRecordRef(json element, json elementInfo) returns RecordRef{
+isolated function getRecordRef(json element, json elementInfo) returns RecordRef {
     RecordRef recordRef = {
         name: getValidJson(elementInfo.name).toString(),
         internalId: getValidJson(element.\@internalId).toString(),
@@ -295,4 +296,3 @@ isolated function getRecordRef(json element, json elementInfo) returns RecordRef
     };
     return recordRef;
 }
-

@@ -287,9 +287,6 @@ public client class Client {
         http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
         return getSalesOrderRecordGetOperationResult(response, SALES_ORDER);
     }
-
-
-
  }
 
 # Configuration record for NetSuite

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jsonutils;
+import ballerina/xmldata;
 import ballerina/http;
 
 isolated function mapAccountRecordFields(Account account) returns string {
@@ -66,7 +66,7 @@ isolated function buildAccountSearchPayload(NetSuiteConfiguration config,SearchE
     return check getSoapPayload(requestHeader, requestBody);   
 }
 
-function getAccountSearchResult(http:Response response) returns Account|error {
+isolated function getAccountSearchResult(http:Response response) returns Account|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, "listAcct:");
     string|error instanceType =  xmlValue.xsi_type;
@@ -74,7 +74,7 @@ function getAccountSearchResult(http:Response response) returns Account|error {
     Account account = {
         internalId: internalId
     };
-    json validatedJson = getValidJson(jsonutils:fromXML(xmlValue));
+    json validatedJson = getValidJson(xmldata:toJson(xmlValue));
     check mapAccountFields(validatedJson, account);
     return account;
 }
