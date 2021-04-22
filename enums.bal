@@ -217,8 +217,13 @@ public enum RecordCoreType {
     WORK_ORDER_CLOSE = "workOrderClose"
 }
 
-//-------------------------------------------------------------------------------------------------
+
 // CommonType enums
+public enum ConsolidatedRate {
+    AVERAGE_CONSILIDATED_RATE = "_average",
+    CURRENCY_CONSILIDATED_RATE = "_current",
+    HISTORICAL_CONSILIDATED_RATE = "_historical"
+}
 
 public enum GlobalSubscriptionStatusType {
     confirmedOptIn = "_confirmedOptIn",

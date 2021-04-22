@@ -17,13 +17,7 @@
 import ballerina/jsonutils;
 import ballerina/http;
 
-public enum ConsolidatedRate {
-    AVERAGE_CONSILIDATED_RATE = "_average",
-    CURRENCY_CONSILIDATED_RATE = "_current",
-    HISTORICAL_CONSILIDATED_RATE = "_historical"
-}
-
-function mapAccountRecordFields(Account account) returns string {
+isolated function mapAccountRecordFields(Account account) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error accountMap = account.cloneWithType(MapAnyData);
     if (accountMap is map<anydata>) {
@@ -41,14 +35,14 @@ function mapAccountRecordFields(Account account) returns string {
     return finalResult;
 }
 
-function wrapAccountElementsToBeCreatedWithParentElement(string subElements) returns string {
+isolated function wrapAccountElementsToBeCreatedWithParentElement(string subElements) returns string {
     return string `<urn:record xsi:type="listAcct:Account" 
     xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
         </urn:record>`;
 }
 
-function wrapAccountElementsToUpdatedWithParentElement(string subElements, string internalId) returns string {
+isolated function wrapAccountElementsToUpdatedWithParentElement(string subElements, string internalId) returns string {
     return string `<urn:record xsi:type="listAcct:Account" internalId="${internalId}" 
     xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
@@ -57,7 +51,7 @@ function wrapAccountElementsToUpdatedWithParentElement(string subElements, strin
 
 //-------------------------------------search functions-----------------------------------------------------------------
 
-function getAccountSearchRequestBody(SearchElement[] searchElements) returns string {
+isolated function getAccountSearchRequestBody(SearchElement[] searchElements) returns string {
     return string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     <urn:searchRecord xsi:type="listAcct:AccountSearch" 
     xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
@@ -66,7 +60,7 @@ function getAccountSearchRequestBody(SearchElement[] searchElements) returns str
     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
 }
 
-function buildAccountSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
+isolated function buildAccountSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getAccountSearchRequestBody(searchElement);
     return check getSoapPayload(requestHeader, requestBody);   
@@ -76,8 +70,6 @@ function getAccountSearchResult(http:Response response) returns Account|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, "listAcct:");
     string|error instanceType =  xmlValue.xsi_type;
-    // xml:Text x = <xml:Text>xmlValue/<entityId>;
-    // string test=  xmlLib:getContent(x).toString();
     string internalId = checkStringValidity(xmlValue.internalId).toString();
     Account account = {
         internalId: internalId
@@ -86,7 +78,8 @@ function getAccountSearchResult(http:Response response) returns Account|error {
     check mapAccountFields(validatedJson, account);
     return account;
 }
-function mapAccountFields(json accountTypeJson, Account account) returns error? {
+
+isolated function mapAccountFields(json accountTypeJson, Account account) returns error? {
     json valueList = getValidJson(accountTypeJson.'record.'record);
     account.acctName = getValidJson(valueList.acctName).toString();
     account.acctNumber = getValidJson(valueList.acctNumber).toString(); 

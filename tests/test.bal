@@ -44,7 +44,7 @@ string customerAccountId = EMPTY_STRING;
 string invoiceId = EMPTY_STRING;
 
 //----------------------------------------------------- Beginning of Record Addition Tests------------------------------
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddContactRecord() {
     log:print("testAddContactRecord");
     RecordRef cusForm = {
@@ -113,7 +113,7 @@ function testAddContactRecord() {
 }
 
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddNewCustomerRecord() {
     log:print("testAddCustomerRecord");
     RecordRef subsidiary = {
@@ -184,7 +184,7 @@ function testAddNewCustomerRecord() {
 
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddCurrencyRecord() {
     log:print("testAddCurrencyRecord");
     Currency currency = {
@@ -204,7 +204,7 @@ function testAddCurrencyRecord() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddInvoiceRecord() {
     log:print("testAddInvoiceRecord");
     RecordRef entity = {
@@ -239,7 +239,7 @@ function testAddInvoiceRecord() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testSalesOrderAddOperation() {
     log:print("testSalesOrderRecordOperation");
     RecordRef entity = {
@@ -286,7 +286,7 @@ function testSalesOrderAddOperation() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddClassificationRecord() {
     log:print("testAddClassificationRecord");
     RecordRef recordRef = {
@@ -306,7 +306,7 @@ function testAddClassificationRecord() {
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testAddAccountRecord() {
     log:print("testAddAccountRecord");
     RecordRef currency = {
@@ -330,7 +330,7 @@ function testAddAccountRecord() {
  //----------------------------------------------------- End of Addition Tests------------------------------------------
 
  //----------------------------------------------------- Beginning of Update Tests--------------------------------------
-@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
+@test:Config {enable: false, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
 function testUpdateCustomerRecord() {
     log:print("testUpdateCustomerRecord");
     RecordRef subsidiary = {
@@ -400,7 +400,7 @@ function testUpdateCustomerRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testSalesOrderAddOperation]}
+@test:Config {enable: false, dependsOn: [testSalesOrderAddOperation]}
 function testSalesOrderUpdateOperation() {
     log:print("testSalesOrderUpdateOperation");
     RecordRef itemValue = {
@@ -424,7 +424,7 @@ function testSalesOrderUpdateOperation() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testAddClassificationRecord]}
+@test:Config {enable: false, dependsOn: [testAddClassificationRecord]}
 function testUpdateClassificationRecord() {
     log:print("testUpdateClassificationRecord");
     Classification classification = {
@@ -439,7 +439,7 @@ function testUpdateClassificationRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testAddAccountRecord]}
+@test:Config {enable: false, dependsOn: [testAddAccountRecord]}
 function testUpdateAccountRecord() {
     log:print("testUpdateAccountRecord");
     Account account = {
@@ -454,7 +454,7 @@ function testUpdateAccountRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testAddInvoiceRecord, testAddCurrencyRecord]}
+@test:Config {enable: false, dependsOn: [testAddInvoiceRecord, testAddCurrencyRecord]}
 function testUpdateInvoiceRecord() {
     log:print("testUpdateInvoiceRecord");
     Invoice invoice = {
@@ -477,7 +477,7 @@ function testUpdateInvoiceRecord() {
 //---------------------------------------End of Update Tests------------------------------------------------------------
 
 //---------------------------------------Beginning of Deletion Tests----------------------------------------------------
-@test:Config {enable: true, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, testCustomerRecordGetOperation]}
+@test:Config {enable: false, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, testCustomerRecordGetOperation]}
 function testCustomerDeleteRecord() {
     log:print("Record Deletion Start");
     log:print("testCustomerDeleteRecord");
@@ -492,7 +492,7 @@ function testCustomerDeleteRecord() {
         test:assertFail(output.toString());
     }
 }
-@test:Config {enable: true, dependsOn:[testAddContactRecord]}
+@test:Config {enable: false, dependsOn:[testAddContactRecord]}
 function testContactDeleteOperation() {
     log:print("testContactDeleteRecord");
     RecordDetail recordDeletionInfo = {
@@ -507,7 +507,7 @@ function testContactDeleteOperation() {
     }
 }
 
-@test:Config {enable: true, dependsOn:[testAddCurrencyRecord, testCurrencyRecordGetOperation]}
+@test:Config {enable: false, dependsOn:[testAddCurrencyRecord, testCurrencyRecordGetOperation]}
 function testCurrencyDeleteOperation() {
     log:print("testCurrencyDeleteRecord");
     RecordDetail recordDeletionInfo = {
@@ -522,7 +522,7 @@ function testCurrencyDeleteOperation() {
     }
 }   
     
-@test:Config {enable: true, dependsOn:[testUpdateClassificationRecord]}
+@test:Config {enable: false, dependsOn:[testUpdateClassificationRecord]}
 function testDeleteClassificationRecord() {
     log:print("testDeleteClassificationRecord");
     RecordDetail recordDeletionInfo = {
@@ -537,7 +537,7 @@ function testDeleteClassificationRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn:[testAccountSearchOperation,testUpdateAccountRecord]}
+@test:Config {enable: false, dependsOn:[testAccountSearchOperation,testUpdateAccountRecord]}
 function testDeleteAccountRecord() {
     log:print("testDeleteAccountRecord");
     RecordDetail recordDeletionInfo = {
@@ -552,7 +552,7 @@ function testDeleteAccountRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn:[testSalesOrderUpdateOperation]}
+@test:Config {enable: false, dependsOn:[testSalesOrderUpdateOperation]}
 function testDeleteSalesOrderRecord() {
     log:print("testDeleteAccountRecord");
     RecordDetail recordDeletionInfo = {
@@ -567,7 +567,7 @@ function testDeleteSalesOrderRecord() {
     }
 }
 
-@test:Config {enable: true, dependsOn:[testAddInvoiceRecord]}
+@test:Config {enable: false, dependsOn:[testAddInvoiceRecord]}
 function testDeleteInvoiceRecord() {
     log:print("testDeleteAccountRecord");
     RecordDetail recordDeletionInfo = {
@@ -584,7 +584,7 @@ function testDeleteInvoiceRecord() {
 //-----------------------------------------------------End of Deletion Tests----------------------------------------------
 
 //----------------------------------------------------Beginning of Search Tests-----------------------------------------
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testCustomerSearchOperation() {
     log:print("testCustomerSearchOperation");
     SearchElement searchRecord = {
@@ -603,7 +603,7 @@ function testCustomerSearchOperation() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testUpdateAccountRecord]}
+@test:Config {enable: false, dependsOn: [testUpdateAccountRecord]}
 function testAccountSearchOperation() {
     log:print("testAccountSearchOperation");
     SearchElement searchRecord = {
@@ -620,21 +620,49 @@ function testAccountSearchOperation() {
         test:assertFalse(true, output.message());
     }
 }
+
+@test:Config {enable: true}
+function testTransactionSearchOperation() {
+    log:print("testTransactionSearchOperation");
+    SearchElement searchRecord1 = {
+        fieldName: "amount",
+        searchType: SEARCH_DOUBLE_FIELD,
+        operator: "between",
+        value1: "100000",
+        value2: "2000000"
+    };
+
+    SearchElement searchRecord2 = {
+        fieldName: "lastModifiedDate",
+        searchType: SEARCH_DATE_FIELD,
+        operator: "within",
+        value1 : "2020-12-23T10:20:15",
+        value2 : "2021-03-23T10:20:15"
+    };
+    SearchElement[] searchElements = [searchRecord1, searchRecord2];
+    RecordList|error output = netsuiteClient->searchTransactionRecord(searchElements);
+    if (output is RecordList) {
+        log:print(output.toString());     
+    } else {
+        test:assertFalse(true, output.message());
+    }
+}
+
 //----------------------------------------------------End of Search Tests-----------------------------------------------
 
 //----------------------------------------------------Beginning of Miscellaneous tests----------------------------------
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGetAll() {
     log:print("testGetAll");
     json[]|error output = netsuiteClient->getAll("currency");
     if (output is json[]) {
-        log:print("Number of records found: " + output.toString());
+        log:print("Number of records found: " + output.length().toString());
     } else {
         test:assertFalse(false, output.message());
     }
 }
 
-@test:Config {enable: true}
+@test:Config {enable: false}
 function testGetSavedSearchFunction() {
     log:print("testGetSavedSearchFunction");
     json[]|error output = netsuiteClient->getSavedSearch("transaction");
@@ -645,7 +673,7 @@ function testGetSavedSearchFunction() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testAddNewCustomerRecord]} 
+@test:Config {enable: false, dependsOn: [testAddNewCustomerRecord]} 
 function testCustomerRecordGetOperation() {
     log:print("testCustomerRecordGetOperation");
     RecordDetail recordDetail = {
@@ -660,7 +688,7 @@ function testCustomerRecordGetOperation() {
     }
 }
 
-@test:Config {enable: true, dependsOn: [testAddCurrencyRecord]} 
+@test:Config {enable: false, dependsOn: [testAddCurrencyRecord]} 
 function testCurrencyRecordGetOperation() {
     log:print("testCurrencyRecordGetOperation");
     RecordDetail recordDetail = {
@@ -675,7 +703,7 @@ function testCurrencyRecordGetOperation() {
     }
 }
 
-@test:Config {enable: true} 
+@test:Config {enable: false} 
 function testClassificationRecordGetOperation() {
     log:print("testClassificationRecordGetOperation");
     RecordDetail recordDetail = {
@@ -690,7 +718,7 @@ function testClassificationRecordGetOperation() {
     }
 }
 
-@test:Config {enable: true} 
+@test:Config {enable: false} 
 function testInvoiceRecordGetOperation() {
     log:print("testInvoiceRecordGetOperation");
     RecordDetail recordDetail = {
@@ -704,8 +732,7 @@ function testInvoiceRecordGetOperation() {
        log:print(output.toString()); 
     }
 }
-
-@test:Config {enable: true} 
+@test:Config {enable: false} 
 function testSalesOrderGetOperation() {
     log:print("testSalesOrderGetOperation");
     RecordDetail recordDetail = {

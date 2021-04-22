@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type TokenData record {
+type TokenData record {
     string accountId;
     string consumerId;
     string consumerSecret;
@@ -24,6 +24,13 @@ public type TokenData record {
     string timestamp;
 };
 
+# Ballerina record for netsuite record creation response
+#
+# + internalId - NetSuite record ID 
+# + recordType - Netsuite record type  
+# + afterSubmitFailed - Boolean for checking  After submission NetSuite failures
+# + warning - Netsuite warnings
+# + isSuccess -  Boolean for checking submission NetSuite failures  
 public type RecordAddResponse record {
     boolean isSuccess;
     boolean afterSubmitFailed?;
@@ -32,14 +39,22 @@ public type RecordAddResponse record {
     string warning?;
 };
 
+# Ballerina record for Netsuite record deletion response  
 public type RecordDeletionResponse record {
     *RecordAddResponse;
 };
 
+# Ballerina record for Netsuite record update response
 public type RecordUpdateResponse record {
     *RecordAddResponse;
 };
 
+# Ballerina record for Netsuite record delete response
+#
+# + deletionReasonId - Reason ID for deletion  
+# + recordType - NetSuite Record type   
+# + deletionReasonMemo - NetSuite Reason memo for deletion   
+# + recordInternalId - Internal ID of the Netsuite record
 public type RecordDetail record {
     string recordInternalId;
     string recordType;
@@ -47,18 +62,25 @@ public type RecordDetail record {
     string deletionReasonMemo?;
 };
 
-public type RecordUpdateInfo record {
-    RecordType instance;
-    string internalId;
-    RecordCoreType recordType;
-};
-
+# Netsuite saveSearch list response record
+#
+# + recordRefList - Netsuite record reference list
+# + numberOfRecords - Number of records  
+# + isSuccess - Boolean for checking submission NetSuite failures
 public type SavedSearchResponse record {
     int numberOfRecords?;
     boolean isSuccess;
     RecordRef[] recordRefList = [];
 };
 
+# RecordType Connector supports for creation operation for now.  
 public type RecordType Customer|Contact|Currency|Invoice|Classification;
 
 type MapAnyData map<anydata>;
+
+# Description
+#
+# + records -  Array of record references  
+public type RecordList record {|
+    RecordRef[] records;
+|};

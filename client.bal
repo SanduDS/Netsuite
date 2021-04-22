@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+
 # HTTP Client for NetSuite SOAP web service
 #
 # + basicClient - NetSuite HTTP Client  
@@ -199,7 +200,7 @@ public client class Client {
         return getSavedSearchResponse(response);
     }
 
-    # This remote operation retrieves NetSuite instances from NetSuite according to the given detail 
+    # This remote operation retrieves NetSuite Client instances from NetSuite according to the given detail 
     # if they are valid
     #
     # + searchElements - Details of a NetSuite record to be retrieved from NetSuite
@@ -208,6 +209,17 @@ public client class Client {
         xml payload = check buildCustomerSearchPayload(self.config, searchElements);
         http:Response response = check doHTTPRequest(self.basicClient, SEARCH_SOAP_ACTION, payload);
         return getCustomerSearchResult(response);
+    }
+
+    # This remote operation retrieves NetSuite Transaction instances from NetSuite according to the given detail 
+    # if they are valid
+    #
+    # + searchElements - Details of a NetSuite record to be retrieved from NetSuite
+    # + return - If success returns a json otherwise the relevant error
+    remote function searchTransactionRecord(SearchElement[] searchElements) returns @tainted RecordList|error {
+        xml payload = check buildTransactionSearchPayload(self.config, searchElements);
+        http:Response response = check doHTTPRequest(self.basicClient, SEARCH_SOAP_ACTION, payload);
+        return getTransactionSearchResult(response);
     }
 
     # This remote operation retrieves NetSuite account record instances from NetSuite according to the given detail 
@@ -221,6 +233,10 @@ public client class Client {
         return getAccountSearchResult(response);
     }
 
+    # Gets a customer record from Netsuite by using internal ID
+    #
+    # + RecordDetail - Ballerina record for Netsuite record information
+    # + return - If success returns a Customer type record otherwise the relevant error
     remote function getCustomerRecord(RecordDetail RecordDetail) returns Customer|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);
@@ -228,6 +244,10 @@ public client class Client {
         return getCustomerRecordGetOperationResult(response, CUSTOMER);
     }
 
+    # Gets a currency record from Netsuite by using internal ID
+    #
+    # + RecordDetail - Ballerina record for Netsuite record information
+    # + return - If success returns a Currency type record otherwise the relevant error
     remote function getCurrencyRecord(RecordDetail RecordDetail) returns Currency|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);
@@ -235,6 +255,10 @@ public client class Client {
         return getCurrencyRecordGetOperationResult(response, CURRENCY);
     }
 
+    # Gets a currency record from Netsuite by using internal ID
+    #
+    # + RecordDetail - Ballerina record for Netsuite record information
+    # + return - If success returns a Currency type record otherwise the relevant error
     remote function getClassificationRecord(RecordDetail RecordDetail) returns Classification|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);
@@ -242,6 +266,10 @@ public client class Client {
         return getClassificationRecordGetOperationResult(response, CLASSIFICATION);
     }
 
+    # Gets a invoice record from Netsuite by using internal ID
+    #
+    # + RecordDetail - Ballerina record for Netsuite record information
+    # + return - If success returns a Invoice type record otherwise the relevant error
     remote function getInvoiceRecord(RecordDetail RecordDetail) returns Invoice|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);
@@ -249,6 +277,10 @@ public client class Client {
         return getInvoiceRecordGetOperationResult(response, INVOICE);
     }
 
+    # Gets a salesOrder record from Netsuite by using internal ID
+    #
+    # + RecordDetail - Ballerina record for Netsuite record information
+    # + return - If success returns a SalesOrder type record otherwise the relevant error
     remote function getSalesOrderRecord(RecordDetail RecordDetail) returns SalesOrder|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);

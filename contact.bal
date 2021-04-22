@@ -15,7 +15,7 @@
 // under the License.
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
-function mapContactRecordFields(Contact contact) returns string {
+isolated function mapContactRecordFields(Contact contact) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error contactMap = contact.cloneWithType(MapAnyData);
     if (contactMap is map<anydata>) {
@@ -45,21 +45,21 @@ function mapContactRecordFields(Contact contact) returns string {
     return finalResult;
 }
 
-function wrapContactElementsToBeCreatedWithParentElement(string subElements) returns string{
+isolated function wrapContactElementsToBeCreatedWithParentElement(string subElements) returns string{
     return string `<urn:record xsi:type="listRel:Contact" 
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function wrapContactElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+isolated function wrapContactElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
     return string `<urn:record xsi:type="listRel:Contact" internalId="${internalId}"
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
+isolated function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
     string contactAddressBook= EMPTY_STRING;
     foreach ContactAddressBook addressBookItem in addressBooks {
         map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnyData);
@@ -82,7 +82,7 @@ function prepareAddressList(ContactAddressBook[] addressBooks) returns string {
     return contactAddressBook;
 }
 
-function getAddressListInXML(Address[] addresses) returns string {
+isolated function getAddressListInXML(Address[] addresses) returns string {
     string addressList = EMPTY_STRING;
     foreach Address addressItem in addresses {
         map<anydata>|error AddressMap = addressItem.cloneWithType(MapAnyData);

@@ -20,7 +20,7 @@ import ballerina/http;
 xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
-function mapCustomerRecordFields(Customer customer) returns string {
+isolated function mapCustomerRecordFields(Customer customer) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error customerMap = customer.cloneWithType(MapAnyData);
     if (customerMap is map<anydata>) {
@@ -44,20 +44,20 @@ function mapCustomerRecordFields(Customer customer) returns string {
     return finalResult;
 }
 
-function wrapCustomerElementsToBeCreatedWithParentElement(string subElements) returns string{
+isolated function wrapCustomerElementsToBeCreatedWithParentElement(string subElements) returns string{
     return string `<urn:record xsi:type="listRel:Customer" xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${subElements}
         </urn:record>`;
 }
 
-function wrapCustomerElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string {
+isolated function wrapCustomerElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string {
     return string `<urn:record xsi:type="listRel:Customer" internalId="${internalId}" 
         xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns string {
+isolated function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns string {
     string customerAddressBook= EMPTY_STRING;
     foreach CustomerAddressbook addressBookItem in addressBooks {
         map<anydata>|error AddressItemMap = addressBookItem.cloneWithType(MapAnyData);
@@ -92,7 +92,7 @@ function prepareCustomerAddressList(CustomerAddressbook[] addressBooks) returns 
     return customerAddressBook;
 }
 
-function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
+isolated function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
     string customerCurrencyList= EMPTY_STRING;
     foreach CustomerCurrency customerCurrencyItem in currencyLists {
         map<anydata>|error currencyItemMap = customerCurrencyItem.cloneWithType(MapAnyData);
@@ -116,7 +116,7 @@ function prepareCurrencyList(CustomerCurrency[] currencyLists) returns string {
 }
 
 //-------------------------------------------------Search Records-------------------------------------------------------
-function getCustomerSearchRequestBody(SearchElement[] searchElements) returns string {
+isolated function getCustomerSearchRequestBody(SearchElement[] searchElements) returns string {
     return string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     <urn:searchRecord xsi:type="listRel:CustomerSearch" 
     xmlns:listRel="urn:relationships_2020_2.lists.webservices.netsuite.com">
@@ -125,7 +125,7 @@ function getCustomerSearchRequestBody(SearchElement[] searchElements) returns st
     </urn:searchRecord></urn:search></soapenv:Body></soapenv:Envelope>`;
 }
 
-function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
+isolated function buildCustomerSearchPayload(NetSuiteConfiguration config,SearchElement[] searchElement) returns xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
     string requestBody = getCustomerSearchRequestBody(searchElement);
     return check getSoapPayload(requestHeader, requestBody); 
@@ -145,7 +145,7 @@ function getCustomerSearchResult(http:Response response) returns Customer|error 
 }
 
 
-function mapCustomerFields(json customerTypeJson, Customer customer) returns error? {
+isolated function mapCustomerFields(json customerTypeJson, Customer customer) returns error? {
     json[] valueList = <json[]>getValidJson(customerTypeJson.'record.'record);
     foreach json element in valueList {
         boolean extractedValue = false;
@@ -211,7 +211,7 @@ function mapCustomerFields(json customerTypeJson, Customer customer) returns err
     }
 }
 
-function mapCustomerRecord(xml response) returns Customer|error {
+isolated function mapCustomerRecord(xml response) returns Customer|error {
     Customer customer  = {
         internalId: check response/**/<'record>.internalId,
         entityId: (response/**/<listRel:entityId>/*).toString(),
@@ -238,7 +238,7 @@ function mapCustomerRecord(xml response) returns Customer|error {
 }
 
 
- function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Customer|error{
+isolated function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Customer|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

@@ -19,7 +19,7 @@ import ballerina/lang.'xml as xmlLib;
 import ballerina/jsonutils;
 import ballerina/http;
 
-function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
+ function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         string|error statusDetailType = formattedPayload/**/<statusDetail>.'type;
@@ -44,7 +44,7 @@ function getRecordCreateResponse(http:Response response) returns @tainted Record
     }
 }
 
-function prepareResponseAfterSubmitFailed(xml formattedPayload) returns RecordAddResponse|error {
+isolated function prepareResponseAfterSubmitFailed(xml formattedPayload) returns RecordAddResponse|error {
     xml baseRef  = formattedPayload/**/<baseRef>;
     RecordAddResponse instanceCreationResponse = {
         isSuccess: false,
@@ -56,7 +56,7 @@ function prepareResponseAfterSubmitFailed(xml formattedPayload) returns RecordAd
     return instanceCreationResponse;
 }
 
-function prepareResponseAfterSubmitPassed(xml formattedPayload) returns RecordAddResponse|error {
+isolated function prepareResponseAfterSubmitPassed(xml formattedPayload) returns RecordAddResponse|error {
     xml baseRef  = formattedPayload/**/<baseRef>;
     RecordAddResponse instanceCreationResponse = {
         isSuccess: true,
@@ -68,7 +68,7 @@ function prepareResponseAfterSubmitPassed(xml formattedPayload) returns RecordAd
     return instanceCreationResponse;
 }
 
-function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
+ function getRecordDeleteResponse(http:Response response) returns @tainted RecordDeletionResponse|error {
     xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = formattedPayload/**/<status>;
@@ -90,7 +90,7 @@ function getRecordDeleteResponse(http:Response response) returns @tainted Record
     }
 }
 
-function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
+ function getRecordUpdateResponse(http:Response response) returns @tainted RecordUpdateResponse|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValure/**/<status>;
@@ -112,7 +112,7 @@ function getRecordUpdateResponse(http:Response response) returns @tainted Record
     }
 }
  
-function formatGetAllResponse(http:Response response) returns @tainted json[]|error {
+ function formatGetAllResponse(http:Response response) returns @tainted json[]|error {
     xml xmlValure = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) {
         xml output  = xmlValure/**/<status>;
@@ -172,17 +172,18 @@ function categorizeGetALLResponse(xml baseRef) returns json[] {
                     }  
                 }
             }
+            
         }
     });
     return recordList;
 }
 
-function replaceRegexInXML(xml value, string regex, string replacement = EMPTY_STRING) returns xml|error {
+isolated function replaceRegexInXML(xml value, string regex, string replacement = EMPTY_STRING) returns xml|error {
     string formattedXMLResponse = regex:replaceAll(value.toString(), regex, replacement);
     return check xmlLib:fromString(formattedXMLResponse);
 } 
 
-function formatPayload(http:Response response) returns @tainted xml|error {
+isolated function formatPayload(http:Response response) returns @tainted xml|error {
     xml xmlValure  = check response.getXmlPayload();
     string formattedXMLResponse = regex:replaceAll(xmlValure.toString(), SOAP_ENV, SOAP_ENV_);
     formattedXMLResponse = regex:replaceAll(formattedXMLResponse, XSI, XSI_);
@@ -203,7 +204,7 @@ function getSavedSearchResponse(http:Response response) returns json[]|error {
             xml:Element records = <xml:Element> formattedPayload/**/<recordRefList>;
             xml baseRef  = xmlLib:getChildren(records);
             json[] recordList = [];
-            var xx = xmlLib:forEach(baseRef,function(xml platformCoreRecord) {
+            xmlLib:forEach(baseRef,function(xml platformCoreRecord) {
                 string|error count =  platformCoreRecord.xsi_type;
                 if(count is string ) {
                     match count {

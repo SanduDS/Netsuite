@@ -17,7 +17,7 @@
 import ballerina/http;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
-function mapClassificationRecordFields(Classification classification) returns string {
+isolated function mapClassificationRecordFields(Classification classification) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error classificationMap = classification.cloneWithType(MapAnyData);
     if (classificationMap is map<anydata>) {
@@ -35,21 +35,21 @@ function mapClassificationRecordFields(Classification classification) returns st
     return finalResult;
 }
 
-function wrapClassificationElementsToBeCreatedWithParentElement(string subElements) returns string{
+isolated function wrapClassificationElementsToBeCreatedWithParentElement(string subElements) returns string{
     return string `<urn:record xsi:type="listAcct:Classification" 
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
         </urn:record>`;
 }
 
-function wrapClassificationElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+isolated function wrapClassificationElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
     return string `<urn:record xsi:type="listAcct:Classification" internalId="${internalId}" 
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
         </urn:record>`;
 }
 
-function mapClassificationRecord(xml response) returns Classification|error {
+isolated function mapClassificationRecord(xml response) returns Classification|error {
     xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
     Classification 'class  = {
         name: (response/**/<listAcct:name>/*).toString(),
@@ -63,7 +63,7 @@ function mapClassificationRecord(xml response) returns Classification|error {
     return 'class;
 }
 
-function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Classification|error{
+isolated function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Classification|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

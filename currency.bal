@@ -18,7 +18,7 @@ import ballerina/http;
 xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
-function mapCurrencyRecordFields(Currency currency) returns string {
+isolated function mapCurrencyRecordFields(Currency currency) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error currencyMap = currency.cloneWithType(MapAnyData);
     if (currencyMap is map<anydata>) {
@@ -34,21 +34,21 @@ function mapCurrencyRecordFields(Currency currency) returns string {
     return finalResult;
 }
 
-function wrapCurrencyElementsToBeCreatedWithParentElement(string subElements) returns string{
+isolated function wrapCurrencyElementsToBeCreatedWithParentElement(string subElements) returns string{
     return string `<urn:record xsi:type="listAcct:Currency" 
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+isolated function wrapCurrencyElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
     return string `<urn:record xsi:type="listAcct:Currency" internalId="${internalId}"
         xmlns:listAcct="urn:accounting_2020_2.lists.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function mapCurrencyRecord(xml response) returns Currency|error {
+isolated function mapCurrencyRecord(xml response) returns Currency|error {
     Currency currency  = {
         name: (response/**/<listAcct:name>/*).toString(),
         symbol: (response/**/<listAcct:symbol>/*).toString(),
@@ -59,7 +59,7 @@ function mapCurrencyRecord(xml response) returns Currency|error {
     return currency;
 }
 
-function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Currency|error{
+isolated function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Currency|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

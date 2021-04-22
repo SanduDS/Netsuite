@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/lang.'decimal as decimalLib;
 
-function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
+isolated function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error salesOrderMap = salesOrder.cloneWithType(MapAnyData);
     if (salesOrderMap is map<anydata>) {
@@ -41,7 +41,7 @@ function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
     return finalResult;
 }
 
-function prepareSalesOrderXMLAddressElement(Address address) returns string {
+isolated function prepareSalesOrderXMLAddressElement(Address address) returns string {
     map<anydata>|error AddressMap = address.cloneWithType(MapAnyData);
     int index = 0;
     string addressBook = EMPTY_STRING;
@@ -55,7 +55,7 @@ function prepareSalesOrderXMLAddressElement(Address address) returns string {
     return addressBook;
 }
 
-function prepareSalesOrderItemListElement(Item[] items) returns string{
+isolated function prepareSalesOrderItemListElement(Item[] items) returns string{
     string itemList = EMPTY_STRING;
     foreach Item nsItem in items {
         map<anydata>|error itemMap = nsItem.cloneWithType(MapAnyData);
@@ -77,21 +77,21 @@ function prepareSalesOrderItemListElement(Item[] items) returns string{
     return itemList;
 }
 
-function wrapSalesOrderElementsToBeCreatedWithParentElement(string subElements) returns string{
+isolated function wrapSalesOrderElementsToBeCreatedWithParentElement(string subElements) returns string{
     return string `<urn:record xsi:type="tranSales:SalesOrder" 
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function wrapSalesOrderElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
+isolated function wrapSalesOrderElementsToBeUpdatedWithParentElement(string subElements, string internalId) returns string{
     return string `<urn:record xsi:type="tranSales:SalesOrder" internalId="${internalId}"
         xmlns:tranSales="urn:sales_2020_2.transactions.webservices.netsuite.com">
             ${subElements}
          </urn:record>`;
 }
 
-function mapSalesOrderRecord(xml response) returns SalesOrder|error {
+isolated function mapSalesOrderRecord(xml response) returns SalesOrder|error {
     xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
     xmlns "urn:common_2020_2.platform.webservices.netsuite.com" as platformCommon;
     SalesOrder salesOrder = {
@@ -140,7 +140,7 @@ function mapSalesOrderRecord(xml response) returns SalesOrder|error {
     return salesOrder;
 }
 
-function getSalesOrderRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns SalesOrder|error{
+isolated function getSalesOrderRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns SalesOrder|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

@@ -24,7 +24,7 @@ public type SearchElement record {
     string value2?;
 };
 
-function getSearchElement(SearchElement[] searchElements) returns string{
+isolated  function getSearchElement(SearchElement[] searchElements) returns string{
     string searchElementInPayloadBody = EMPTY_STRING;
     foreach SearchElement element in searchElements {
         searchElementInPayloadBody += getXMLSearchElement(element);
@@ -32,7 +32,7 @@ function getSearchElement(SearchElement[] searchElements) returns string{
     return searchElementInPayloadBody;
 }
 
-function getXMLSearchElement(SearchElement element) returns string {
+isolated  function getXMLSearchElement(SearchElement element) returns string {
     return string `<ns1:${element.fieldName} 
         operator="${element.operator}" 
         xsi:type="urn1:${element.searchType.toString()}">
@@ -41,13 +41,13 @@ function getXMLSearchElement(SearchElement element) returns string {
         </ns1:${element.fieldName}>`;
 }
 
-function getOptionalSearchValue(SearchElement searchElement) returns string?{
+isolated  function getOptionalSearchValue(SearchElement searchElement) returns string?{
     if(searchElement?.value2 is string) {
         return string `<urn1:searchValue2>${searchElement?.value2.toString()}</urn1:searchValue2>`;
     }
 }
 
-function getSoapPayload(string header, string body) returns xml|error {
+isolated  function getSoapPayload(string header, string body) returns xml|error {
     string requestPayload = header + body;
     return check xmlLib:fromString(requestPayload);
 }
