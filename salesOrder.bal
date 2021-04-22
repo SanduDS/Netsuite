@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+import ballerina/lang.'decimal as decimalLib;
+
 function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error salesOrderMap = salesOrder.cloneWithType(MapAnyData);
@@ -21,7 +24,7 @@ function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
         string[] keys = salesOrderMap.keys();
         int position = 0;
         foreach var item in salesOrder {
-            if (item is string|boolean|decimal|int|SalesOrderOrderStatus) {
+            if (item is string|boolean|decimal|int|SalesOrderStatus) {
                 finalResult += setSimpleType(keys[position], item, TRAN_SALES);
             } else if (item is RecordRef) {
                 finalResult += getXMLRecordRef(<RecordRef>item);
@@ -87,3 +90,68 @@ function wrapSalesOrderElementsToBeUpdatedWithParentElement(string subElements, 
             ${subElements}
          </urn:record>`;
 }
+
+function mapSalesOrderRecord(xml response) returns SalesOrder|error {
+    xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
+    xmlns "urn:common_2020_2.platform.webservices.netsuite.com" as platformCommon;
+    SalesOrder salesOrder = {
+        internalId: check response/**/<'record>.internalId,
+        customForm: {
+            internalId: (check response/**/<tranSales:currency>.internalId),
+            name: (response/**/<tranSales:currency>/<name>/*).toString()
+        },
+        entity: {
+            internalId: (check response/**/<tranSales:entity>.internalId),
+            name: (response/**/<tranSales:entity>/<name>/*).toString()
+        },
+        currency: {
+            internalId: (check response/**/<tranSales:currency>.internalId),
+            name: (response/**/<tranSales:currency>/<name>/*).toString()
+        },
+        drAccount: {
+            internalId: (check response/**/<tranSales:drAccount>.internalId),
+            name: (response/**/<tranSales:drAccount>/<name>/*).toString()
+        },
+        fxAccount: {
+            internalId: (check response/**/<tranSales:fxAccount>.internalId),
+            name: (response/**/<tranSales:fxAccount>/<name>/*).toString()
+        },
+        tranId: (response/**/<tranSales:fxAccount>/<name>/*).toString(),
+        orderStatus: (response/**/<tranSales:orderStatus>/*).toString(),
+        tranDate: (response/**/<tranSales:tranDate>/*).toString(),
+        nextBill: (response/**/<tranSales:nextBill>/*).toString(),
+        totalCostEstimate: check decimalLib:fromString((response/**/<tranSales:totalCostEstimate>/*).toString()),
+        currencyName: (response/**/<tranSales:currencyName>/*).toString(),
+        email: (response/**/<tranSales:email>/*).toString(),
+        shippingAddress: {
+            country: (response/**/<platformCommon:country>/*).toString(),
+            addressee: (response/**/<platformCommon:addressee>/*).toString(),
+            addrText: (response/**/<platformCommon:addrText>/*).toString()
+        },
+        shipDate: (response/**/<tranSales:shipDate>/*).toString(),
+        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
+        balance: check decimalLib:fromString((response/**/<tranSales:balance>/*).toString()),
+        subTotal: check decimalLib:fromString((response/**/<tranSales:subTotal>/*).toString()),
+        subsidiary: {
+            internalId: (check response/**/<tranSales:subsidiary>.internalId),
+            name: (response/**/<tranSales:subsidiary>/<name>/*).toString()
+        } 
+    };
+    return salesOrder;
+}
+
+function getSalesOrderRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns SalesOrder|error{
+    xml xmlValue = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = xmlValue/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapSalesOrderRecord(xmlValue);
+        } else {
+            fail error("No any record found");
+        }
+    } else {
+        fail error("No any record found");
+    }
+}
+

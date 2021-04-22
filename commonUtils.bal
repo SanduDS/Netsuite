@@ -145,8 +145,12 @@ function getRecordElementsForUpdateOperation(RecordType info, RecordCoreType rec
             return wrapClassificationElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         ACCOUNT => {
-            subElements = mapClassificationRecordFields(<Account>info); 
+            subElements = mapAccountRecordFields(<Account>info); 
             return wrapAccountElementsToUpdatedWithParentElement(subElements, info?.internalId.toString());
+        }
+        INVOICE => {
+            subElements = check mapInvoiceRecordFields(<Invoice>info); 
+            return wrapInvoiceElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
         }
         _ => {
                 fail error(UNKNOWN_TYPE);
@@ -174,7 +178,7 @@ function getRecordElementsForAddOperation(RecordType info, RecordCoreType record
             return wrapSalesOrderElementsToBeCreatedWithParentElement(subElements);
         }
         INVOICE => {
-            subElements = mapInvoiceRecordFields(<Invoice>info); 
+            subElements = check mapInvoiceRecordFields(<Invoice>info); 
             return wrapInvoiceElementsToBeCreatedWithParentElement(subElements);
         }
         CLASSIFICATION => {

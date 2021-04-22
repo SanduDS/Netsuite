@@ -227,7 +227,7 @@ public enum GlobalSubscriptionStatusType {
     softOptOut = "_softOptOut"
 }
 
-public enum SalesOrderOrderStatus {
+public enum SalesOrderStatus {
     pendingApproval = "_pendingApproval",
     pendingFulfillment = "_pendingFulfillment",
     cancelled = "_cancelled",

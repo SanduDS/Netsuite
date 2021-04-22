@@ -29,6 +29,7 @@ public type RecordAddResponse record {
     boolean afterSubmitFailed?;
     string internalId;
     string recordType;
+    string warning?;
 };
 
 public type RecordDeletionResponse record {

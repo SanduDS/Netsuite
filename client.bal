@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-
 # HTTP Client for NetSuite SOAP web service
 #
 # + basicClient - NetSuite HTTP Client  
@@ -242,12 +241,23 @@ public client class Client {
         http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
         return getClassificationRecordGetOperationResult(response, CLASSIFICATION);
     }
-    remote function getInvoiceRecord(RecordDetail RecordDetail) returns Classification|error {
+
+    remote function getInvoiceRecord(RecordDetail RecordDetail) returns Invoice|error {
         http:Request request = new;
         xml payload = check buildGetOperationPayload(RecordDetail, self.config);
         http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
         return getInvoiceRecordGetOperationResult(response, INVOICE);
     }
+
+    remote function getSalesOrderRecord(RecordDetail RecordDetail) returns SalesOrder|error {
+        http:Request request = new;
+        xml payload = check buildGetOperationPayload(RecordDetail, self.config);
+        http:Response response = check doHTTPRequest(self.basicClient, GET_SOAP_ACTION, payload);
+        return getSalesOrderRecordGetOperationResult(response, SALES_ORDER);
+    }
+
+
+
  }
 
 # Configuration record for NetSuite

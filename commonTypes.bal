@@ -16,7 +16,7 @@
 
 public type Address record {
     string internalId?;
-    Country country?;
+    Country|string country?;
     string attention?;
     string addressee?;
     string addrPhone?;

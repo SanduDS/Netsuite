@@ -16,24 +16,47 @@
 
 import ballerina/http;
 import ballerina/lang.'decimal as decimalLib;
-xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
+
 //------------------------------------------------Create/Update Records-------------------------------------------------
-function mapInvoiceRecordFields(Invoice invoice) returns string {
+function mapInvoiceRecordFields(Invoice invoice) returns string|error {
     string finalResult = EMPTY_STRING;
     map<anydata>|error invoiceMap = invoice.cloneWithType(MapAnyData);
     if (invoiceMap is map<anydata>) {
         string[] keys = invoiceMap.keys();
         int position = 0;
-        foreach var item in invoice {
-            if (item is string|decimal) {
-                finalResult += setSimpleType(keys[position], item, TRAN_SALES);
-            } else if (item is RecordRef) {
-                finalResult += getXMLRecordRef(<RecordRef>item);
-            }    
+        foreach var invoiceField in invoice {
+            if (invoiceField is string|decimal) {
+                finalResult += setSimpleType(keys[position], invoiceField, TRAN_SALES);
+            } else if (invoiceField is RecordRef) {
+                finalResult += getXMLRecordRef(<RecordRef>invoiceField);
+            } else if (invoiceField is Item[]) {
+                string itemXMLList = EMPTY_STRING;
+                foreach Item item in invoiceField {
+                    string itemElements = check buildInvoiceItemElement(item);
+                    itemXMLList += itemElements;
+                }
+                finalResult += string`<itemList>${itemXMLList}</itemList>`;  
+            } 
             position += 1;
         }
     }
     return finalResult;
+}
+
+function buildInvoiceItemElement(Item item) returns string|error {
+    string itemElements = EMPTY_STRING;
+    map<anydata> itemMap = check item.cloneWithType(MapAnyData);
+    string[] keys = itemMap.keys();
+    int position = 0;
+    foreach var itemField in item {
+        if(itemField is RecordRef) {
+            itemElements += getXMLRecordRef(<RecordRef>itemField);
+        }else if (itemField is string|boolean|decimal) {
+            itemElements += setSimpleType(keys[position], itemField, TRAN_SALES);
+        }
+        position += 1;
+    }
+    return string`<item>${itemElements}</item>`;
 }
 
 function wrapInvoiceElementsToBeCreatedWithParentElement(string subElements) returns string{
@@ -51,20 +74,36 @@ function wrapInvoiceElementsToBeUpdatedWithParentElement(string subElements, str
 }
 
 function mapInvoiceRecord(xml response) returns Invoice|error {
+    xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
     Invoice invoice  = {
-        ///amountPaid: check decimalLib:fromString((response/**/<tranSales:amountPaid>/*).toString()),
-        //balance: check decimalLib:fromString((response/**/<tranSales:balance>/*).toString()),
-        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
-        createdDate: (response/**/<tranSales:total>/*).toString(),
-        currencyName: (response/**/<tranSales:currencyName>/*).toString(),
-        lastModifiedDate: (response/**/<tranSales:createdDate>/*).toString(),
-        dueDate: (response/**/<tranSales:dueDate>/*).toString(),
-        status: (response/**/<tranSales:status>/*).toString(),
-        transactionId: (response/**/<tranSales:transactionId>/*).toString(),
-        entity: {
-            internalId: (check response/**/<tranSales:entity>.internalId)
+        discountTotal: check decimalLib:fromString((response/**/<tranSales:discountTotal>/*).toString()),
+        recognizedRevenue: check decimalLib:fromString((response/**/<tranSales:recognizedRevenue>/*).toString()),
+        deferredRevenue: check decimalLib:fromString((response/**/<tranSales:deferredRevenue>/*).toString()),
+        subsidiary: {
+            internalId: (check response/**/<tranSales:subsidiary>.internalId),
+            name: (response/**/<tranSales:subsidiary>/<name>/*).toString()
         },
-        invoiceId: check response/**/<tranSales:'record>.internalId
+        classification: {
+            internalId: (check response/**/<tranSales:'class>.internalId),
+            name: (response/**/<tranSales:'class>/<name>/*).toString()
+        },
+        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
+        department: {
+            internalId: (check response/**/<tranSales:department>.internalId),
+            name: (response/**/<tranSales:department>/<name>/*).toString()
+        },
+        createdDate: (response/**/<tranSales:createdDate>/*).toString(),
+        lastModifiedDate: (response/**/<tranSales:createdDate>/*).toString(),
+        status: (response/**/<tranSales:status>/*).toString(),
+        entity: {
+            internalId: (check response/**/<tranSales:entity>.internalId),
+            name: (response/**/<tranSales:entity>/<name>/*).toString()
+        },
+        currency: {
+            internalId: (check response/**/<tranSales:currency>.internalId),
+            name: (response/**/<tranSales:currency>/<name>/*).toString()
+        },
+        internalId: check response/**/<'record>.internalId
     };
     return invoice;
 }

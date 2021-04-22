@@ -20,42 +20,44 @@ import ballerina/jsonutils;
 import ballerina/http;
 
 function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
-    xml xmlValue = check formatPayload(response);
+    xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
-        xml output  = xmlValue/**/<status>; 
-        boolean afterSubmissionResponse = check extractBooleanValueFromXMLOrText(xmlValue/**/<afterSubmitFailed>/*);
+        xml output  = formattedPayload/**/<status>; 
+        boolean afterSubmissionResponse = check extractBooleanValueFromXMLOrText(formattedPayload/**/<afterSubmitFailed>/*);
         boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
         if(isSuccess == true && afterSubmissionResponse == false ) { 
-            return  prepareResponseAfterSubmitPassed(xmlValue);
+            return  prepareResponseAfterSubmitPassed(formattedPayload);
         } else if(isSuccess == false && afterSubmissionResponse == true) {
-            return prepareResponseAfterSubmitFailed(xmlValue);
+            return prepareResponseAfterSubmitFailed(formattedPayload);
         }else {
-            xml errorMessage= xmlValue/**/<statusDetail>/*;
+            xml errorMessage= formattedPayload/**/<statusDetail>/*;
             fail error(errorMessage.toString());
         }    
     } else {
-        fail error(xmlValue.toString());
+        fail error(formattedPayload.toString());
     }
 }
 
-function prepareResponseAfterSubmitFailed(xml xmlValue) returns RecordAddResponse|error {
-    xml baseRef  = xmlValue/**/<baseRef>;
+function prepareResponseAfterSubmitFailed(xml formattedPayload) returns RecordAddResponse|error {
+    xml baseRef  = formattedPayload/**/<baseRef>;
     RecordAddResponse instanceCreationResponse = {
         isSuccess: false,
         afterSubmitFailed: true,
         internalId: check baseRef.internalId,
-        recordType: check baseRef.'type
+        recordType: check baseRef.'type,
+        warning: (formattedPayload/**/<statusDetail>/<message>/*).toString()
     };
     return instanceCreationResponse;
 }
 
-function prepareResponseAfterSubmitPassed(xml xmlValue) returns RecordAddResponse|error {
-    xml baseRef  = xmlValue/**/<baseRef>;
+function prepareResponseAfterSubmitPassed(xml formattedPayload) returns RecordAddResponse|error {
+    xml baseRef  = formattedPayload/**/<baseRef>;
     RecordAddResponse instanceCreationResponse = {
         isSuccess: true,
         afterSubmitFailed: false,
         internalId: check baseRef.internalId,
-        recordType: check baseRef.'type
+        recordType: check baseRef.'type,
+        warning: (formattedPayload/**/<statusDetail>/<message>/*).toString()
     };
     return instanceCreationResponse;
 }

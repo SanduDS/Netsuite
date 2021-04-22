@@ -43,7 +43,7 @@ public type SalesOrder record {
     string tranId?;
     RecordRef entityTaxRegNum?;
     RecordRef createdFrom?;
-    SalesOrderOrderStatus orderStatus?;
+    SalesOrderStatus|string orderStatus?;
     string nextBill?;
     RecordRef pportunity?;
     RecordRef salesRep?;
@@ -91,22 +91,25 @@ public type SalesOrder record {
     boolean paypalProcess?;
     RecordRef billingSchedule?;
     string status?;
+    RecordRef subsidiary?;
     Item[] itemList?;
 };
 
 public type Invoice record {
-    decimal amountPaid?;
-    decimal amountRemaining?;
-    decimal balance?;
+    decimal recognizedRevenue?;
+    decimal discountTotal?;
+    decimal deferredRevenue?;
     decimal total?;
+    RecordRef department?;
     string createdDate?;
-    string currencyName?;
-    string dueDate?;
+    RecordRef currency?;
     string email?;
     string lastModifiedDate?;
     string status?;
-    string transactionId?;
     RecordRef entity?;
     string invoiceId?;
+    Classification classification?;
+    RecordRef subsidiary?;
+    string internalId?;
     Item[] itemList?;
 };
