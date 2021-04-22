@@ -111,5 +111,6 @@ public type Invoice record {
     Classification classification?;
     RecordRef subsidiary?;
     string internalId?;
+    RecordRef 'class?;
     Item[] itemList?;
 };

@@ -459,7 +459,11 @@ function testUpdateInvoiceRecord() {
     log:print("testUpdateInvoiceRecord");
     Invoice invoice = {
         internalId: invoiceId,
-        email: "test@ecosystem.com"
+        email: "test@ecosystem.com",
+        'class: {
+            internalId: classificationId,
+            'type:"class"
+        }
     };
     RecordUpdateResponse|error output = netsuiteClient->updateInvoiceRecord(invoice);
     if (output is RecordAddResponse) {
@@ -624,7 +628,7 @@ function testGetAll() {
     log:print("testGetAll");
     json[]|error output = netsuiteClient->getAll("currency");
     if (output is json[]) {
-        log:print("Number of records found: " + output.length().toString());
+        log:print("Number of records found: " + output.toString());
     } else {
         test:assertFalse(false, output.message());
     }
@@ -715,5 +719,3 @@ function testSalesOrderGetOperation() {
        log:print(output.toString()); 
     }
 }
-//add usecase type sample in doc
-//restrictions

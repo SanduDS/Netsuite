@@ -22,8 +22,14 @@ import ballerina/http;
 function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml formattedPayload = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
+        string|error statusDetailType = formattedPayload/**/<statusDetail>.'type;
+        boolean|error afterSubmissionResponse =  extractBooleanValueFromXMLOrText(formattedPayload/**/<afterSubmitFailed>/*);
+        if(statusDetailType is string) {
+            if(statusDetailType == "ERROR" && afterSubmissionResponse is error) {
+                fail error((formattedPayload/**/<message>/*).toString());
+            }
+        }
         xml output  = formattedPayload/**/<status>; 
-        boolean afterSubmissionResponse = check extractBooleanValueFromXMLOrText(formattedPayload/**/<afterSubmitFailed>/*);
         boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
         if(isSuccess == true && afterSubmissionResponse == false ) { 
             return  prepareResponseAfterSubmitPassed(formattedPayload);
