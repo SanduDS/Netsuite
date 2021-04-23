@@ -19,7 +19,6 @@ import ballerina/time;
 import ballerina/lang.'string as stringLib;
 import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'boolean as booleanLib;
-import ballerina/log;
 
 isolated function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
     http:Request request = new;
