@@ -2,6 +2,7 @@
 based on SOAP webservice
 
 [![CI](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml)
+[![Deployment](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ballerina-platform/module-ballerinax-netsuite?color=green&include_prereleases&label=latest%20release)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 # Ballerina NetSuite Connector
@@ -104,4 +105,4 @@ public function main() {
     }
 }
 ```
-* More Samples are available [here](https://github.com/SanduDS/Netsuite/tree/Netsuite_Alpha4/samples).
+**More samples are available [here](https://github.com/SanduDS/Netsuite/tree/Netsuite_Alpha4/samples).**
