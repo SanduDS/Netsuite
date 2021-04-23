@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/regex;
-import ballerina/lang.'xml as xmlLib;
-import ballerina/xmldata;
 import ballerina/http;
+import ballerina/lang.'xml as xmlLib;
+import ballerina/regex;
+import ballerina/xmldata;
 
 isolated function getRecordCreateResponse(http:Response response) returns @tainted RecordAddResponse|error {
     xml formattedPayload = check formatPayload(response);

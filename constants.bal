@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//SOAP Actions
 public const string ADD_SOAP_ACTION = "add";
 public const string DELETE_SOAP_ACTION = "delete";
 public const string UPDATE_SOAP_ACTION = "update";
@@ -51,3 +52,6 @@ public const string LIST_ACCT_WITH_COLON = "listAcct:";
 public const string LIST_MRK_WITH_COLON = "listMkt:";
 public const string LIST_REL_WITH_COLON = "listRel:";
 public const string LIST_REL = "listRel";
+
+//Constant values
+public const decimal DEFAULT_ZERO_VALUE = 0.0;

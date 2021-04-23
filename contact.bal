@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+//import ballerina/log;
+
 //------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapContactRecordFields(Contact contact) returns string {
     string finalResult = EMPTY_STRING;
@@ -98,4 +101,65 @@ isolated function getAddressListInXML(Address[] addresses) returns string {
         addressList += string `<addressbookAddress>${addressBook}</addressbookAddress>`;  
     }
     return addressList;
+}
+
+isolated function getContactRecordGetOperationResult(http:Response response) returns Contact|error{
+    xml formattedResponse = check formatPayload(response);
+    if (response.statusCode == http:STATUS_OK) { 
+        xml output  = formattedResponse/**/<status>;
+        boolean isSuccess = check extractBooleanValueFromXMLOrText(output.isSuccess);
+        if(isSuccess) {
+            return mapContactRecord(formattedResponse);
+        } else {
+            fail error(NO_RECORD_CHECK);
+        }
+    } else {
+        fail error(formattedResponse.toString());
+    }  
+}
+
+isolated function mapContactRecord(xml response) returns Contact|error {
+    xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
+    //log:printInfo(response.toString());
+    Contact contact  = {
+        customForm: extractRecordRefFromXML(response/**/<listRel:customForm>),
+        entityId: extractStringFromXML(response/**/<listRel:entityId>/*),
+        contactSource: extractRecordRefFromXML(response/**/<listRel:contactSource>),
+        company: extractRecordRefFromXML(response/**/<listRel:company>),
+        salutation: extractStringFromXML(response/**/<listRel:salutation>/*),
+        firstName : extractStringFromXML(response/**/<listRel:firstName>/*),
+        middleName: extractStringFromXML(response/**/<listRel:middleName>/*),
+        lastName: extractStringFromXML(response/**/<listRel:lastName>/*),
+        title: extractStringFromXML(response/**/<listRel:title>/*),
+        phone: extractStringFromXML(response/**/<listRel:phone>/*),
+        fax: extractStringFromXML(response/**/<listRel:fax>/*),
+        email: extractStringFromXML(response/**/<listRel:email>/*),
+        defaultAddress: extractStringFromXML(response/**/<listRel:defaultAddress>/*),
+        subsidiary: extractRecordRefFromXML(response/**/<listRel:subsidiary>),
+        altEmail: extractStringFromXML(response/**/<listRel:altEmail>/*),
+        officePhone: extractStringFromXML(response/**/<listRel:officePhone>/*),
+        homePhone: extractStringFromXML(response/**/<listRel:homePhone>/*),
+        mobilePhone: extractStringFromXML(response/**/<listRel:mobilePhone>/*),
+        supervisor: extractRecordRefFromXML(response/**/<listRel:supervisor>),
+        supervisorPhone: extractStringFromXML(response/**/<listRel:supervisorPhone>/*),
+        assistant: extractRecordRefFromXML(response/**/<listRel:assistant>),
+        assistantPhone: extractStringFromXML(response/**/<listRel:assistantPhone>/*),
+        comments: extractStringFromXML(response/**/<listRel:comments>/*),
+        image: extractStringFromXML(response/**/<listRel:image>/*),
+        dateCreated: extractStringFromXML(response/**/<listRel:dateCreated>/*),
+        lastModifiedDate: extractStringFromXML(response/**/<listRel:lastModifiedDate>/*)
+    };
+    boolean|error values = extractBooleanValueFromXMLOrText(response/**/<listRel:isPrivate>/*);
+    if(values is boolean) {
+        contact.isPrivate = values;
+    }
+    values = extractBooleanValueFromXMLOrText(response/**/<listRel:isInactive>/*);
+    if(values is boolean) {
+        contact.isInactive = values;
+    }
+    values = extractBooleanValueFromXMLOrText(response/**/<listRel:billPay>/*);
+    if(values is boolean) {
+        contact.billPay = values;
+    }
+    return contact;
 }

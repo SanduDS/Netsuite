@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/lang.'decimal as decimalLib;
 import ballerina/lang.'xml as xmlLib;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
@@ -77,34 +76,19 @@ isolated function wrapInvoiceElementsToBeUpdatedWithParentElement(string subElem
 isolated function mapInvoiceRecord(xml response) returns Invoice|error {
     xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
     Invoice invoice  = {
-        discountTotal: check decimalLib:fromString((response/**/<tranSales:discountTotal>/*).toString()),
-        recognizedRevenue: check decimalLib:fromString((response/**/<tranSales:recognizedRevenue>/*).toString()),
-        deferredRevenue: check decimalLib:fromString((response/**/<tranSales:deferredRevenue>/*).toString()),
-        subsidiary: {
-            internalId: (check response/**/<tranSales:subsidiary>.internalId),
-            name: (response/**/<tranSales:subsidiary>/<name>/*).toString()
-        },
-        classification: {
-            internalId: (check response/**/<tranSales:'class>.internalId),
-            name: (response/**/<tranSales:'class>/<name>/*).toString()
-        },
-        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
-        department: {
-            internalId: (check response/**/<tranSales:department>.internalId),
-            name: (response/**/<tranSales:department>/<name>/*).toString()
-        },
+        discountTotal: extractDecimalFromXML(response/**/<tranSales:discountTotal>/*),
+        recognizedRevenue: extractDecimalFromXML(response/**/<tranSales:recognizedRevenue>/*),
+        deferredRevenue: extractDecimalFromXML(response/**/<tranSales:deferredRevenue>/*),
+        subsidiary: extractRecordRefFromXML(response/**/<tranSales:subsidiary>),
+        classification:extractRecordRefFromXML(response/**/<tranSales:'class>),
+        total:extractDecimalFromXML(response/**/<tranSales:total>/*),
+        department: extractRecordRefFromXML(response/**/<tranSales:department>),
         createdDate: (response/**/<tranSales:createdDate>/*).toString(),
-        lastModifiedDate: (response/**/<tranSales:createdDate>/*).toString(),
-        status: (response/**/<tranSales:status>/*).toString(),
-        entity: {
-            internalId: (check response/**/<tranSales:entity>.internalId),
-            name: (response/**/<tranSales:entity>/<name>/*).toString()
-        },
-        currency: {
-            internalId: (check response/**/<tranSales:currency>.internalId),
-            name: (response/**/<tranSales:currency>/<name>/*).toString()
-        },
-        internalId: check response/**/<'record>.internalId
+        lastModifiedDate: extractStringFromXML(response/**/<tranSales:createdDate>/*),
+        status: extractStringFromXML(response/**/<tranSales:status>/*),
+        entity: extractRecordRefFromXML(response/**/<tranSales:entity>),
+        currency: extractRecordRefFromXML(response/**/<tranSales:currency>),
+        internalId: extractRecordInternalIdFromXMLAttribute(response/**/<'record>)
     };
     return invoice;
 }
@@ -117,10 +101,10 @@ isolated function getInvoiceRecordGetOperationResult(http:Response response, Rec
         if(isSuccess) {
             return mapInvoiceRecord(xmlValue);
         } else {
-            fail error("No any record found");
+            fail error(NO_RECORD_FOUND);
         }
     } else {
-        fail error("No any record found");
+        fail error(xmlValue.toString());
     }
 }
 

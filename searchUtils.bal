@@ -16,14 +16,6 @@
 
 import ballerina/lang.'xml as xmlLib;
 
-public type SearchElement record {
-    string fieldName;
-    string operator;
-    SearchType searchType;
-    string value1;
-    string value2?;
-};
-
 isolated  function getSearchElement(SearchElement[] searchElements) returns string{
     string searchElementInPayloadBody = EMPTY_STRING;
     foreach SearchElement element in searchElements {

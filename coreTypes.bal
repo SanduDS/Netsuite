@@ -13,6 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+# Reference to NetSuite Records
+#
+# + name - Name of the Record  
+# + internalId - NetSuite Internal ID 
+# + externalId - NetSuite external ID
+# + 'type - Type of the Record  
 public type RecordRef record {
     string name?;
     string internalId;

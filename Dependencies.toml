@@ -1,22 +1,22 @@
 [[dependency]]
 org = "ballerina"
-name = "regex"
-version = "0.7.0-alpha7"
-
-[[dependency]]
-org = "ballerina"
-name = "time"
-version = "2.0.0-alpha8"
-
-[[dependency]]
-org = "ballerina"
-name = "xmldata"
+name = "crypto"
 version = "1.1.0-alpha7"
 
 [[dependency]]
 org = "ballerina"
 name = "uuid"
 version = "0.10.0-alpha7"
+
+[[dependency]]
+org = "ballerina"
+name = "http"
+version = "1.1.0-alpha7"
+
+[[dependency]]
+org = "ballerina"
+name = "xmldata"
+version = "1.1.0-alpha7"
 
 [[dependency]]
 org = "ballerina"
@@ -35,12 +35,12 @@ version = "1.1.0-alpha7"
 
 [[dependency]]
 org = "ballerina"
-name = "crypto"
-version = "1.1.0-alpha7"
+name = "time"
+version = "2.0.0-alpha8"
 
 [[dependency]]
 org = "ballerina"
-name = "http"
-version = "1.1.0-alpha7"
+name = "regex"
+version = "0.7.0-alpha7"
 
 

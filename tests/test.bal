@@ -43,9 +43,9 @@ string classificationId = EMPTY_STRING;
 string customerAccountId = EMPTY_STRING;
 string invoiceId = EMPTY_STRING;
 
-//----------------------------------------------------- Beginning of Record Addition Tests------------------------------
+//----------------------------------------------------- Beginning of Record Creation Tests------------------------------
 @test:Config {enable: true}
-function testAddContactRecord() {
+function testContactRecordAddOperation() {
     log:printInfo("testAddContactRecord");
     RecordRef cusForm = {
         internalId : "-40",
@@ -64,16 +64,16 @@ function testAddContactRecord() {
 
     Address ad01 = {
         country: "_sriLanka",
-        addr1: "Ruwanmaga",
-        addr2:"Dodangoda",
+        addr1: "address01_1",
+        addr2:"address02_1",
         city:"Colombo",
         override: true
     };
 
     Address ad02 = {
         country: "_sriLanka",
-        addr1: "RuwanmagaBombuwala",
-        addr2:"Dodangoda",
+        addr1: "address01_2",
+        addr2:"address02_2",
         city:"Colombo07",
         override: true
     };
@@ -98,8 +98,7 @@ function testAddContactRecord() {
         middleName: "sandu",
         isPrivate: false,
         subsidiary: subsidiary,
-        //categoryList:[category],
-        globalSubscriptionStatus: "_confirmedOptIn",
+        //globalSubscriptionStatus: "_confirmedOptIn",
         addressBookList : [contactAddressBook, contactAddressBook2]
 
     };
@@ -155,23 +154,20 @@ function testAddNewCustomerRecord() {
         entityId: "BallerinaTest01",
         isPerson: true,
         salutation: "Mr",
-        firstName: "Danu",
-        middleName: "SK",
-        lastName: "TestSilva",
+        firstName: "TestName",
+        middleName: "TestMiddleName",
+        lastName: "TestLastName",
         companyName: "Wso2",
-        phone: "0756485071",
-        fax: "0342287344",
-        email: "sandusandu@wsoi2.com",
+        phone: "0123456789",
+        fax: "0123456781",
+        email: "ecosystem@wso2.com",
         subsidiary: subsidiary,
-        //defaultAddress: "colobmbo7,Sri Lanka",
         isInactive: false,
-        //category: EMPTY_STRING,
         title: "TestTilte",
-        homePhone: "0348923456",
-        mobilePhone: "3243243421",
-        accountNumber: "ac9092328483",
+        homePhone: "0123456782",
+        mobilePhone: "0123456783",
+        accountNumber: "0123456784",
         addressbookList: [customerAddressbook]
-        //currencyList: [cur] currency is not added.
 
     };
     RecordAddResponse|error output = netsuiteClient->addNewCustomer(customer);
@@ -190,7 +186,6 @@ function testAddCurrencyRecord() {
     Currency currency = {
         name: "BLA",
         symbol: "BLA",
-        //currencyPrecision: "_two",
         exchangeRate: 3.89,
         isInactive: false,
         isBaseCurrency: false
@@ -218,7 +213,6 @@ function testAddInvoiceRecord() {
          },
         amount: 1000
     };
-
     Item item02 = {
         item: {
             internalId: "570",
@@ -252,8 +246,8 @@ function testSalesOrderAddOperation() {
     };
     Address address = {
         country: "_sriLanka",
-        addr1: "RuwanmagaBombuwala",
-        addr2:"Dodangoda",
+        addr1: "address01_3",
+        addr2:"address02_3",
         city:"Colombo07",
         override: true
     };
@@ -327,8 +321,7 @@ function testAddAccountRecord() {
     }
 }
 
- //----------------------------------------------------- End of Addition Tests------------------------------------------
-
+ //----------------------------------------------------- End of Creation Tests------------------------------------------
  //----------------------------------------------------- Beginning of Update Tests--------------------------------------
 @test:Config {enable: true, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
 function testUpdateCustomerRecord() {
@@ -340,8 +333,8 @@ function testUpdateCustomerRecord() {
 
     Address ad02 = {
         country: "_sriLanka",
-        addr1: "RuwanmagaBombuwala",
-        addr2:"Dodangoda",
+        addr1: "address01_4",
+        addr2:"address02_4",
         city:"Colombo07",
         override: true
     };
@@ -377,19 +370,17 @@ function testUpdateCustomerRecord() {
         middleName: "TestMiddleName",
         lastName: "TestLastName", 
         companyName: "Wso2",
-        phone: "0751234567",
-        fax: "0342212345",
-        email: "sandusandu@wsoi2.com",
+        phone: "0123456784",
+        fax: "0123456784",
+        email: "updatedecosysytem@wso2.com",
         subsidiary: subsidiary,
-        //defaultAddress: "colobmbo7,Sri Lanka",
         isInactive: false,
-        //category: EMPTY_STRING,
         title: "TestTilte",
-        homePhone: "0348923456",
-        mobilePhone: "3243243421",
+        homePhone: "0123456784",
+        mobilePhone: "0123456784",
         accountNumber: "ac9092328483",
         addressbookList: [customerAddressbook]
-        //currencyList: [cur] currency is not added.
+
 
     };
     RecordUpdateResponse|error output = netsuiteClient->updateCustomerRecord(customer);
@@ -469,11 +460,76 @@ function testUpdateInvoiceRecord() {
     }
 }
 
-
 //---------------------------------------End of Update Tests------------------------------------------------------------
+//----------------------------------------Beginning of Search Tests-----------------------------------------------------
+@test:Config {enable: true}
+function testCustomerSearchOperation() {
+    log:printInfo("testCustomerSearchOperation");
+    SearchElement searchRecord = {
+        fieldName: "lastName",
+        searchType: SEARCH_STRING_FIELD,
+        operator: "is",
+        value1: "TestLastName"
+    };
+    SearchElement[] searchData = [];
+    searchData.push(searchRecord);
+    Customer|error output = netsuiteClient->searchCustomerRecord(searchData);
+    if (output is Customer) {
+        log:printInfo(output?.entityId.toString());     
+    } else {
+        test:assertFalse(true, output.message());
+    }
+}
 
-//---------------------------------------Beginning of Deletion Tests----------------------------------------------------
-@test:Config {enable: true, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, testCustomerRecordGetOperation]}
+@test:Config {enable: true, dependsOn: [testUpdateAccountRecord]}
+function testAccountSearchOperation() {
+    log:printInfo("testAccountSearchOperation");
+    SearchElement searchRecord = {
+        fieldName: "name",
+        searchType: SEARCH_STRING_FIELD,
+        operator: "is",
+        value1: "Ballerina test account_updated"
+    };
+    SearchElement[] searchElements = [searchRecord];
+    Account|error output = netsuiteClient->searchAccountRecord(searchElements);
+    if (output is Account) {
+        log:printInfo(output.toString());     
+    } else {
+        test:assertFalse(true, output.message());
+    }
+}
+
+@test:Config {enable: true}
+function testTransactionSearchOperation() {
+    log:printInfo("testTransactionSearchOperation");
+    SearchElement searchRecord1 = {
+        fieldName: "amount",
+        searchType: SEARCH_DOUBLE_FIELD,
+        operator: "between",
+        value1: "100000",
+        value2: "2000000"
+    };
+
+    SearchElement searchRecord2 = {
+        fieldName: "lastModifiedDate",
+        searchType: SEARCH_DATE_FIELD,
+        operator: "within",
+        value1 : "2020-12-23T10:20:15",
+        value2 : "2021-03-23T10:20:15"
+    };
+    SearchElement[] searchElements = [searchRecord2];
+    RecordList|error output = netsuiteClient->searchTransactionRecord(searchElements);
+    if (output is RecordList) {
+        log:printInfo(output.toString());     
+    } else {
+        test:assertFalse(true, output.message());
+    }
+}
+
+//----------------------------------------------------End of Search Tests-----------------------------------------------
+//----------------------------------------------------Beginning of Deletion Tests---------------------------------------
+@test:Config {enable: true, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, 
+testCustomerRecordGetOperation]}
 function testCustomerDeleteRecord() {
     log:printInfo("Record Deletion Start");
     log:printInfo("testCustomerDeleteRecord");
@@ -488,7 +544,7 @@ function testCustomerDeleteRecord() {
         test:assertFail(output.toString());
     }
 }
-@test:Config {enable: true, dependsOn:[testAddContactRecord]}
+@test:Config {enable: true, dependsOn:[testContactRecordAddOperation, testContactGetOperation]}
 function testContactDeleteOperation() {
     log:printInfo("testContactDeleteRecord");
     RecordDetail recordDeletionInfo = {
@@ -577,76 +633,8 @@ function testDeleteInvoiceRecord() {
         test:assertFail(output.toString());
     }
 }
-//-----------------------------------------------------End of Deletion Tests----------------------------------------------
-
-//----------------------------------------------------Beginning of Search Tests-----------------------------------------
-@test:Config {enable: true}
-function testCustomerSearchOperation() {
-    log:printInfo("testCustomerSearchOperation");
-    SearchElement searchRecord = {
-        fieldName: "lastName",
-        searchType: SEARCH_STRING_FIELD,
-        operator: "is",
-        value1: "TestSilva"
-    };
-    SearchElement[] searchData = [];
-    searchData.push(searchRecord);
-    Customer|error output = netsuiteClient->searchCustomerRecord(searchData);
-    if (output is Customer) {
-        log:printInfo(output?.entityId.toString());     
-    } else {
-        test:assertFalse(true, output.message());
-    }
-}
-
-@test:Config {enable: true, dependsOn: [testUpdateAccountRecord]}
-function testAccountSearchOperation() {
-    log:printInfo("testAccountSearchOperation");
-    SearchElement searchRecord = {
-        fieldName: "name",
-        searchType: SEARCH_STRING_FIELD,
-        operator: "is",
-        value1: "Ballerina test account_updated"
-    };
-    SearchElement[] searchElements = [searchRecord];
-    Account|error output = netsuiteClient->searchAccountRecord(searchElements);
-    if (output is Account) {
-        log:printInfo(output.toString());     
-    } else {
-        test:assertFalse(true, output.message());
-    }
-}
-
-@test:Config {enable: true}
-function testTransactionSearchOperation() {
-    log:printInfo("testTransactionSearchOperation");
-    SearchElement searchRecord1 = {
-        fieldName: "amount",
-        searchType: SEARCH_DOUBLE_FIELD,
-        operator: "between",
-        value1: "100000",
-        value2: "2000000"
-    };
-
-    SearchElement searchRecord2 = {
-        fieldName: "lastModifiedDate",
-        searchType: SEARCH_DATE_FIELD,
-        operator: "within",
-        value1 : "2020-12-23T10:20:15",
-        value2 : "2021-03-23T10:20:15"
-    };
-    SearchElement[] searchElements = [searchRecord1, searchRecord2];
-    RecordList|error output = netsuiteClient->searchTransactionRecord(searchElements);
-    if (output is RecordList) {
-        log:printInfo(output.toString());     
-    } else {
-        test:assertFalse(true, output.message());
-    }
-}
-
-//----------------------------------------------------End of Search Tests-----------------------------------------------
-
-//----------------------------------------------------Beginning of Miscellaneous tests----------------------------------
+//---------------------------------------------------End of Deletion Tests----------------------------------------------
+//---------------------------------------------------Beginning of Miscellaneous tests-----------------------------------
 @test:Config {enable: true}
 function testGetAll() {
     log:printInfo("testGetAll");
@@ -654,7 +642,7 @@ function testGetAll() {
     if (output is json[]) {
         log:printInfo("Number of records found: " + output.length().toString());
     } else {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     }
 }
 
@@ -665,7 +653,7 @@ function testGetSavedSearchFunction() {
     if (output is json[]) {
         log:printInfo("Number of records found: " + output.length().toString());
     } else {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     }
 }
 
@@ -678,7 +666,7 @@ function testCustomerRecordGetOperation() {
     };
     Customer|error output = netsuiteClient->getCustomerRecord(recordDetail);
     if (output is error) {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     } else {
        log:printInfo(output.toString()); 
     }
@@ -693,7 +681,7 @@ function testCurrencyRecordGetOperation() {
     };
     Currency|error output = netsuiteClient->getCurrencyRecord(recordDetail);
     if (output is error) {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     } else {
        log:printInfo(output.toString()); 
     }
@@ -708,9 +696,9 @@ function testClassificationRecordGetOperation() {
     };
     Classification|error output = netsuiteClient->getClassificationRecord(recordDetail);
     if (output is error) {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     } else {
-       log:printInfo(output.toString()); 
+        log:printInfo(output.toString());  
     }
 }
 
@@ -723,7 +711,7 @@ function testInvoiceRecordGetOperation() {
     };
     Invoice|error output = netsuiteClient->getInvoiceRecord(recordDetail);
     if (output is error) {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     } else {
        log:printInfo(output.toString()); 
     }
@@ -737,8 +725,22 @@ function testSalesOrderGetOperation() {
     };
     SalesOrder|error output = netsuiteClient->getSalesOrderRecord(recordDetail);
     if (output is error) {
-        test:assertFalse(false, output.message());
+        test:assertFalse(true, output.message());
     } else {
        log:printInfo(output.toString()); 
+    }
+}
+@test:Config {enable: true} 
+function testContactGetOperation() {
+    log:printInfo("testContactGetOperation");
+    RecordDetail recordDetail = {
+        recordInternalId: contactId,
+        recordType: CONTACT
+    };
+    Contact|error output = netsuiteClient->getContactRecord(recordDetail);
+    if (output is error) {
+        test:assertFalse(true, output.message());
+    } else {
+       log:printInfo(output?.firstName.toString()); 
     }
 }

@@ -16,7 +16,6 @@
 
 import ballerina/xmldata;
 import ballerina/http;
-
 xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
 
 //------------------------------------------------Create/Update Records-------------------------------------------------
@@ -214,31 +213,35 @@ isolated function mapCustomerFields(json customerTypeJson, Customer customer) re
 
 isolated function mapCustomerRecord(xml response) returns Customer|error {
     Customer customer  = {
-        internalId: check response/**/<'record>.internalId,
-        entityId: (response/**/<listRel:entityId>/*).toString(),
-        isPerson: check extractBooleanValueFromXMLOrText(response/**/<listRel:isPerson>/*),
-        firstName: (response/**/<listRel:firstName>/*).toString(),
-        lastName: (response/**/<listRel:lastName>/*).toString(),
-        middleName: (response/**/<listRel:middleName>/*).toString(),
-        companyName: (response/**/<listRel:companyName>/*).toString(),
-        email: (response/**/<listRel:email>/*).toString(),
-        title: (response/**/<listRel:title>/*).toString(),
-        phone:  (response/**/<listRel:phone>/*).toString(),
-        fax:  (response/**/<listRel:fax>/*).toString(),
-        defaultAddress: (response/**/<listRel:defaultAddress>/*).toString(),
-        subsidiary: {
-            internalId: check response/**/<listRel:subsidiary>.internalId,
-            name: (response/**/<listRel:subsidiary>/<name>/*).toString()
-        },
-        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listRel:isInactive>/*),
-        mobilePhone: (response/**/<listRel:mobilePhone>/*).toString(),
-        salutation: (response/**/<listRel:salutation>/*).toString(),
-        accountNumber: (response/**/<listRel:accountNumber>/*).toString()
+        internalId: extractRecordInternalIdFromXMLAttribute(response/**/<'record>),
+        entityId: extractStringFromXML(response/**/<listRel:entityId>/*),
+        firstName: extractStringFromXML(response/**/<listRel:firstName>/*),
+        lastName: extractStringFromXML(response/**/<listRel:lastName>/*),
+        middleName: extractStringFromXML(response/**/<listRel:middleName>/*),
+        companyName: extractStringFromXML(response/**/<listRel:companyName>/*),
+        email: extractStringFromXML(response/**/<listRel:email>/*),
+        title: extractStringFromXML(response/**/<listRel:title>/*),
+        phone: extractStringFromXML(response/**/<listRel:phone>/*),
+        fax: extractStringFromXML(response/**/<listRel:fax>/*),
+        defaultAddress: extractStringFromXML(response/**/<listRel:defaultAddress>/*),
+        subsidiary: extractRecordRefFromXML(response/**/<listRel:subsidiary>),
+        mobilePhone: extractStringFromXML(response/**/<listRel:mobilePhone>/*),
+        salutation: extractStringFromXML(response/**/<listRel:salutation>/*),
+        accountNumber: extractStringFromXML(response/**/<listRel:accountNumber>/*)
     };
+    boolean|error value = extractBooleanValueFromXMLOrText(response/**/<listRel:isPrivate>/*);
+    if(value is boolean) {
+        customer.isPerson = value;
+    }
+    value = extractBooleanValueFromXMLOrText(response/**/<listRel:isInactive>/*);
+    if(value is boolean) {
+        customer.isInactive = value;
+    }
     return customer;   
 }
 
-isolated function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Customer|error{
+isolated function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns 
+                                                     Customer|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;
@@ -251,4 +254,4 @@ isolated function getCustomerRecordGetOperationResult(http:Response response, Re
     } else {
         fail error(xmlValue.toString());
     }  
- }
+}

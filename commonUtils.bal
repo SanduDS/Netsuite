@@ -15,11 +15,10 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/time;
+import ballerina/lang.'decimal as decimalLib;
 import ballerina/lang.'string as stringLib;
-import ballerina/lang.'xml as xmlLib;
 import ballerina/lang.'boolean as booleanLib;
-import ballerina/log;
+import ballerina/time;
 
 isolated function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
     http:Request request = new;
@@ -236,9 +235,7 @@ isolated function getXMLElementForDeletionWithDeleteReason(RecordDetail recordDe
 isolated function buildGetAllPayload(string recordType, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
     string body = getXMLBodyForGetAllOperation(recordType);
-    string payload = header + body;
-    xml xmlPayload = check xmlLib:fromString(payload);
-    return xmlPayload;
+    return getSoapPayload(header, body);
 }
 
 isolated function getXMLBodyForGetAllOperation(string recordType) returns string{
@@ -295,4 +292,48 @@ isolated function getRecordRef(json element, json elementInfo) returns RecordRef
         externalId: getValidJson(element.\@externalId).toString()
     };
     return recordRef;
+}
+
+isolated function extractDecimalFromXML(xml element) returns decimal {
+    decimal|error castedValue = trap decimalLib:fromString((element).toString());
+    if(castedValue is decimal) {
+         return castedValue;
+    }else {
+        return DEFAULT_ZERO_VALUE;
+    }  
+}
+
+isolated function extractStringFromXML(xml|string|error element) returns string {
+    if(element is xml|string) {
+         return element.toString();
+    }else {
+        return EMPTY_STRING;
+    }  
+}
+
+isolated function extractRecordRefFromXML(xml element) returns RecordRef {
+    string|error internalId = element.internalId;
+    string name = extractStringFromXML(element/<name>/*);
+    if(internalId is string) {
+        RecordRef recordRef = {
+            internalId: internalId,
+            name: name
+        };
+        return recordRef;
+    } else {
+        RecordRef recordRef = {
+            internalId: EMPTY_STRING,
+            name: name
+        };
+        return recordRef;
+    }  
+}
+
+isolated function extractRecordInternalIdFromXMLAttribute(xml element) returns string {
+    string|error internal = element.internalId;
+    if(internal is string) {
+        return internal;
+    } else {
+        return EMPTY_STRING;
+    }
 }

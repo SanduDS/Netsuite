@@ -14,6 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Netsuite Contact type record
+#
+# + customForm - NetSuite custom form record reference
+# + entityId - Entity ID  
+# + contactSource - The way how this contact came to do business with the company  
+# + company - The company this contact works for  
+# + salutation - The contact's salutation  
+# + firstName - First name of the contact  
+# + middleName - Middle name of the contact 
+# + lastName - Last name of the contact 
+# + title - Contact's title at his or her company
+# + phone - Main phone number  
+# + fax - Fax number  
+# + email - Email address 
+# + defaultAddress - The default billing address 
+# + isPrivate -  If true the contact can only be viewed by the user that entered the contact record.(default: false)
+# + isInactive - If true, this contact is not displayed on the Contacts list in the UI.(default: false)  
+# + subsidiary - The subsidiary to associate with this contact   
+# + altEmail - An alternate email address for this contact
+# + officePhone - Office phone number  
+# + homePhone - Home phone number  
+# + mobilePhone - Mobile phone number
+# + supervisor - References an existing contact  
+# + supervisorPhone - SuperVisor phone number  
+# + assistant - References to an existing contact 
+# + assistantPhone - Assistant Phone number  
+# + comments - Any other information
+# + image - References an existing file  
+# + billPay - BillPay value  
+# + dateCreated - The date of record creation 
+# + lastModifiedDate - The date of the last modification 
+# + addressBookList - List of Address Books 
+# + SubscriptionsList - List of subscriptions  
 public type Contact record {
     RecordRef customForm?;
     string entityId?;
@@ -31,8 +64,6 @@ public type Contact record {
     boolean isPrivate?;
     boolean isInactive?;
     RecordRef subsidiary?;
-    string phoneticName?;
-    Category[] categoryList?;
     string altEmail?;
     string officePhone?;
     string homePhone?;
@@ -42,7 +73,6 @@ public type Contact record {
     RecordRef assistant?;
     string assistantPhone?;
     string comments?;
-    GlobalSubscriptionStatusType globalSubscriptionStatus?;
     string image?;
     boolean billPay?;
     string dateCreated?;
@@ -51,6 +81,29 @@ public type Contact record {
     Subscription[] SubscriptionsList?;
 };
 
+# Netsuite Customer type record 
+#
+# + internalId - Internal ID  
+# + entityId - Entity ID
+# + isPerson - This is set to True which specifies the type 
+# + salutation - The title of this person  
+# + firstName - First name  
+# + middleName - Middle name  
+# + lastName - Last name 
+# + companyName - Company name  
+# + phone - Main phone number  
+# + fax - Fax phone number
+# + email - Email Address  
+# + defaultAddress - Default Address  
+# + isInactive - This field is false by default 
+# + category - References a value in a user defined list at Setup
+# + subsidiary - Selects the subsidiary to associate with this entity or job  
+# + title - The job title
+# + homePhone -   
+# + mobilePhone - Field Description  
+# + accountNumber - Field Description  
+# + addressbookList - Field Description  
+# + currencyList - Field Description  
 public type Customer record {
     string internalId?;
     string entityId?;
@@ -92,5 +145,5 @@ public type Currency record {
     string displaySymbol?;
     string currencyPrecision?;
     boolean isInactive?;
-    boolean isBaseCurrency;
+    boolean isBaseCurrency?;
 };

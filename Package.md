@@ -1,9 +1,10 @@
 # Netsuite Connector
-based on  SOAP webservice
+based on SOAP webservice
 
-
-
-[![Build Status](https://travis-ci.org/SanduDS/Netsuite.svg?branch=master)](https://travis-ci.org/SanduDS/Netsuite)
+[![CI](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml)
+[![Deployment](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ballerina-platform/module-ballerinax-netsuite?color=green&include_prereleases&label=latest%20release)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 # Ballerina NetSuite Connector
 
 This module allows you to access the NetSuite's SuiteTalk REST Web services API though Ballerina. NetSuite is used for 
@@ -21,7 +22,7 @@ The following sections provide you details on how to use the NetSuite connector.
 
 |                             |           Version                    |
 |:---------------------------:|:------------------------------------:|
-| Ballerina Language          |     Swan Lake Alpha4                 |
+| Ballerina Language          |     Swan Lake Alpha2                 |
 | NetSuite SOAP API           |     SOAP 1.1                         |
 | WSDL version                |     2020.2.0                         |
 
@@ -37,12 +38,13 @@ Download and install [Ballerina](https://ballerinalang.org/downloads/).
 
 ### Supported Operations
 * Get
-* GetAll
-* GetList
-* GetSavedSearch
-* AddRecords
-* DeleteRecords
-* UpdateRecords
+* GetAll 
+* Get List of Records
+* Get SavedSearch
+* Search
+* Add Records
+* Delete Records
+* Update Records
 
 ### Pull the Module
 Execute the below command to pull the NetSuite module from Ballerina Central:
@@ -91,15 +93,16 @@ netsuite:Client nsClient = check new(nsConfig);
 
 **Perform NetSuite operations**
 
-The following sample shows how NetSuite `Currency` entity on GetAll operation.
+The following sample shows how to retrieve NetSuite `Currency` records by GetAll operation.
 
 ```ballerina
 public function main() {
-    json|error output = nsClient->getAll("currency");
-    if (output is json) {
+    json[]|error output = nsClient->getAll("currency");
+    if (output is json[]) {
         log:print(output.toString());
     } else {
         log:printError(output.message());
     }
 }
 ```
+**More samples are available [here](https://github.com/SanduDS/Netsuite/tree/Netsuite_Alpha4/samples).**

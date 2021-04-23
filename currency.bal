@@ -51,16 +51,23 @@ isolated function wrapCurrencyElementsToBeUpdatedWithParentElement(string subEle
 
 isolated function mapCurrencyRecord(xml response) returns Currency|error {
     Currency currency  = {
-        name: (response/**/<listAcct:name>/*).toString(),
-        symbol: (response/**/<listAcct:symbol>/*).toString(),
-        currencyPrecision:  (response/**/<listAcct:currencyPrecision>/*).toString(),
-        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*),
-        isBaseCurrency: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*)
+        name: extractStringFromXML(response/**/<listAcct:name>/*),
+        symbol: extractStringFromXML(response/**/<listAcct:symbol>/*),
+        currencyPrecision: extractStringFromXML(response/**/<listAcct:currencyPrecision>/*)
     };
+    boolean|error value = extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*);
+    if(value is boolean) {
+        currency.isInactive = value;
+    }
+    value = extractBooleanValueFromXMLOrText(response/**/<listAcct:isBaseCurrency>/*);
+    if(value is boolean) {
+        currency.isBaseCurrency = value;
+    }
     return currency;
 }
 
-isolated function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Currency|error{
+isolated function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns
+                                                     Currency|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;
@@ -68,10 +75,10 @@ isolated function getCurrencyRecordGetOperationResult(http:Response response, Re
         if(isSuccess) {
             return mapCurrencyRecord(xmlValue);
         } else {
-            fail error("No any record found");
+            fail error(NO_RECORD_CHECK);
         }
     } else {
-        fail error("No any record found");
+        fail error(xmlValue.toString());
     }
 }
  

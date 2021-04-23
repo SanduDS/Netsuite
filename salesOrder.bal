@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/lang.'decimal as decimalLib;
 
 isolated function mapSalesOrderRecordFields(SalesOrder salesOrder) returns string {
     string finalResult = EMPTY_STRING;
@@ -95,47 +94,29 @@ isolated function mapSalesOrderRecord(xml response) returns SalesOrder|error {
     xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
     xmlns "urn:common_2020_2.platform.webservices.netsuite.com" as platformCommon;
     SalesOrder salesOrder = {
-        internalId: check response/**/<'record>.internalId,
-        customForm: {
-            internalId: (check response/**/<tranSales:currency>.internalId),
-            name: (response/**/<tranSales:currency>/<name>/*).toString()
-        },
-        entity: {
-            internalId: (check response/**/<tranSales:entity>.internalId),
-            name: (response/**/<tranSales:entity>/<name>/*).toString()
-        },
-        currency: {
-            internalId: (check response/**/<tranSales:currency>.internalId),
-            name: (response/**/<tranSales:currency>/<name>/*).toString()
-        },
-        drAccount: {
-            internalId: (check response/**/<tranSales:drAccount>.internalId),
-            name: (response/**/<tranSales:drAccount>/<name>/*).toString()
-        },
-        fxAccount: {
-            internalId: (check response/**/<tranSales:fxAccount>.internalId),
-            name: (response/**/<tranSales:fxAccount>/<name>/*).toString()
-        },
+        internalId: extractRecordInternalIdFromXMLAttribute(response/**/<'record>),
+        customForm: extractRecordRefFromXML(response/**/<tranSales:customForm>),
+        entity: extractRecordRefFromXML(response/**/<tranSales:entity>),
+        currency: extractRecordRefFromXML(response/**/<tranSales:currency>),
+        drAccount: extractRecordRefFromXML(response/**/<tranSales:drAccount>),
+        fxAccount: extractRecordRefFromXML(response/**/<tranSales:fxAccount>),
         tranId: (response/**/<tranSales:fxAccount>/<name>/*).toString(),
         orderStatus: (response/**/<tranSales:orderStatus>/*).toString(),
-        tranDate: (response/**/<tranSales:tranDate>/*).toString(),
-        nextBill: (response/**/<tranSales:nextBill>/*).toString(),
-        totalCostEstimate: check decimalLib:fromString((response/**/<tranSales:totalCostEstimate>/*).toString()),
-        currencyName: (response/**/<tranSales:currencyName>/*).toString(),
-        email: (response/**/<tranSales:email>/*).toString(),
+        tranDate: extractStringFromXML(response/**/<tranSales:tranDate>/*),
+        nextBill: extractStringFromXML(response/**/<tranSales:nextBill>/*),
+        totalCostEstimate: extractDecimalFromXML(response/**/<tranSales:totalCostEstimate>/*),
+        currencyName: extractStringFromXML(response/**/<tranSales:currencyName>/*),
+        email: extractStringFromXML(response/**/<tranSales:email>/*),
         shippingAddress: {
-            country: (response/**/<platformCommon:country>/*).toString(),
-            addressee: (response/**/<platformCommon:addressee>/*).toString(),
-            addrText: (response/**/<platformCommon:addrText>/*).toString()
+            country: extractStringFromXML(response/**/<platformCommon:country>/*),
+            addressee: extractStringFromXML(response/**/<platformCommon:addressee>/*),
+            addrText: extractStringFromXML(response/**/<platformCommon:addrText>/*)
         },
-        shipDate: (response/**/<tranSales:shipDate>/*).toString(),
-        total: check decimalLib:fromString((response/**/<tranSales:total>/*).toString()),
-        balance: check decimalLib:fromString((response/**/<tranSales:balance>/*).toString()),
-        subTotal: check decimalLib:fromString((response/**/<tranSales:subTotal>/*).toString()),
-        subsidiary: {
-            internalId: (check response/**/<tranSales:subsidiary>.internalId),
-            name: (response/**/<tranSales:subsidiary>/<name>/*).toString()
-        } 
+        shipDate: extractStringFromXML(response/**/<tranSales:shipDate>/*),
+        total: extractDecimalFromXML(response/**/<tranSales:total>/*),
+        balance:extractDecimalFromXML(response/**/<tranSales:balance>/*),
+        subTotal:extractDecimalFromXML(response/**/<tranSales:subTotal>/*),
+        subsidiary: extractRecordRefFromXML(response/**/<tranSales:subsidiary>)
     };
     return salesOrder;
 }

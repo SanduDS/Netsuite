@@ -79,9 +79,24 @@ public type RecordType Customer|Contact|Currency|Invoice|Classification;
 #Map type for record to Map conversion
 type MapAnyData map<anydata>;
 
-# Description
+# Ballerina record for storing search results
 #
 # + records -  Array of record references  
 public type RecordList record {|
     RecordRef[] records;
 |};
+
+# Ballerina records for search operation
+#
+# + fieldName - Name of the search field  
+# + operator - Searching operator 
+# + searchType - Netsuite Search field type  
+# + value1 - Primary Search value 
+# + value2 - Secondary Search value  
+public type SearchElement record {
+    string fieldName;
+    string operator;
+    SearchType searchType;
+    string value1;
+    string value2?;
+};

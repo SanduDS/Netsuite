@@ -52,18 +52,23 @@ isolated function wrapClassificationElementsToBeUpdatedWithParentElement(string 
 isolated function mapClassificationRecord(xml response) returns Classification|error {
     xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
     Classification 'class  = {
-        name: (response/**/<listAcct:name>/*).toString(),
-        includeChildren: check extractBooleanValueFromXMLOrText(response/**/<listAcct:includeChildren>/*),
-        parent: {
-            internalId: check response/**/<listAcct:parent>/*.internalId
-        },
-        isInactive: check extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*),
-        internalId: check response/**/<listAcct:internalId>/*.internalId
+        name: extractStringFromXML(response/**/<listAcct:name>/*),
+        parent: extractRecordRefFromXML(response/**/<listAcct:parent>),
+        internalId: extractRecordInternalIdFromXMLAttribute(response/**/<'record>)
     };
+    boolean|error values = extractBooleanValueFromXMLOrText(response/**/<listAcct:includeChildren>/*);
+    if(values is boolean) {
+        'class.includeChildren = values;
+    }
+    values = extractBooleanValueFromXMLOrText(response/**/<listAcct:isInactive>/*);
+    if(values is boolean) {
+        'class.isInactive = values;
+    }
     return 'class;
 }
 
-isolated function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Classification|error{
+isolated function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns 
+                                                            Classification|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;
@@ -71,9 +76,9 @@ isolated function getClassificationRecordGetOperationResult(http:Response respon
         if(isSuccess) {
             return mapClassificationRecord(xmlValue);
         } else {
-            fail error("No any record found");
+            fail error(NO_RECORD_FOUND);
         }
     } else {
-        fail error("No any record found");
+        fail error(xmlValue.toString());
     }
 }

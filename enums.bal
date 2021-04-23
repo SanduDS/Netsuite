@@ -603,6 +603,6 @@ public enum RecordSaveSearchType {
     VENDOR_SUBSIDIARY_RELATIONSHIP__SAVED_SEARCH = "vendorSubsidiaryRelationship"
 }
 
-public enum RecordSearchType {
-    CUSTOMER_TYPE
-}
+// public enum RecordSearchType {
+//     CUSTOMER_TYPE
+// }
