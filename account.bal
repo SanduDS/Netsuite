@@ -49,8 +49,6 @@ isolated function wrapAccountElementsToUpdatedWithParentElement(string subElemen
         </urn:record>`;
 }
 
-//-------------------------------------search functions-----------------------------------------------------------------
-
 isolated function getAccountSearchRequestBody(SearchElement[] searchElements) returns string {
     return string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     <urn:searchRecord xsi:type="listAcct:AccountSearch" 
@@ -66,7 +64,7 @@ isolated function buildAccountSearchPayload(NetSuiteConfiguration config,SearchE
     return check getSoapPayload(requestHeader, requestBody);   
 }
 
-isolated function getAccountSearchResult(http:Response response) returns Account|error {
+isolated function getAccountSearchResult(http:Response response) returns @tainted Account|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, "listAcct:");
     string|error instanceType =  xmlValue.xsi_type;

@@ -95,7 +95,7 @@ public type Contact record {
 # + fax - Fax phone number
 # + email - Email Address  
 # + defaultAddress - Default Address  
-# + isInactive - This field is false by default 
+# + isInactive - This field is false by default, shows whether active or not
 # + category - References a value in a user defined list at Setup
 # + subsidiary - Selects the subsidiary to associate with this entity or job  
 # + title - The job title
@@ -128,6 +128,15 @@ public type Customer record {
     CustomerCurrency[] currencyList?;
 };
 
+# Netsuite Subsidiary type record
+#
+# + name - Name of the subsidiary  
+# + country - Country of the subsidiary 
+# + email - Email of the subsidiary  
+# + isElimination - The elimination status of the subsidiary 
+# + isInactive -  Shows whether subsidiary is active or not
+# + legalName - Legal name of the subsidiary    
+# + url - URL for the subsidiary
 public type Subsidiary record {
     string name?;
     string country?;
@@ -138,6 +147,15 @@ public type Subsidiary record {
     string url?;
 };
 
+# Netsuite Currency type record
+#
+# + name - Name of the record
+# + symbol - Symbol of the record 
+# + exchangeRate - The exchange rate of the currency
+# + displaySymbol - Display symbol of the currency type 
+# + currencyPrecision - Precision symbol of the currency type 
+# + isInactive - Shows whether the currency type is active or not 
+# + isBaseCurrency - Shows whether the currency type is a NetSuite base currency or not  
 public type Currency record {
     string name?;
     string symbol?;

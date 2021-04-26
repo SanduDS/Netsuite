@@ -15,9 +15,7 @@
 // under the License.
 
 import ballerina/http;
-xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
 
-//------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapCurrencyRecordFields(Currency currency) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error currencyMap = currency.cloneWithType(MapAnyData);
@@ -50,6 +48,7 @@ isolated function wrapCurrencyElementsToBeUpdatedWithParentElement(string subEle
 }
 
 isolated function mapCurrencyRecord(xml response) returns Currency|error {
+    xmlns "urn:accounting_2020_2.lists.webservices.netsuite.com" as listAcct;
     Currency currency  = {
         name: extractStringFromXML(response/**/<listAcct:name>/*),
         symbol: extractStringFromXML(response/**/<listAcct:symbol>/*),
@@ -66,8 +65,8 @@ isolated function mapCurrencyRecord(xml response) returns Currency|error {
     return currency;
 }
 
-isolated function getCurrencyRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns
-                                                     Currency|error{
+isolated function getCurrencyResult(http:Response response, RecordCoreType recordType) returns
+                                    @tainted Currency|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

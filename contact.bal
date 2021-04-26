@@ -15,9 +15,7 @@
 // under the License.
 
 import ballerina/http;
-//import ballerina/log;
 
-//------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapContactRecordFields(Contact contact) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error contactMap = contact.cloneWithType(MapAnyData);
@@ -103,7 +101,7 @@ isolated function getAddressListInXML(Address[] addresses) returns string {
     return addressList;
 }
 
-isolated function getContactRecordGetOperationResult(http:Response response) returns Contact|error{
+isolated function getContactResult(http:Response response) returns @tainted Contact|error{
     xml formattedResponse = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = formattedResponse/**/<status>;
@@ -120,7 +118,6 @@ isolated function getContactRecordGetOperationResult(http:Response response) ret
 
 isolated function mapContactRecord(xml response) returns Contact|error {
     xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
-    //log:printInfo(response.toString());
     Contact contact  = {
         customForm: extractRecordRefFromXML(response/**/<listRel:customForm>),
         entityId: extractStringFromXML(response/**/<listRel:entityId>/*),

@@ -1,11 +1,11 @@
-# Netsuite Connector
+# Ballerina NetSuite Connector
 based on SOAP webservice
 
 [![CI](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/ci.yml)
 [![Deployment](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-netsuite/actions/workflows/release.yml)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ballerina-platform/module-ballerinax-netsuite?color=green&include_prereleases&label=latest%20release)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-# Ballerina NetSuite Connector
+# Introduction
 
 This module allows you to access the NetSuite's SuiteTalk REST Web services API though Ballerina. NetSuite is used for 
 Enterprise Resource Planning (ERP) and to manage inventory, track their financials, host e-commerce stores, and maintain 
@@ -79,7 +79,7 @@ following credentials:
 // Import the connector
 import ballerina/io;
 import ballerinax/netsuite;
-netsuite:NetsuiteConfiguration config = {
+netsuite:NetsuiteConfiguration nsConfig = {
     accountId: <accountId>,
     consumerId: <consumerId>,
     consmerSecret: <consmerSecret>,

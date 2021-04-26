@@ -16,7 +16,6 @@
 
 import ballerina/http;
 
-//------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapClassificationRecordFields(Classification classification) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error classificationMap = classification.cloneWithType(MapAnyData);
@@ -67,8 +66,8 @@ isolated function mapClassificationRecord(xml response) returns Classification|e
     return 'class;
 }
 
-isolated function getClassificationRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns 
-                                                            Classification|error{
+isolated function getClassificationResult(http:Response response, RecordCoreType recordType) returns 
+                                        @tainted Classification|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

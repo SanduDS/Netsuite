@@ -43,7 +43,6 @@ string classificationId = EMPTY_STRING;
 string customerAccountId = EMPTY_STRING;
 string invoiceId = EMPTY_STRING;
 
-//----------------------------------------------------- Beginning of Record Creation Tests------------------------------
 @test:Config {enable: true}
 function testContactRecordAddOperation() {
     log:printInfo("testAddContactRecord");
@@ -227,7 +226,7 @@ function testAddInvoiceRecord() {
     RecordAddResponse|error output = netsuiteClient->addNewInvoice(invoice);
     if (output is RecordAddResponse) {
         log:printInfo(output.toString());
-        invoiceId = output.internalId;
+        invoiceId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
@@ -274,7 +273,7 @@ function testSalesOrderAddOperation() {
     RecordAddResponse|error output = netsuiteClient->addNewSalesOrder(salesOrder);
     if (output is RecordAddResponse) {
         log:printInfo(output.toString());
-        salesOrderId = output.internalId;
+        salesOrderId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
@@ -315,14 +314,12 @@ function testAddAccountRecord() {
     RecordAddResponse|error output = netsuiteClient->addNewAccount(account);
     if (output is RecordAddResponse) {
         log:printInfo(output.toString());
-        customerAccountId = output.internalId;
+        customerAccountId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
 }
 
- //----------------------------------------------------- End of Creation Tests------------------------------------------
- //----------------------------------------------------- Beginning of Update Tests--------------------------------------
 @test:Config {enable: true, dependsOn: [testAddNewCustomerRecord, testCustomerSearchOperation]}
 function testUpdateCustomerRecord() {
     log:printInfo("testUpdateCustomerRecord");
@@ -409,7 +406,7 @@ function testSalesOrderUpdateOperation() {
     RecordUpdateResponse|error output = netsuiteClient->updateSalesOrderRecord(salesOrder);
     if (output is RecordUpdateResponse) {
         log:printInfo(output.toString());
-        salesOrderId = output.internalId;
+        salesOrderId = <@untainted>output.internalId;
     } else {
         test:assertFail(output.message());
     }
@@ -460,8 +457,6 @@ function testUpdateInvoiceRecord() {
     }
 }
 
-//---------------------------------------End of Update Tests------------------------------------------------------------
-//----------------------------------------Beginning of Search Tests-----------------------------------------------------
 @test:Config {enable: true}
 function testCustomerSearchOperation() {
     log:printInfo("testCustomerSearchOperation");
@@ -526,8 +521,6 @@ function testTransactionSearchOperation() {
     }
 }
 
-//----------------------------------------------------End of Search Tests-----------------------------------------------
-//----------------------------------------------------Beginning of Deletion Tests---------------------------------------
 @test:Config {enable: true, dependsOn: [testCustomerSearchOperation, testUpdateCustomerRecord, 
 testCustomerRecordGetOperation]}
 function testCustomerDeleteRecord() {
@@ -633,8 +626,7 @@ function testDeleteInvoiceRecord() {
         test:assertFail(output.toString());
     }
 }
-//---------------------------------------------------End of Deletion Tests----------------------------------------------
-//---------------------------------------------------Beginning of Miscellaneous tests-----------------------------------
+
 @test:Config {enable: true}
 function testGetAll() {
     log:printInfo("testGetAll");

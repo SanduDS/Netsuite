@@ -33,7 +33,7 @@ isolated function getNetsuiteSignature(string timeNow, string UUID, NetSuiteConf
     return token;
 }
 
-isolated function getRandomString() returns string {
+isolated function getRandomString() returns string { //Maker private
     string uuid1String = uuid:createType1AsString();
     return regex:replaceAll(uuid1String, "-", "s");
 }

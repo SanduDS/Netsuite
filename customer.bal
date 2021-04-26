@@ -18,7 +18,6 @@ import ballerina/xmldata;
 import ballerina/http;
 xmlns "urn:relationships_2020_2.lists.webservices.netsuite.com" as listRel;
 
-//------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapCustomerRecordFields(Customer customer) returns string {
     string finalResult = EMPTY_STRING;
     map<anydata>|error customerMap = customer.cloneWithType(MapAnyData);
@@ -114,7 +113,6 @@ isolated function prepareCurrencyList(CustomerCurrency[] currencyLists) returns 
     return customerCurrencyList;
 }
 
-//-------------------------------------------------Search Records-------------------------------------------------------
 isolated function getCustomerSearchRequestBody(SearchElement[] searchElements) returns string {
     return string `<soapenv:Body> <urn:search xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     <urn:searchRecord xsi:type="listRel:CustomerSearch" 
@@ -131,7 +129,7 @@ isolated function buildCustomerSearchPayload(NetSuiteConfiguration config,Search
     return check getSoapPayload(requestHeader, requestBody); 
 }
 
-isolated function getCustomerSearchResult(http:Response response) returns Customer|error {
+isolated function getCustomerSearchResult(http:Response response) returns @tainted Customer|error {
     xml xmlValue = check getXMLRecordListFromSearchResult(response);
     xmlValue = check replaceRegexInXML(xmlValue, LIST_REL_WITH_COLON);
     string|error instanceType =  xmlValue.xsi_type;
@@ -240,8 +238,8 @@ isolated function mapCustomerRecord(xml response) returns Customer|error {
     return customer;   
 }
 
-isolated function getCustomerRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns 
-                                                     Customer|error{
+isolated function getCustomerResult(http:Response response, RecordCoreType recordType) returns 
+                                    @tainted Customer|error{
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;

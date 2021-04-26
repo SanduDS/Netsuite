@@ -20,7 +20,7 @@ import ballerina/lang.'string as stringLib;
 import ballerina/lang.'boolean as booleanLib;
 import ballerina/time;
 
-isolated function doHTTPRequest(http:Client basicClient, string action, xml payload) returns http:Response|error {
+isolated function sendRequest(http:Client basicClient, string action, xml payload) returns @tainted http:Response|error {
     http:Request request = new;
     request.setXmlPayload(payload);
     request.setHeader(SOAP_ACTION_HEADER, action);
@@ -98,59 +98,59 @@ isolated function getUpdateXMLBodyWithParentElement(string subElements) returns 
     </soapenv:Envelope>`;
 }
 
-isolated function buildAddRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
+isolated function buildAddRecord(RecordType recordType, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
                                 returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string subElements = check getRecordElementsForAddOperation(info, recordCoreType);
+    string subElements = check getAddOperationElements(recordType, recordCoreType);
     string body = getAddXMLBodyWithParentElement(subElements);
     return getSoapPayload(header, body);
 }
 
-isolated function buildDeleteRecordPayload(RecordDetail info, NetSuiteConfiguration config) returns xml|error {
+isolated function buildDeletePayload(RecordDetail recordType, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string subElements = getDeletePayload(info);
+    string subElements = getDeletePayload(recordType);
     string body = getDeleteXMLBodyWithParentElement(subElements);
     return getSoapPayload(header, body);
 }
 
-isolated function buildUpdateRecordPayload(RecordType info, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
+isolated function buildUpdateRecord(RecordType recordType, RecordCoreType recordCoreType, NetSuiteConfiguration config) 
                                     returns xml|error {
     string header = check buildXMLPayloadHeader(config);
-    string elements = check getRecordElementsForUpdateOperation(info, recordCoreType);
+    string elements = check getUpdateOperationElements(recordType, recordCoreType);
     string body = getUpdateXMLBodyWithParentElement(elements);
     return getSoapPayload(header, body);    
 }
 
-isolated function getRecordElementsForUpdateOperation(RecordType info, RecordCoreType recordCoreType) returns string|error {
+isolated function getUpdateOperationElements(RecordType recordType, RecordCoreType recordCoreType) returns string|error {
     string subElements = EMPTY_STRING;   
     match recordCoreType {
         CUSTOMER => {
-             subElements = mapCustomerRecordFields(<Customer>info); 
-             return wrapCustomerElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+             subElements = mapCustomerRecordFields(<Customer>recordType); 
+             return wrapCustomerElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         CONTACT => {
-             subElements = mapContactRecordFields(<Contact>info); 
-             return wrapContactElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+             subElements = mapContactRecordFields(<Contact>recordType); 
+             return wrapContactElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         CURRENCY => {
-            subElements = mapCurrencyRecordFields(<Currency>info);
-            return wrapCurrencyElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+            subElements = mapCurrencyRecordFields(<Currency>recordType);
+            return wrapCurrencyElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         SALES_ORDER => {
-            subElements = mapSalesOrderRecordFields(<SalesOrder>info);
-            return wrapSalesOrderElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+            subElements = mapSalesOrderRecordFields(<SalesOrder>recordType);
+            return wrapSalesOrderElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         CLASSIFICATION => {
-            subElements = mapClassificationRecordFields(<Classification>info); 
-            return wrapClassificationElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+            subElements = mapClassificationRecordFields(<Classification>recordType); 
+            return wrapClassificationElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         ACCOUNT => {
-            subElements = mapAccountRecordFields(<Account>info); 
-            return wrapAccountElementsToUpdatedWithParentElement(subElements, info?.internalId.toString());
+            subElements = mapAccountRecordFields(<Account>recordType); 
+            return wrapAccountElementsToUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         INVOICE => {
-            subElements = check mapInvoiceRecordFields(<Invoice>info); 
-            return wrapInvoiceElementsToBeUpdatedWithParentElement(subElements, info?.internalId.toString());
+            subElements = check mapInvoiceRecordFields(<Invoice>recordType); 
+            return wrapInvoiceElementsToBeUpdatedWithParentElement(subElements, recordType?.internalId.toString());
         }
         _ => {
                 fail error(UNKNOWN_TYPE);
@@ -158,35 +158,36 @@ isolated function getRecordElementsForUpdateOperation(RecordType info, RecordCor
     }
 }
 
-isolated function getRecordElementsForAddOperation(RecordType info, RecordCoreType recordCoreType) returns string|error{ 
+isolated function getAddOperationElements(RecordType recordType, RecordCoreType recordCoreType) returns string|error{ 
     string subElements = EMPTY_STRING;  
     match recordCoreType {
         CUSTOMER => {
-             subElements = mapCustomerRecordFields(<Customer>info); 
+             subElements = mapCustomerRecordFields(<Customer>recordType); 
+             //wrap create customer element -->change all occur
              return wrapCustomerElementsToBeCreatedWithParentElement(subElements);
         }
         CONTACT => {
-             subElements = mapContactRecordFields(<Contact>info); 
+             subElements = mapContactRecordFields(<Contact>recordType); 
              return wrapContactElementsToBeCreatedWithParentElement(subElements);
         }
         CURRENCY => {
-            subElements = mapCurrencyRecordFields(<Currency>info);
+            subElements = mapCurrencyRecordFields(<Currency>recordType);
             return wrapCurrencyElementsToBeCreatedWithParentElement(subElements);
         }
         SALES_ORDER => {
-            subElements = mapSalesOrderRecordFields(<SalesOrder>info);
+            subElements = mapSalesOrderRecordFields(<SalesOrder>recordType);
             return wrapSalesOrderElementsToBeCreatedWithParentElement(subElements);
         }
         INVOICE => {
-            subElements = check mapInvoiceRecordFields(<Invoice>info); 
+            subElements = check mapInvoiceRecordFields(<Invoice>recordType); 
             return wrapInvoiceElementsToBeCreatedWithParentElement(subElements);
         }
         CLASSIFICATION => {
-            subElements = mapClassificationRecordFields(<Classification>info); 
+            subElements = mapClassificationRecordFields(<Classification>recordType); 
             return wrapClassificationElementsToBeCreatedWithParentElement(subElements);
         }
         ACCOUNT => {
-            subElements = mapClassificationRecordFields(<Account>info); 
+            subElements = mapClassificationRecordFields(<Account>recordType); 
             return wrapAccountElementsToBeCreatedWithParentElement(subElements);
         }
         _ => {
@@ -231,7 +232,6 @@ isolated function getXMLElementForDeletionWithDeleteReason(RecordDetail recordDe
         </urn1:deletionReason>`;
 }
 
-//-------------------------get functions--------------------------------------------------------------------------------
 isolated function buildGetAllPayload(string recordType, NetSuiteConfiguration config) returns xml|error {
     string header = check buildXMLPayloadHeader(config);
     string body = getXMLBodyForGetAllOperation(recordType);
@@ -285,9 +285,9 @@ isolated function extractBooleanValueFromXMLOrText(xml|string|error element) ret
    
 }
 
-isolated function getRecordRef(json element, json elementInfo) returns RecordRef {
+isolated function getRecordRef(json element, json elementRecordType) returns RecordRef {
     RecordRef recordRef = {
-        name: getValidJson(elementInfo.name).toString(),
+        name: getValidJson(elementRecordType.name).toString(),
         internalId: getValidJson(element.\@internalId).toString(),
         externalId: getValidJson(element.\@externalId).toString()
     };

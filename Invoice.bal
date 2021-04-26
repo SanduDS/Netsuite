@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/lang.'xml as xmlLib;
 
-//------------------------------------------------Create/Update Records-------------------------------------------------
 isolated function mapInvoiceRecordFields(Invoice invoice) returns string|error {
     string finalResult = EMPTY_STRING;
     map<anydata>|error invoiceMap = invoice.cloneWithType(MapAnyData);
@@ -93,7 +92,7 @@ isolated function mapInvoiceRecord(xml response) returns Invoice|error {
     return invoice;
 }
 
-isolated function getInvoiceRecordGetOperationResult(http:Response response, RecordCoreType recordType) returns Invoice|error {
+isolated function getInvoiceResult(http:Response response, RecordCoreType recordType) returns @tainted Invoice|error {
     xml xmlValue = check formatPayload(response);
     if (response.statusCode == http:STATUS_OK) { 
         xml output  = xmlValue/**/<status>;
@@ -108,8 +107,6 @@ isolated function getInvoiceRecordGetOperationResult(http:Response response, Rec
     }
 }
 
-//------------------------------------search functions------------------------------------------------------------------
-///////////////////////////////////Transactions/////////////////////////////////////////////////////////////////////////
 isolated function buildTransactionSearchPayload(NetSuiteConfiguration config, SearchElement[] searchElement) returns 
                                                 xml|error {
     string requestHeader = check buildXMLPayloadHeader(config);
@@ -127,7 +124,7 @@ isolated function getTranscationSearchRequestBody(SearchElement[] SearchElements
     </soapenv:Envelope>`;
 }
 
-isolated function getTransactionSearchResult(http:Response response) returns RecordList|error {
+isolated function getTransactionSearchResult(http:Response response) returns @tainted RecordList|error {
     xmlns "urn:sales_2020_2.transactions.webservices.netsuite.com" as tranSales;
     xml xmlValue = check response.getXmlPayload();
     if(response.statusCode == http:STATUS_OK) {
